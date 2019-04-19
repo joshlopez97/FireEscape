@@ -4,7 +4,7 @@ title: Proposal
 ---
 
 ## Summary of the Project:
-Our project will aim to train an agent to complete a challenge map in the least amount of time.  The challenge maps will consist of traps, enemies, obstacles, and platforming that the agent will be trained to navigate and avoid.  In particular, we are interested in reducing the completion time of the challenge map relative to the expected completion time of a normal player.  The input for our agent will consist of the block type information of the map.  The output will be the chosen movement of the agent. We will aim for the agent to take the shortest possible route during the challenge run. 
+Our project will aim to train an agent to complete a challenge map in the least amount of time.  The challenge maps will consist of traps, enemies, obstacles, and platforming that the agent will be trained to navigate and avoid.  In particular, we are interested in reducing the completion time of the challenge map relative to the expected completion time of a normal player.  The input for our agent will consist of the block type, enemy, and obstacles on the map.  The output will be the chosen movement of the agent. We will aim for the agent to take the shortest possible route during the challenge run.
 
 ## AI / ML Algorithms:
 Reinforcement learning with neural network.
