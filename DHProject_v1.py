@@ -173,7 +173,7 @@ def dijkstra_shortest_path(grid_obs, source, dest):
     vertexdict = dict()
     unvisited = []
     for i in range(len(grid_obs)):
-        if grid_obs[i] != 'air' and grid_obs[i] != 'netherrack':
+        if grid_obs[i] != 'air' and grid_obs[i] != 'netherrack': #<----------- Add things to avoid here
             vertexdict[i] = [1, 999, -999]  #key = index, value = (cost, shortest dist from start, prev vert)
             unvisited.append(i)  #add to unvisited list
     
