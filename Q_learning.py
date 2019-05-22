@@ -37,6 +37,9 @@ import os
 import random
 import sys
 import time
+import math
+from collections import deque
+
 if sys.version_info[0] == 2:
     # Workaround for https://github.com/PythonCharmers/python-future/issues/262
     import Tkinter as tk
@@ -49,7 +52,7 @@ class TabQAgent(object):
     """Tabular Q-learning agent for discrete state/action spaces."""
 
     def __init__(self):
-        self.epsilon = 0.01 # chance of taking a random action instead of the best
+        self.epsilon = 0.1 # chance of taking a random action instead of the best
         self.alpha = 0.1 #learning rate
         self.gamma = 1.0 #discount rate
 
@@ -61,7 +64,6 @@ class TabQAgent(object):
         self.cur_indexes = set()
         self.cur_indexes.add(self.start)
 
-
         self.logger = logging.getLogger(__name__)
         if False: # True if you want to see more information
             self.logger.setLevel(logging.DEBUG)
@@ -72,8 +74,7 @@ class TabQAgent(object):
 
         self.actions = ["movenorth 1", "movesouth 1", "movewest 1", "moveeast 1"]
 
-
-        self.action_cost = [0, 0, 0, 0, 5, 5, 5, 5]
+        self.action_cost = [0, 0, 0, 0]
 
         self.q_table = {}
         self.canvas = None
@@ -114,7 +115,8 @@ class TabQAgent(object):
         current_s = "%d:%d" % (int(obs[u'XPos']), int(obs[u'ZPos']))
         self.logger.debug("State: %s (x = %.2f, z = %.2f)" % (current_s, float(obs[u'XPos']), float(obs[u'ZPos'])))
         if current_s not in self.q_table:
-            pos_indexes = [self.actions.index(i) for i in self.possible_indexes1(self.cur)]
+            pos_indexes = self.possible_indexes1(self.cur)
+            pos_indexes = [self.actions.index(i) for i in pos_indexes]
             self.q_table[current_s] = ([0] * len(self.actions))
             for i in range(len(self.actions)):
                 if i not in pos_indexes:
@@ -129,7 +131,6 @@ class TabQAgent(object):
         # select the next action
         rnd = random.random()
         if rnd < self.epsilon:
-            # print("possible indexes < epsilon", self.possible_indexes(self.cur))
             pos_indexes = self.possible_indexes2(self.cur)
             if len(pos_indexes) == 0:
                 pos_indexes = self.possible_indexes1(self.cur)
@@ -141,7 +142,7 @@ class TabQAgent(object):
         else:
             l = list()
             pos_indexes = list()
-            print(self.q_table.items())
+            #print(self.q_table.items())
 
             m = max(self.q_table[current_s])
             for x in range(0, len(self.actions)):
@@ -149,7 +150,7 @@ class TabQAgent(object):
                     l.append(x)
 
             l = [self.actions[i] for i in l]
-            print(l)
+            #print(l)
             pos_indexes = self.possible_indexes3(self.cur, l)
             if len(pos_indexes) != 0:
                 a = random.randint(0, len(pos_indexes) - 1)
@@ -162,6 +163,7 @@ class TabQAgent(object):
             action_trans = {'movenorth 1': -21, 'movesouth 1': 21, 'movewest 1': -1, 'moveeast 1': 1}
             self.cur = self.cur + action_trans[b]
             (self.cur_indexes).add(self.cur)
+            #print("passed indexes", self.cur_indexes)
             agent_host.sendCommand(b)
             self.prev_s = current_s
             self.prev_a = a
@@ -226,8 +228,16 @@ class TabQAgent(object):
 
         return l
 
+    def dijkstra_shortest_path_cost(self, cur_index, source, dest):
+        dest_x, dest_y = (dest % 21, dest // 21)
+        x, y = (cur_index % 21, cur_index // 21)
+        return -(abs(x-dest_x) + abs(y-dest_y))
+
     def run(self, agent_host, start,dest ):
         """run the agent on the world"""
+
+        self.S, self.A, self.R = deque(), deque(), deque()
+
         total_reward = 0
         cost = 0
 
@@ -249,7 +259,6 @@ class TabQAgent(object):
         world_state = agent_host.getWorldState()
 
         while world_state.is_mission_running:
-
             current_r = 0 - cost
 
             if is_first_action:
@@ -264,6 +273,8 @@ class TabQAgent(object):
                     if world_state.is_mission_running and len(world_state.observations)>0 and not world_state.observations[-1].text=="{}":
                         total_reward += self.act(world_state, agent_host, current_r)
                         cost = self.action_cost[self.prev_a]
+                        current_r += self.dijkstra_shortest_path_cost(self.cur, self.start, self.dest)
+                        print("path cost:", self.dijkstra_shortest_path_cost(self.cur, self.start, self.dest))
                         break
                     if not world_state.is_mission_running:
                         break
@@ -289,6 +300,8 @@ class TabQAgent(object):
                     if world_state.is_mission_running and len(world_state.observations)>0 and not world_state.observations[-1].text=="{}":
                         total_reward += self.act(world_state, agent_host, current_r)
                         cost = self.action_cost[self.prev_a]
+                        current_r += self.dijkstra_shortest_path_cost(self.cur, self.start, self.dest)
+                        print("path cost:", self.dijkstra_shortest_path_cost(self.cur, self.start, self.dest))
                         break
                     if not world_state.is_mission_running:
                         break
@@ -297,7 +310,9 @@ class TabQAgent(object):
         # process final reward
         self.logger.debug("Final reward: %d" % current_r)
         total_reward += current_r
-
+        if self.dest in self.cur_indexes:
+            print("goal reached")
+    
         # update Q values
         if self.prev_s is not None and self.prev_a is not None:
             self.updateQTableFromTerminatingState( current_r )
