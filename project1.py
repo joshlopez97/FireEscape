@@ -29,7 +29,7 @@ import sys
 import time
 import json
 from priority_dict import priorityDictionary as PQ
-
+from Q_learning import TabQAgent
 GAP_BLOCK = 'fire'
 
 # sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
@@ -37,15 +37,13 @@ GAP_BLOCK = 'fire'
 def GetMissionXML(seed, gp, size=10):
     return '''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
             <Mission xmlns="http://ProjectMalmo.microsoft.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-
               <About>
-                <Summary>Hello world!</Summary>
+                <Summary>Project OpenAI</Summary>
               </About>
-
             <ServerSection>
               <ServerInitialConditions>
                 <Time>
-                    <StartTime>1000</StartTime>
+                    <StartTime>1</StartTime>
                     <AllowPassageOfTime>false</AllowPassageOfTime>
                 </Time>
                 <Weather>clear</Weather>
@@ -53,45 +51,45 @@ def GetMissionXML(seed, gp, size=10):
               <ServerHandlers>
                   <FlatWorldGenerator generatorString="3;7,44*49,73,35:1,159:4,95:13,35:13,159:11,95:10,159:14,159:6,35:6,95:6;12;"/>
                   <DrawingDecorator>
-                    <DrawSphere x="-27" y="70" z="0" radius="30" type="air"/>
+                    <DrawSphere x="0" y="50" z="0" radius="30" type="air"/>
+                    <DrawBlock x="0" y="50" z="0" type="emerald_block"/>
+                    <DrawLine x1="1" y1="50" z1="0" x2="4" y2="50" z2="0" type="diamond_block"/>
+                    <DrawCuboid x1="0" y1="50" z1="1" x2="4" y2="50" z2="3" type="diamond_block"/>
+                    <DrawBlock x="4" y="50" z="4" type="redstone_block"/>
+                    <DrawLine x1="0" y1="50" z1="4" x2="3" y2="50" z2="4" type="diamond_block"/>
+                    <DrawLine x1="0" y1="51" z1="1" x2="3" y2="51" z2="1" type="fire"/>
+                    <DrawLine x1="0" y1="50" z1="1" x2="3" y2="50" z2="1" type="netherrack"/>
+                    <DrawLine x1="1" y1="51" z1="3" x2="4" y2="51" z2="3" type="fire"/>
+                    <DrawLine x1="1" y1="50" z1="3" x2="4" y2="50" z2="3" type="netherrack"/>
                   </DrawingDecorator>
-                   <MazeDecorator>
-                    <Seed>'''+str(seed)+'''</Seed>
-                    <SizeAndPosition width="''' + str(size) + '''" length="''' + str(size) + '''" height="1" xOrigin="-32" yOrigin="70" zOrigin="-5"/>
-                    <FloorBlock type="diamond_block"/>
-                    <StartBlock type="air" fixedToEdge="true"/>
-                    <EndBlock type="air" fixedToEdge="true"/>
-                    <PathBlock type="air"/>
-                    <GapBlock type="fire"/>
-                    <GapProbability>''' + str(0.2)+ '''</GapProbability>
-                    <AllowDiagonalMovement>false</AllowDiagonalMovement>
-                  </MazeDecorator>                     
-                  <MazeDecorator>
-                    <Seed>'''+str(seed)+'''</Seed>
-                    <SizeAndPosition width="''' + str(size) + '''" length="''' + str(size) + '''" height="1" xOrigin="-32" yOrigin="69" zOrigin="-5"/>
-                    <StartBlock type="emerald_block" fixedToEdge="true"/>
-                    <EndBlock type="redstone_block" fixedToEdge="true"/>
-                    <PathBlock type="diamond_block"/>
-                    <GapBlock type="gold_block"/>
-                    <FloorBlock type="air" height="0"/>
-                    <GapProbability>''' + str(0.2)+ '''</GapProbability>
-                    <AllowDiagonalMovement>false</AllowDiagonalMovement>
-                  </MazeDecorator>
-                  <ServerQuitFromTimeUp timeLimitMs="10000"/>
+                  <ServerQuitFromTimeUp timeLimitMs="20000"/>
                   <ServerQuitWhenAnyAgentFinishes/>
                 </ServerHandlers>
               </ServerSection>
-
               <AgentSection mode="Survival">
                 <Name>CS175AwesomeMazeBot</Name>
                 <AgentStart>
-                    <Placement x="0.5" y="56.0" z="0.5" yaw="0"/>
+                    <Placement x="0.5" y="51" z="0.5" yaw="0"/>
                 </AgentStart>
                 <AgentHandlers>
                     <DiscreteMovementCommands/>
                     <AgentQuitFromTouchingBlockType>
                         <Block type="redstone_block"/>
                     </AgentQuitFromTouchingBlockType>
+                    <RewardForTouchingBlockType>
+                      <Block reward="-100.0" type="air" behaviour="onceOnly"/>
+                      <Block reward="100.0" type="redstone_block" behaviour="onceOnly"/>
+                      <Block reward="-30.0" type="fire" behaviour="oncePerBlock"/>
+                    </RewardForTouchingBlockType>
+                    <RewardForSendingCommand reward="-1" />
+
+                    <RewardForMissionEnd rewardForDeath="-100.0">
+                        <Reward description="out_of_time" reward="-100.0"/>
+                        <Reward description="out_of_arena" reward="-100.0"/>
+                        <Reward description="found_goal" reward="100.0"/>
+                    </RewardForMissionEnd>
+
+                    <ObservationFromFullStats/>
                     <ObservationFromGrid>
                       <Grid name="floorAll">
                         <min x="-10" y="-1" z="-10"/>
@@ -106,10 +104,8 @@ def GetMissionXML(seed, gp, size=10):
 def load_grid(world_state):
     """
     Used the agent observation API to get a 21 X 21 grid box around the agent (the agent is in the middle).
-
     Args
         world_state:    <object>    current agent world state
-
     Returns
         grid:   <list>  the world grid blocks represented as a list of blocks (see Tutorial.pdf)
     """
@@ -130,23 +126,20 @@ def load_grid(world_state):
 def find_start_end(grid):
     """
     Finds the source and destination block indexes from the list.
-
     Args
         grid:   <list>  the world grid blocks represented as a list of blocks (see Tutorial.pdf)
-
     Returns
         start: <int>   source block index in the list
         end:   <int>   destination block index in the list
     """
     return (grid.index("emerald_block"), grid.index("redstone_block"))
 
+
 def extract_action_list_from_path(path_list):
     """
     Converts a block idx path to action list.
-
     Args
         path_list:  <list>  list of block idx from source block to dest block.
-
     Returns
         action_list: <list> list of string discrete action commands (e.g. ['movesouth 1', 'movewest 1', ...]
     """
@@ -183,6 +176,9 @@ def get_neighbors(grid_obs, index):
         neighbors.append(index + 21)
     return neighbors
 
+def is_solution(reward):
+    return reward == 100
+
 
 def find_min(distances, visited):
     """
@@ -201,16 +197,14 @@ def dijkstra_shortest_path(grid_obs, source, dest):
     """
     Finds the shortest path from source to destination on the map. It used the grid observation as the graph.
     See example on the Tutorial.pdf file for knowing which index should be north, south, west and east.
-
     Args
         grid_obs:   <list>  list of block types string representing the blocks on the map.
         source:     <int>   source block index.
         dest:       <int>   destination block index.
-
     Returns
         path_list:  <list>  block indexes representing a path from source (first element) to destination (last)
     """
-    
+
     # INFINITY constant (non-air blocks)
     INF = float('inf')
 
@@ -251,6 +245,7 @@ def dijkstra_shortest_path(grid_obs, source, dest):
     return path_to[dest] + [dest]
 
 # Create default Malmo objects:
+agent = TabQAgent()
 agent_host = MalmoPython.AgentHost()
 try:
     agent_host.parse( sys.argv )
@@ -262,11 +257,15 @@ if agent_host.receivedArgument("help"):
     print(agent_host.getUsage())
     exit(0)
 
-num_repeats = 1
+num_repeats = 150
+
+cumulative_rewards = []
+
+size = 5
+print("Size of maze:", size)
 
 for i in range(num_repeats):
-    size = 5
-    print("Size of maze:", size)
+    print('Repeat %d of %d' % ( i+1, num_repeats ))
     my_mission = MalmoPython.MissionSpec(GetMissionXML("0", 0.4, size), True)
     my_mission_record = MalmoPython.MissionRecordSpec()
     my_mission.requestVideo(800, 500)
@@ -302,32 +301,27 @@ for i in range(num_repeats):
 
     grid = load_grid(world_state)
     start, end = find_start_end(grid) # implement this
-    path = dijkstra_shortest_path(grid, start, end)  # implement this
-    action_list = extract_action_list_from_path(path)
-    print("Output (start,end)", (i+1), ":", (start,end))
-    print("Output (path length)", (i+1), ":", len(path))
-    print("Output (actions)", (i+1), ":", action_list)
-    # Loop until mission ends:
-    action_index = 0
-    while world_state.is_mission_running:
-        #sys.stdout.write(".")
-        time.sleep(0.1)
 
-        # Sending the next commend from the action list -- found using the Dijkstra algo.
-        if action_index >= len(action_list):
-            print("Error:", "out of actions, but mission has not ended!")
-            time.sleep(2)
-        else:
-            agent_host.sendCommand(action_list[action_index])
-        action_index += 1
-        if len(action_list) == action_index:
-            # Need to wait few seconds to let the world state realise I'm in end block.
-            # Another option could be just to add no move actions -- I thought sleep is more elegant.
-            time.sleep(2)
-        world_state = agent_host.getWorldState()
-        for error in world_state.errors:
-            print("Error:",error.text)
+    # -- run the agent in the world -- #
+    print("cumulative reward")
+    cumulative_reward = agent.run(agent_host, start, end)
+    print('Cumulative reward: %d' % cumulative_reward)
+    if is_solution(cumulative_reward):
+        print('Found solution')
+        print('Done')
+        break
 
+    cumulative_rewards += [ cumulative_reward ]
+
+
+
+    # -- clean up -- #
+    time.sleep(0.5) # (let the Mod reset)
     print()
     print("Mission", (i+1), "ended")
     # Mission has ended.
+print("Done.")
+
+print()
+print("Cumulative rewards for all %d runs:" % num_repeats)
+print(cumulative_rewards)
