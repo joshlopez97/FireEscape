@@ -198,7 +198,7 @@ Q = np.zeros([441, len(action_trans)]) #441 = len(grid)
 eps = 0.1
 lr = .9
 y = .9
-num_episodes = 75
+num_episodes = 1000
 
 #create lists to contain total rewards and steps per episode
 rList = []
@@ -223,6 +223,7 @@ else:
 for i in range(num_repeats):
     print()
     print('Repeat %d of %d' % ( i+1, num_repeats ))
+    count = i
 
     #maze size parameter (not used)
     size = int(6 + 0.5*i)
@@ -264,77 +265,77 @@ for i in range(num_repeats):
     grid = load_grid(world_state)
     start, end = find_start_end(grid) #start, end = gridIndex
 
-    for i in range(num_episodes):
-        #Reset environment and get first new observation
-        s = start
-        rAll = 0
-        done = False #done
-        j = 0
+    #Reset environment and get first new observation
+    s = start
+    rAll = 0
+    done = False #done
+    j = 0
 
-        #The Q-Table learning algorithm
-        while j < 99:
-            time.sleep(0.1)
-            j+=1
-            #Choose an action by greedily (with noise) picking from Q table
-            #a = np.argmax(Q[s,:] + np.random.randn(1,len(action_trans)) * (1./(i+1)))
+    #The Q-Table learning algorithm
+    while j < 99:
+        #time.sleep(0.1)  #<----- adjust sleep
 
-            rng = np.random.randint(1, 100)
-            if rng>=1 and rng<=(100*eps): #P(eps)
-                a = np.random.randint(0, len(action_trans)-1)
-            else:
-                a = np.argmax(Q[s,:])
+        j+=1
+        #Choose an action by greedily (with noise) picking from Q table
+        #a = np.argmax(Q[s,:] + np.random.randn(1,len(action_trans)) * (1./(i+1)))
 
-            #Get new state and reward from environment
-            agent_host.sendCommand(action_trans[a][1])  #gets action of a
-            s1 = s + action_trans[a][0] #gets index of a
+        rng = np.random.randint(1, 100)
+        if rng>=1 and rng<=(100*eps): #P(eps)
+            a = np.random.randint(0, len(action_trans)-1)
+        else:
+            a = np.argmax(Q[s,:])
 
-            #calculating immediate reward
-            curPath = dijkstra_shortest_path(grid, s1, end)
-            if grid[s1] == 'air':
-                r = -99
-                done = True
-            elif grid[s1] == 'fire':
-                r = (-1*(len(curPath)-1))
-                r = r - 2.5
-            elif grid[s1] == 'redstone_block':
-                r = -1*(len(curPath)-1)
-                done = True
-            else:
-                r = -1*(len(curPath)-1)
+        #Get new state and reward from environment
+        agent_host.sendCommand(action_trans[a][1])  #gets action of a
+        s1 = s + action_trans[a][0] #gets index of a
 
-            #Update Q-Table with new knowledge
-            Q[s,a] = Q[s,a] + lr*(r + y*np.max(Q[s1,:]) - Q[s,a])
-            rAll += r
-            s = s1
-            if done == True:
-                break
-        rList.append(rAll)
+        #calculating immediate reward
+        curPath = dijkstra_shortest_path(grid, s1, end)
+        if grid[s1] == 'air':
+            r = -99
+            done = True
+        elif grid[s1] == 'fire':
+            r = (-1*(len(curPath)-1))
+            r = r - 1.5
+        elif grid[s1] == 'redstone_block':
+            r = -1*(len(curPath)-1)
+            done = True
+        else:
+            r = -1*(len(curPath)-1)
+
+        #Update Q-Table with new knowledge
+        Q[s,a] = Q[s,a] + lr*(r + y*np.max(Q[s1,:]) - Q[s,a])
+        rAll += r
+        s = s1
         if done == True:
             break
+    rList.append(rAll)
 
     print("Score over time: " +  str(sum(rList)/num_episodes))
 
-print("Final Q-Table Values")
-actionlist = {-21: 'movenorth 1', 21: 'movesouth 1', -1: 'movewest 1', 1: 'moveeast 1'}
-moveList = []
-finish_s = start
-finish_done = False
-counter = 0
-while 1:
-    finish_a = np.argmax(Q[finish_s,:])
-    s_next = finish_s + action_trans[finish_a][0]
+    if (count%10) == 0:
+        print()
+        print("Report for %d: " % count)
+        actionlist = {-21: 'movenorth 1', 21: 'movesouth 1', -1: 'movewest 1', 1: 'moveeast 1'}
+        moveList = []
+        finish_s = start
+        finish_done = False
+        counter = 0
+        while 1:
+            finish_a = np.argmax(Q[finish_s,:])
+            s_next = finish_s + action_trans[finish_a][0]
 
-    s_diff = finish_s - s_next
-    moveList.append(actionlist[s_diff])
+            s_diff = finish_s - s_next
+            moveList.append(actionlist[s_diff])
 
-    if grid[s_next] == 'redstone_block':
-        break
-    if counter == 30:
-        break
+            if grid[s_next] == 'redstone_block':
+                break
+            if counter == 30:
+                break
 
-    finish_s = s_next
-    counter += 1
+            finish_s = s_next
+            counter += 1
 
-print("Path length found: ", len(moveList))
-print("Move list found: ", moveList)
-print()
+        print("Path length found: ", len(moveList))
+        print("Move list found: ", moveList)
+        print()
