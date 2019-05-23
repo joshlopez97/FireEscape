@@ -198,7 +198,7 @@ Q = np.zeros([441, len(action_trans)]) #441 = len(grid)
 eps = 0.1
 lr = .9
 y = .9
-num_episodes = 75
+num_episodes = 2000
 
 #create lists to contain total rewards and steps per episode
 rList = []
