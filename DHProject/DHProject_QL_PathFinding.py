@@ -203,6 +203,12 @@ num_episodes = 1000
 #create lists to contain total rewards and steps per episode
 rList = []
 
+#Printing and Error Log
+optimalRes = ['movenorth 1', 'movenorth 1', 'movenorth 1', 'movenorth 1', 'movenorth 1', 'movenorth 1', 'movewest 1', 'movewest 1']
+errorLog = []
+actionlist = {-21: 'movenorth 1', 21: 'movesouth 1', -1: 'movewest 1', 1: 'moveeast 1'}
+moveList = []
+
 # Create default Malmo objects:
 agent_host = MalmoPython.AgentHost()
 try:
@@ -306,36 +312,38 @@ for i in range(num_repeats):
         #Update Q-Table with new knowledge
         Q[s,a] = Q[s,a] + lr*(r + y*np.max(Q[s1,:]) - Q[s,a])
         rAll += r
+
+        #calculating diff to print
+        s_diff = s - s1
+        moveList.append(actionlist[s_diff])
+
+        #increment s
         s = s1
+
         if done == True:
+            if (count%10) == 0:
+                print()
+                print("Report for %d: " % count)
+                print("Path length found: ", len(moveList))
+                print("Move list found: ", moveList)
+                print()
+                moveList.clear()
+
+            #error Calculation
+            errorCount = 0
+            for i in range(len(moveList)):
+                if i > (len(optimalRes)-1):
+                    errorCount += 1
+                elif moveList[i] != optimalRes[i]:
+                    errorCount += 1
+            if len(moveList) < len(optimalRes):
+                lengthDiff = len(optimalRes) - len(moveList)
+                errorCount += lengthDiff
+            errorLog.append((count, errorCount))
             break
+
     rList.append(rAll)
-
     print("Score over time: " +  str(sum(rList)/num_episodes))
-
-    if (count%10) == 0:
-        print()
-        print("Report for %d: " % count)
-        actionlist = {-21: 'movenorth 1', 21: 'movesouth 1', -1: 'movewest 1', 1: 'moveeast 1'}
-        moveList = []
-        finish_s = start
-        finish_done = False
-        counter = 0
-        while 1:
-            finish_a = np.argmax(Q[finish_s,:])
-            s_next = finish_s + action_trans[finish_a][0]
-
-            s_diff = finish_s - s_next
-            moveList.append(actionlist[s_diff])
-
-            if grid[s_next] == 'redstone_block':
-                break
-            if counter == 30:
-                break
-
-            finish_s = s_next
-            counter += 1
-
-        print("Path length found: ", len(moveList))
-        print("Move list found: ", moveList)
-        print()
+    
+#dump errorLog into 
+np.savetxt('QLPathFind_Board2_ErrorLog.dat', errorLog)
