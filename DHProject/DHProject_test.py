@@ -4,73 +4,11 @@ import sys
 import time
 import json
 import random
-import tensorflow as tf
 
 try:
     from malmo import MalmoPython
 except:
     import MalmoPython
-
-def GetMissionXML(seed, gp, size=10):
-    return '''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
-            <Mission xmlns="http://ProjectMalmo.microsoft.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-
-              <About>
-                <Summary>Hello world!</Summary>
-              </About>
-
-            <ServerSection>
-              <ServerInitialConditions>
-                <Time>
-                    <StartTime>1000</StartTime>
-                    <AllowPassageOfTime>false</AllowPassageOfTime>
-                </Time>
-                <Weather>clear</Weather>
-              </ServerInitialConditions>
-              <ServerHandlers>
-                  <FlatWorldGenerator generatorString="3;7,44*49,73,35:1,159:4,95:13,35:13,159:11,95:10,159:14,159:6,35:6,95:6;12;"/>
-                  <DrawingDecorator>
-                    <DrawSphere x="0" y="50" z="0" radius="30" type="air"/>
-                    <DrawCuboid x1="0" y1="50" z1="0" x2="2" y2="50" z2="6" type="diamond_block"/>
-                    <DrawBlock x="0" y="50" z="0" type="emerald_block"/>
-                    <DrawBlock x="2" y="50" z="6" type="redstone_block"/>
-                    <DrawLine x1="1" y1="50" z1="0" x2="2" y2="50" z2="0" type="netherrack"/>
-                    <DrawLine x1="1" y1="51" z1="0" x2="2" y2="51" z2="0" type="fire"/>
-
-                    <DrawLine x1="0" y1="50" z1="2" x2="1" y2="50" z2="2" type="netherrack"/>
-                    <DrawLine x1="0" y1="51" z1="2" x2="1" y2="51" z2="2" type="fire"/>
-
-                    <DrawBlock x="2" y="50" z="4" type="netherrack"/>
-                    <DrawBlock x="2" y="51" z="4" type="fire"/>
-
-                    <DrawLine x1="1" y1="50" z1="5" x2="2" y2="50" z2="5" type="netherrack"/>
-                    <DrawLine x1="1" y1="51" z1="5" x2="2" y2="51" z2="5" type="fire"/>
-
-                  </DrawingDecorator>
-                  <ServerQuitFromTimeUp timeLimitMs="10000"/>
-                  <ServerQuitWhenAnyAgentFinishes/>
-                </ServerHandlers>
-              </ServerSection>
-
-              <AgentSection mode="Survival">
-                <Name>CS175AwesomeMazeBot</Name>
-                <AgentStart>
-                    <Placement x="0.5" y="51" z="0.5" yaw="0"/>
-                </AgentStart>
-                <AgentHandlers>
-                    <DiscreteMovementCommands/>
-                    <AgentQuitFromTouchingBlockType>
-                        <Block type="redstone_block"/>
-                    </AgentQuitFromTouchingBlockType>
-                    <ObservationFromGrid>
-                      <Grid name="floorAll">
-                        <min x="-10" y="-1" z="-10"/>
-                        <max x="10" y="-1" z="10"/>
-                      </Grid>
-                  </ObservationFromGrid>
-                </AgentHandlers>
-              </AgentSection>
-            </Mission>'''
 
 def load_grid(world_state):
     """
@@ -187,175 +125,168 @@ def dijkstra_shortest_path(grid_obs, source, dest):
     return path_list
 
 #--------------------------------------- Main ---------------------------------------
-tf.reset_default_graph()
-
-#These lines establish the feed-forward part of the network used to choose actions
-inputs1 = tf.placeholder(shape=[1,441],dtype=tf.float32)
-W = tf.Variable(tf.random_uniform([441,4],0,0.01))
-Qout = tf.matmul(inputs1,W)
-predict = tf.argmax(Qout,1)
-
-#Below we obtain the loss by taking the sum of squares difference between the target and prediction Q values.
-nextQ = tf.placeholder(shape=[1,4],dtype=tf.float32)
-loss = tf.reduce_sum(tf.square(nextQ - Qout))
-trainer = tf.train.GradientDescentOptimizer(learning_rate=0.1)
-updateModel = trainer.minimize(loss)
-
-init = tf.initialize_all_variables()
-
-#DQN parameters <------------------
-eps = 0.1
-y = 0.99
-num_episodes = 2000
-#create lists to contain total rewards and steps per episode
-rList = []
-jList = []
-#DQN init end ----------------------------------------------------------------------
+#file to run
+mission_file = 'map3.xml'
 
 #action list = north, south, west, east
 #this calculation is reliant on knowing the grid is 21x21
 action_trans = [(-21,'movenorth 1'), (21, 'movesouth 1'), (-1, 'movewest 1'), (1, 'moveeast 1')] 
-#for printing
+
+#Q-table initializer
+Q = np.zeros([441, len(action_trans)]) #441 = len(grid)
+# Set learning parameters
+eps = 0.1
+lr = .9
+y = .9
+num_episodes = 2000
+
+#create lists to contain total rewards and steps per episode
+rList = []
+
+#Printing and Error Log
+optimalRes = ['movenorth 1', 'movenorth 1', 'movenorth 1', 'movenorth 1', 'movenorth 1', 'movenorth 1', 'movewest 1', 'movewest 1']
+errorLog = []
 actionlist = {-21: 'movenorth 1', 21: 'movesouth 1', -1: 'movewest 1', 1: 'moveeast 1'}
 moveList = []
 
-#init the tensorflow session
-with tf.Session() as sess:
-    sess.run(init)
+# Create default Malmo objects:
+agent_host = MalmoPython.AgentHost()
+try:
+    agent_host.parse( sys.argv )
+except RuntimeError as e:
+    print('ERROR:',e)
+    print(agent_host.getUsage())
+    exit(1)
+if agent_host.receivedArgument("help"):
+    print(agent_host.getUsage())
+    exit(0)
 
-    # Create default Malmo objects:
-    agent_host = MalmoPython.AgentHost()
-    try:
-        agent_host.parse( sys.argv )
-    except RuntimeError as e:
-        print('ERROR:',e)
-        print(agent_host.getUsage())
-        exit(1)
-    if agent_host.receivedArgument("help"):
-        print(agent_host.getUsage())
-        exit(0)
+if agent_host.receivedArgument("test"):
+    num_repeats = 1
+else:
+    num_repeats = num_episodes
 
-    if agent_host.receivedArgument("test"):
-        num_repeats = 1
-    else:
-        num_repeats = num_episodes
+for i in range(num_repeats):
+    print()
+    print('Repeat %d of %d' % ( i+1, num_repeats ))
+    count = i
 
-    for i in range(num_repeats):
-        count = i
-        print()
-        print('Repeat %d of %d' % ( i+1, num_repeats ))
+    #maze size parameter (not used)
+    f = open(mission_file, "r") 
+    missionXML = f.read()
+    my_mission = MalmoPython.MissionSpec(missionXML, True)
 
-        #maze size parameter (not used)
-        size = int(6 + 0.5*i)
-        my_mission = MalmoPython.MissionSpec(GetMissionXML("0", 0.4 + float(i/20.0), size), True)
+    #setup mission to start
+    my_mission_record = MalmoPython.MissionRecordSpec()
+    my_mission.requestVideo(800, 500)
+    my_mission.setViewpoint(1)
+    # Attempt to start a mission:
+    max_retries = 3
+    my_clients = MalmoPython.ClientPool()
+    my_clients.add(MalmoPython.ClientInfo('127.0.0.1', 10000)) # add Minecraft machines here as available
 
-        #setup mission to start
-        my_mission_record = MalmoPython.MissionRecordSpec()
-        my_mission.requestVideo(800, 500)
-        my_mission.setViewpoint(1)
-        # Attempt to start a mission:
-        max_retries = 3
-        my_clients = MalmoPython.ClientPool()
-        my_clients.add(MalmoPython.ClientInfo('127.0.0.1', 10000)) # add Minecraft machines here as available
-
-        for retry in range(max_retries):
-            try:
-                agent_host.startMission( my_mission, my_clients, my_mission_record, 0, "%s-%d" % ('Moshe', i) )
-                break
-            except RuntimeError as e:
-                if retry == max_retries - 1:
-                    print("Error starting mission", (i+1), ":",e)
-                    exit(1)
-                else:
-                    time.sleep(2)
-
-        # Loop until mission starts:
-        print("Waiting for the mission", (i+1), "to start ",)
-        world_state = agent_host.getWorldState()
-        while not world_state.has_mission_begun:
-            #sys.stdout.write(".")
-            time.sleep(0.1)
-            world_state = agent_host.getWorldState()
-            for error in world_state.errors:
-                print("Error:",error.text)
-        print()
-
-        grid = load_grid(world_state)
-        start, end = find_start_end(grid) #start, end = gridIndex
-
-        #DQN start-------------------------------------------------------------------------------
-        #Reset environment and get first new observation
-        s = start
-        rAll = 0
-        done = False 
-        j = 0
-
-        #The Q-Table learning algorithm
-        while j < 99:
-            #time.sleep(0.1)  #add sleep here to make fire more effective
-            j+=1
-            #Choose an action by greedily (with e chance of random action) from the Q-network
-            a,allQ = sess.run([predict,Qout],feed_dict={inputs1:np.identity(441)[s:s+1]})
-
-            #prob of eps to choose random action
-            rng = np.random.randint(1, 100)
-            if rng>=1 and rng<=(100*eps): #P(eps)
-                a[0] = np.random.randint(0, len(action_trans)-1)
-
-            #step(a[0]) = Get new state and reward from environment
-            agent_host.sendCommand(action_trans[a[0]][1])  #gets action of a
-            s1 = s + action_trans[a[0]][0] #gets index of a
-
-            #calculating immediate reward
-            curPath = dijkstra_shortest_path(grid, s1, end)
-            if grid[s1] == 'air':
-                r = -99
-                done = True
-            elif grid[s1] == 'fire':
-                r = -(len(curPath)-1)
-                r += -1.5
-            elif grid[s1] == 'redstone_block':
-                r = -(len(curPath)-1)
-                done = True
+    for retry in range(max_retries):
+        try:
+            agent_host.startMission( my_mission, my_clients, my_mission_record, 0, "%s-%d" % ('Moshe', i) )
+            break
+        except RuntimeError as e:
+            if retry == max_retries - 1:
+                print("Error starting mission", (i+1), ":",e)
+                exit(1)
             else:
-                r = -(len(curPath)-1)
+                time.sleep(2)
 
-            #Update Q-Table with new knowledge
-            Q1 = sess.run(Qout,feed_dict={inputs1:np.identity(441)[s1:s1+1]})
-            #Obtain maxQ' and set our target value for chosen action.
-            maxQ1 = np.max(Q1)
-            targetQ = allQ
-            targetQ[0,a[0]] = r + y*maxQ1
-            #Train our network using target and predicted Q values
-            _,W1 = sess.run([updateModel,W],feed_dict={inputs1:np.identity(441)[s:s+1],nextQ:targetQ})
-            rAll += r
+    # Loop until mission starts:
+    print("Waiting for the mission", (i+1), "to start ",)
+    world_state = agent_host.getWorldState()
+    while not world_state.has_mission_begun:
+        #sys.stdout.write(".")
+        time.sleep(0.1)
+        world_state = agent_host.getWorldState()
+        for error in world_state.errors:
+            print("Error:",error.text)
+    print()
 
-            #for printing
-            s_diff = s - s1
-            moveList.append(actionlist[s_diff])
-            
-            #increment s to s1
-            s = s1
+    #Q-learning
+    grid = load_grid(world_state)
+    start, end = find_start_end(grid) #start, end = gridIndex
 
-            if done == True:
-                #Reduce chance of random action as we train the model.
-                eps = 1./((count/50) + 10)
+    #Reset environment and get first new observation
+    s = start
+    rAll = 0
+    done = False #done
+    j = 0
 
-                if (count%10) == 0:
-                    print()
-                    print("Report for %d: " % count)
-                    print("Path length found: ", len(moveList))
-                    print("Move list found: ", moveList)
-                    print()
-                moveList.clear()
-                break
+    #The Q-Table learning algorithm
+    while j < 99:
+        #time.sleep(0.1)  #<----- adjust sleep
 
-        jList.append(j)
-        rList.append(rAll)
-        print("rList for %d: %d" %(count, rList[count]))
-        print("jList for %d: %d" %(count, jList[count]))
-        
+        j+=1
+        #Choose an action by greedily (with noise) picking from Q table
+        #a = np.argmax(Q[s,:] + np.random.randn(1,len(action_trans)) * (1./(i+1)))
 
+        rng = np.random.randint(1, 100)
+        if rng>=1 and rng<=(100*eps): #P(eps)
+            a = np.random.randint(0, len(action_trans)-1)
+        else:
+            a = np.argmax(Q[s,:])
 
+        #Get new state and reward from environment
+        s1 = s + action_trans[a][0] #gets index of a
 
+        #calculating reward <------------- variable
+        curPath = dijkstra_shortest_path(grid, s1, end)
+        if grid[s1] == 'air':
+            r = -99
+            done = True
+        elif grid[s1] == 'fire':
+            r = (-1*(len(curPath)-1))
+            r = r - 1.5
+        elif grid[s1] == 'redstone_block':
+            r = -1*(len(curPath)-1)
+            done = True
+        else:
+            r = -1*(len(curPath)-1)
 
+        #Update Q-Table with new knowledge
+        Q[s,a] = Q[s,a] + lr*(r + y*np.max(Q[s1,:]) - Q[s,a])
+        rAll += r
+
+        #move agent
+        agent_host.sendCommand(action_trans[a][1])  #gets action of a
+
+        #calculating diff to print
+        s_diff = s - s1
+        moveList.append(actionlist[s_diff])
+
+        #increment s
+        s = s1
+
+        if done == True:
+            if (count%10) == 0:
+                print()
+                print("Report for %d: " % count)
+                print("Path length found: ", len(moveList))
+                print("Move list found: ", moveList)
+                print()
+
+            #error Calculation
+            errorCount = 0
+            for i in range(len(moveList)):
+                if i > (len(optimalRes)-1):
+                    errorCount += 1
+                elif moveList[i] != optimalRes[i]:
+                    errorCount += 1
+            if len(moveList) < len(optimalRes):
+                lengthDiff = len(optimalRes) - len(moveList)
+                errorCount += lengthDiff
+            errorLog.append((count, errorCount))
+
+            moveList.clear()
+            break
+
+    rList.append(rAll)
+    print("Score over time: " +  str(sum(rList)/num_episodes))
+
+#dump errorLog into 
+np.savetxt('QLPathFind_Board2_ErrorLog.dat', errorLog)
