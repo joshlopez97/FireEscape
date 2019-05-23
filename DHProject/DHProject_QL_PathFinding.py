@@ -198,7 +198,7 @@ Q = np.zeros([441, len(action_trans)]) #441 = len(grid)
 eps = 0.1
 lr = .9
 y = .9
-num_episodes = 1000
+num_episodes = 75
 
 #create lists to contain total rewards and steps per episode
 rList = []
@@ -292,10 +292,9 @@ for i in range(num_repeats):
             a = np.argmax(Q[s,:])
 
         #Get new state and reward from environment
-        agent_host.sendCommand(action_trans[a][1])  #gets action of a
         s1 = s + action_trans[a][0] #gets index of a
 
-        #calculating immediate reward
+        #calculating reward <------------- variable
         curPath = dijkstra_shortest_path(grid, s1, end)
         if grid[s1] == 'air':
             r = -99
@@ -313,6 +312,9 @@ for i in range(num_repeats):
         Q[s,a] = Q[s,a] + lr*(r + y*np.max(Q[s1,:]) - Q[s,a])
         rAll += r
 
+        #move agent
+        agent_host.sendCommand(action_trans[a][1])  #gets action of a
+
         #calculating diff to print
         s_diff = s - s1
         moveList.append(actionlist[s_diff])
@@ -327,7 +329,6 @@ for i in range(num_repeats):
                 print("Path length found: ", len(moveList))
                 print("Move list found: ", moveList)
                 print()
-                moveList.clear()
 
             #error Calculation
             errorCount = 0
@@ -340,10 +341,12 @@ for i in range(num_repeats):
                 lengthDiff = len(optimalRes) - len(moveList)
                 errorCount += lengthDiff
             errorLog.append((count, errorCount))
+
+            moveList.clear()
             break
 
     rList.append(rAll)
     print("Score over time: " +  str(sum(rList)/num_episodes))
-    
+
 #dump errorLog into 
 np.savetxt('QLPathFind_Board2_ErrorLog.dat', errorLog)
