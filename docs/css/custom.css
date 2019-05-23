@@ -37,3 +37,8 @@ body > .container {
 code {
   font-size: 80%;
 }
+
+#header-icon {
+  height: 50px;
+  display: inline-block;
+}
