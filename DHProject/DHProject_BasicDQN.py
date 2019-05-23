@@ -5,6 +5,7 @@ import time
 import json
 import random
 import tensorflow as tf
+import pickle
 
 try:
     from malmo import MalmoPython
@@ -187,6 +188,10 @@ def dijkstra_shortest_path(grid_obs, source, dest):
     return path_list
 
 #--------------------------------------- Main ---------------------------------------
+#open file for error log
+#f = open("BasicDQN_Board2_ErrorLog.txt", "a")
+
+#DQN init ---------------------------------------------------------------------------
 tf.reset_default_graph()
 
 #These lines establish the feed-forward part of the network used to choose actions
@@ -206,7 +211,7 @@ init = tf.initialize_all_variables()
 #DQN parameters <------------------
 eps = 0.1
 y = 0.99
-num_episodes = 2000
+num_episodes = 1500
 #create lists to contain total rewards and steps per episode
 rList = []
 jList = []
@@ -215,9 +220,12 @@ jList = []
 #action list = north, south, west, east
 #this calculation is reliant on knowing the grid is 21x21
 action_trans = [(-21,'movenorth 1'), (21, 'movesouth 1'), (-1, 'movewest 1'), (1, 'moveeast 1')] 
-#for printing
+#Printing Variables
 actionlist = {-21: 'movenorth 1', 21: 'movesouth 1', -1: 'movewest 1', 1: 'moveeast 1'}
 moveList = []
+#this is tuned for 2x7 board2
+optimalRes = ['movenorth 1', 'movenorth 1', 'movenorth 1', 'movenorth 1', 'movenorth 1', 'movenorth 1', 'movewest 1', 'movewest 1']
+errorLog = []
 
 #init the tensorflow session
 with tf.Session() as sess:
@@ -347,6 +355,19 @@ with tf.Session() as sess:
                     print("Path length found: ", len(moveList))
                     print("Move list found: ", moveList)
                     print()
+
+                    #error Calculation
+                    errorCount = 0
+                    for i in range(len(moveList)):
+                        if i > (len(optimalRes)-1):
+                            errorCount += 1
+                        elif moveList[i] != optimalRes[i]:
+                            errorCount += 1
+                    if len(moveList) < len(optimalRes):
+                       lengthDiff = len(optimalRes) - len(moveList)
+                       errorCount += lengthDiff
+                    errorLog.append((count, errorCount))
+
                 moveList.clear()
                 break
 
@@ -354,8 +375,7 @@ with tf.Session() as sess:
         rList.append(rAll)
         print("rList for %d: %d" %(count, rList[count]))
         print("jList for %d: %d" %(count, jList[count]))
+    
+    #dump errorLog into 
+    np.savetxt('BasicDQN_Board2_ErrorLog.dat', errorLog)
         
-
-
-
-
