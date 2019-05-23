@@ -9,7 +9,7 @@ title:  Home
 #### Summary
 TODO  
   
-![Screenshot1.png](https://raw.githubusercontent.com/joshlopez97/FireEscape/master/docs/img/Screenshot1.png) <!-- .element height="50%" width="50%" -->  
+<img src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/docs/img/Screenshot1.png" alt="Screenshot1.png" style="height: 270px;">
 
 #### Relevant Links
 - [Project Malmo](https://github.com/microsoft/malmo)
