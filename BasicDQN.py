@@ -17,7 +17,7 @@ def GetMissionXML(seed, gp, size=10):
             <Mission xmlns="http://ProjectMalmo.microsoft.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
               <About>
-                <Summary>Hello world!</Summary>
+                <Summary>Fire Escape!</Summary>
               </About>
 
             <ServerSection>
@@ -54,7 +54,7 @@ def GetMissionXML(seed, gp, size=10):
               </ServerSection>
 
               <AgentSection mode="Survival">
-                <Name>CS175AwesomeMazeBot</Name>
+                <Name>FireEscapeBot</Name>
                 <AgentStart>
                     <Placement x="0.5" y="51" z="0.5" yaw="0"/>
                 </AgentStart>
