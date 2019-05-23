@@ -34,73 +34,6 @@ GAP_BLOCK = 'fire'
 
 # sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
 
-def GetMissionXML(seed, gp, size=10):
-    return '''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
-            <Mission xmlns="http://ProjectMalmo.microsoft.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-              <About>
-                <Summary>Project OpenAI</Summary>
-              </About>
-            <ServerSection>
-              <ServerInitialConditions>
-                <Time>
-                    <StartTime>1</StartTime>
-                    <AllowPassageOfTime>false</AllowPassageOfTime>
-                </Time>
-                <Weather>clear</Weather>
-              </ServerInitialConditions>
-              <ServerHandlers>
-                  <FlatWorldGenerator generatorString="3;7,44*49,73,35:1,159:4,95:13,35:13,159:11,95:10,159:14,159:6,35:6,95:6;12;"/>
-                  <DrawingDecorator>
-                    <DrawSphere x="0" y="50" z="0" radius="30" type="air"/>
-                    <DrawBlock x="0" y="50" z="0" type="emerald_block"/>
-                    <DrawLine x1="1" y1="50" z1="0" x2="4" y2="50" z2="0" type="diamond_block"/>
-                    <DrawCuboid x1="0" y1="50" z1="1" x2="4" y2="50" z2="3" type="diamond_block"/>
-                    <DrawBlock x="4" y="50" z="4" type="redstone_block"/>
-                    <DrawLine x1="0" y1="50" z1="4" x2="3" y2="50" z2="4" type="diamond_block"/>
-                    <DrawLine x1="0" y1="51" z1="1" x2="3" y2="51" z2="1" type="fire"/>
-                    <DrawLine x1="0" y1="50" z1="1" x2="3" y2="50" z2="1" type="netherrack"/>
-                    <DrawLine x1="1" y1="51" z1="3" x2="4" y2="51" z2="3" type="fire"/>
-                    <DrawLine x1="1" y1="50" z1="3" x2="4" y2="50" z2="3" type="netherrack"/>
-                  </DrawingDecorator>
-                  <ServerQuitFromTimeUp timeLimitMs="20000"/>
-                  <ServerQuitWhenAnyAgentFinishes/>
-                </ServerHandlers>
-              </ServerSection>
-              <AgentSection mode="Survival">
-                <Name>CS175AwesomeMazeBot</Name>
-                <AgentStart>
-                    <Placement x="0.5" y="51" z="0.5" yaw="0"/>
-                </AgentStart>
-                <AgentHandlers>
-                    <DiscreteMovementCommands/>
-                    <AgentQuitFromTouchingBlockType>
-                        <Block type="redstone_block"/>
-                    </AgentQuitFromTouchingBlockType>
-                    <RewardForTouchingBlockType>
-                      <Block reward="-200.0" type="air" behaviour="onceOnly"/>
-                      <Block reward="200.0" type="redstone_block" behaviour="onceOnly"/>
-                      <Block reward="-30.0" type="fire" behaviour="oncePerBlock"/>
-                    </RewardForTouchingBlockType>
-                    <RewardForSendingCommand reward="-1" />
-
-                    <RewardForMissionEnd rewardForDeath="-200.0">
-                        <Reward description="out_of_time" reward="-200.0"/>
-                        <Reward description="out_of_arena" reward="-200.0"/>
-                    </RewardForMissionEnd>
-
-                    <ObservationFromFullStats/>
-                    <ContinuousMovementCommands turnSpeedDegs="180"/>
-                    <ObservationFromGrid>
-                      <Grid name="floorAll">
-                        <min x="-10" y="-1" z="-10"/>
-                        <max x="10" y="-1" z="10"/>
-                      </Grid>
-                  </ObservationFromGrid>
-                </AgentHandlers>
-              </AgentSection>
-            </Mission>'''
-
-
 def load_grid(world_state):
     """
     Used the agent observation API to get a 21 X 21 grid box around the agent (the agent is in the middle).
@@ -244,85 +177,88 @@ def dijkstra_shortest_path(grid_obs, source, dest):
     # Return shortest path to destination
     return path_to[dest] + [dest]
 
-if __name__ == '__main__':
-    # Create default Malmo objects:
-    agent = TabQAgent()
-    agent_host = MalmoPython.AgentHost()
-    try:
-        agent_host.parse( sys.argv )
-    except RuntimeError as e:
-        print('ERROR:',e)
-        print(agent_host.getUsage())
-        exit(1)
-    if agent_host.receivedArgument("help"):
-        print(agent_host.getUsage())
-        exit(0)
 
-    num_repeats = 150
+# Create default Malmo objects:
+agent = TabQAgent()
+agent_host = MalmoPython.AgentHost()
+try:
+    agent_host.parse( sys.argv )
+except RuntimeError as e:
+    print('ERROR:',e)
+    print(agent_host.getUsage())
+    exit(1)
+if agent_host.receivedArgument("help"):
+    print(agent_host.getUsage())
+    exit(0)
 
-    cumulative_rewards = []
+num_repeats = 150
 
-    size = 5
-    print("Size of maze:", size)
+cumulative_rewards = []
 
-    for i in range(num_repeats):
-        print('Repeat %d of %d' % ( i+1, num_repeats ))
-        my_mission = MalmoPython.MissionSpec(GetMissionXML("0", 0.4, size), True)
-        my_mission_record = MalmoPython.MissionRecordSpec()
-        my_mission.requestVideo(800, 500)
-        my_mission.setViewpoint(1)
-        # Attempt to start a mission:
-        max_retries = 3
-        my_clients = MalmoPython.ClientPool()
-        my_clients.add(MalmoPython.ClientInfo('127.0.0.1', 10000)) # add Minecraft machines here as available
+size = 5
+print("Size of maze:", size)
 
-        for retry in range(max_retries):
-            try:
-                agent_host.startMission( my_mission, my_clients, my_mission_record, 0, "%s-%d" % ('Moshe', i) )
-                break
-            except RuntimeError as e:
-                if retry == max_retries - 1:
-                    print("Error starting mission", (i+1), ":",e)
-                    exit(1)
-                else:
-                    time.sleep(2)
+mission_file = './map1.xml'
+with open(mission_file, 'r') as f:
+    print("Loading mission from %s" % mission_file)
+    mission_xml = f.read()
+    my_mission = MalmoPython.MissionSpec(mission_xml, True)
 
-        # Loop until mission starts:
-        print("Waiting for the mission", (i+1), "to start ",)
-        world_state = agent_host.getWorldState()
-        while not world_state.has_mission_begun:
-            #sys.stdout.write(".")
-            time.sleep(0.1)
-            world_state = agent_host.getWorldState()
-            for error in world_state.errors:
-                print("Error:",error.text)
+for i in range(num_repeats):
+    print('Repeat %d of %d' % ( i+1, num_repeats ))
+    my_mission_record = MalmoPython.MissionRecordSpec()
+    my_mission.requestVideo(800, 500)
+    my_mission.setViewpoint(1)
+    # Attempt to start a mission:
+    max_retries = 3
+    # my_clients = MalmoPython.ClientPool()
+    # my_clients.add(MalmoPython.ClientInfo('127.0.0.1', 10000)) # add Minecraft machines here as available
 
-        print()
-        print("Mission", (i+1), "running.")
-
-        grid = load_grid(world_state)
-        start, end = find_start_end(grid) # implement this
-
-        # -- run the agent in the world -- #
-        print("cumulative reward")
-        cumulative_reward = agent.run(agent_host, start, end)
-        print('Cumulative reward: %d' % cumulative_reward)
-        if is_solution(cumulative_reward):
-            print('Found solution')
-            print('Done')
+    for retry in range(max_retries):
+        try:
+            agent_host.startMission( my_mission,my_mission_record)
             break
+        except RuntimeError as e:
+            if retry == max_retries - 1:
+                print("Error starting mission", (i+1), ":",e)
+                exit(1)
+            else:
+                time.sleep(2)
 
-        cumulative_rewards += [ cumulative_reward ]
-
-
-
-        # -- clean up -- #
-        time.sleep(0.5) # (let the Mod reset)
-        print()
-        print("Mission", (i+1), "ended")
-        # Mission has ended.
-    print("Done.")
+    # Loop until mission starts:
+    print("Waiting for the mission", (i+1), "to start ",)
+    world_state = agent_host.getWorldState()
+    while not world_state.has_mission_begun:
+        sys.stdout.write(".")
+        time.sleep(0.1)
+        world_state = agent_host.getWorldState()
+        for error in world_state.errors:
+            print("Error:",error.text)
 
     print()
-    print("Cumulative rewards for all %d runs:" % num_repeats)
-    print(cumulative_rewards)
+    print("Mission", (i+1), "running.")
+
+    grid = load_grid(world_state)
+    start, end = find_start_end(grid) # implement this
+
+    # -- run the agent in the world -- #
+    print("cumulative reward")
+    cumulative_reward = agent.run(agent_host, start, end)
+    print('Cumulative reward: %d' % cumulative_reward)
+    if is_solution(cumulative_reward):
+        print('Found solution')
+        print('Done')
+        break
+
+    cumulative_rewards += [ cumulative_reward ]
+
+    # -- clean up -- #
+    time.sleep(0.5) # (let the Mod reset)
+    print()
+    print("Mission", (i+1), "ended")
+    # Mission has ended.
+print("Done.")
+
+print()
+print("Cumulative rewards for all %d runs:" % num_repeats)
+print(cumulative_rewards)

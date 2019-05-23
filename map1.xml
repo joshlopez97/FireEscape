@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+        <Mission xmlns="http://ProjectMalmo.microsoft.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+          <About>
+            <Summary>Project OpenAI</Summary>
+          </About>
+        <ServerSection>
+          <ServerInitialConditions>
+            <Time>
+                <StartTime>1</StartTime>
+                <AllowPassageOfTime>false</AllowPassageOfTime>
+            </Time>
+            <Weather>clear</Weather>
+          </ServerInitialConditions>
+          <ServerHandlers>
+              <FlatWorldGenerator generatorString="3;7,44*49,73,35:1,159:4,95:13,35:13,159:11,95:10,159:14,159:6,35:6,95:6;12;"/>
+              <DrawingDecorator>
+                <DrawSphere x="0" y="50" z="0" radius="30" type="air"/>
+                <DrawBlock x="0" y="50" z="0" type="emerald_block"/>
+                <DrawLine x1="1" y1="50" z1="0" x2="4" y2="50" z2="0" type="diamond_block"/>
+                <DrawCuboid x1="0" y1="50" z1="1" x2="4" y2="50" z2="3" type="diamond_block"/>
+                <DrawBlock x="4" y="50" z="4" type="redstone_block"/>
+                <DrawLine x1="0" y1="50" z1="4" x2="3" y2="50" z2="4" type="diamond_block"/>
+                <DrawLine x1="0" y1="51" z1="1" x2="3" y2="51" z2="1" type="fire"/>
+                <DrawLine x1="0" y1="50" z1="1" x2="3" y2="50" z2="1" type="netherrack"/>
+                <DrawLine x1="1" y1="51" z1="3" x2="4" y2="51" z2="3" type="fire"/>
+                <DrawLine x1="1" y1="50" z1="3" x2="4" y2="50" z2="3" type="netherrack"/>
+              </DrawingDecorator>
+              <ServerQuitFromTimeUp timeLimitMs="20000"/>
+              <ServerQuitWhenAnyAgentFinishes/>
+            </ServerHandlers>
+          </ServerSection>
+          <AgentSection mode="Survival">
+            <Name>CS175AwesomeMazeBot</Name>
+            <AgentStart>
+                <Placement x="0.5" y="51" z="0.5" yaw="0"/>
+            </AgentStart>
+            <AgentHandlers>
+                <DiscreteMovementCommands/>
+                <AgentQuitFromTouchingBlockType>
+                    <Block type="redstone_block"/>
+                </AgentQuitFromTouchingBlockType>
+                <RewardForTouchingBlockType>
+                  <Block reward="-100.0" type="air" behaviour="onceOnly"/>
+                  <Block reward="100.0" type="redstone_block" behaviour="onceOnly"/>
+                  <Block reward="-30.0" type="fire" behaviour="oncePerBlock"/>
+                </RewardForTouchingBlockType>
+
+                <RewardForMissionEnd rewardForDeath="-100.0">
+                    <Reward description="out_of_time" reward="-100.0"/>
+                    <Reward description="out_of_arena" reward="-100.0"/>
+                </RewardForMissionEnd>
+
+                <ObservationFromFullStats/>
+                <ContinuousMovementCommands turnSpeedDegs="1800"/>
+                <ObservationFromGrid>
+                  <Grid name="floorAll">
+                    <min x="-10" y="-1" z="-10"/>
+                    <max x="10" y="-1" z="10"/>
+                  </Grid>
+              </ObservationFromGrid>
+            </AgentHandlers>
+          </AgentSection>
+        </Mission>

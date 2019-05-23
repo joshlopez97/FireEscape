@@ -271,10 +271,12 @@ class TabQAgent(object):
                     for reward in world_state.rewards:
                         current_r += reward.getValue()
                     if world_state.is_mission_running and len(world_state.observations)>0 and not world_state.observations[-1].text=="{}":
+                        ob = json.loads(world_state.observations[-1].text)['floorAll']
+                        self.fire_cells = [ ((i-self.start) % 21, (i-self.start) // 21)  for i in range(len(ob)) if ob[i] == 'netherrack']
                         total_reward += self.act(world_state, agent_host, current_r)
                         cost = self.action_cost[self.prev_a]
                         current_r += self.dijkstra_shortest_path_cost(self.cur, self.start, self.dest)
-                        print("path cost:", self.dijkstra_shortest_path_cost(self.cur, self.start, self.dest))
+                        #print("path cost:", self.dijkstra_shortest_path_cost(self.cur, self.start, self.dest))
                         break
                     if not world_state.is_mission_running:
                         break
@@ -301,7 +303,7 @@ class TabQAgent(object):
                         total_reward += self.act(world_state, agent_host, current_r)
                         cost = self.action_cost[self.prev_a]
                         current_r += self.dijkstra_shortest_path_cost(self.cur, self.start, self.dest)
-                        print("path cost:", self.dijkstra_shortest_path_cost(self.cur, self.start, self.dest))
+                        #print("path cost:", self.dijkstra_shortest_path_cost(self.cur, self.start, self.dest))
                         break
                     if not world_state.is_mission_running:
                         break
@@ -312,7 +314,7 @@ class TabQAgent(object):
         total_reward += current_r
         if self.dest in self.cur_indexes:
             print("goal reached")
-    
+
         # update Q values
         if self.prev_s is not None and self.prev_a is not None:
             self.updateQTableFromTerminatingState( current_r )
@@ -325,7 +327,7 @@ class TabQAgent(object):
         scale = 40
         world_x = self.size
         world_y = self.size
-        fire = [(0,1),(1,1),(2,1),(3,1), (1,3),(2,3),(3,3),(4,3)]
+        #fire = [(0,1),(1,1),(2,1),(3,1), (1,3),(2,3),(3,3),(4,3)]
         if self.canvas is None or self.root is None:
             self.root = tk.Tk()
             self.root.wm_title("Q-table")
@@ -345,7 +347,7 @@ class TabQAgent(object):
                 s = "%d:%d" % (x,y)
 
                 self.canvas.create_rectangle( x*scale, y*scale, (x+1)*scale, (y+1)*scale, outline="#fff", fill="#000")
-                if ((x,y) in fire):
+                if ((x,y) in self.fire_cells):
                     self.canvas.create_rectangle( x*scale, y*scale, (x+1)*scale, (y+1)*scale, outline="#fff", fill="#ffb6c1")
 
                 for action in range(4):
