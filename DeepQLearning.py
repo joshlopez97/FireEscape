@@ -12,67 +12,6 @@ try:
 except:
     import MalmoPython
 
-def GetMissionXML(seed, gp, size=10):
-    return '''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
-            <Mission xmlns="http://ProjectMalmo.microsoft.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-
-              <About>
-                <Summary>Fire Escape!</Summary>
-              </About>
-
-            <ServerSection>
-              <ServerInitialConditions>
-                <Time>
-                    <StartTime>1000</StartTime>
-                    <AllowPassageOfTime>false</AllowPassageOfTime>
-                </Time>
-                <Weather>clear</Weather>
-              </ServerInitialConditions>
-              <ServerHandlers>
-                  <FlatWorldGenerator generatorString="3;7,44*49,73,35:1,159:4,95:13,35:13,159:11,95:10,159:14,159:6,35:6,95:6;12;"/>
-                  <DrawingDecorator>
-                    <DrawSphere x="0" y="50" z="0" radius="30" type="air"/>
-                    <DrawCuboid x1="0" y1="50" z1="0" x2="2" y2="50" z2="6" type="diamond_block"/>
-                    <DrawBlock x="0" y="50" z="0" type="emerald_block"/>
-                    <DrawBlock x="2" y="50" z="6" type="redstone_block"/>
-                    <DrawLine x1="1" y1="50" z1="0" x2="2" y2="50" z2="0" type="netherrack"/>
-                    <DrawLine x1="1" y1="51" z1="0" x2="2" y2="51" z2="0" type="fire"/>
-
-                    <DrawLine x1="0" y1="50" z1="2" x2="1" y2="50" z2="2" type="netherrack"/>
-                    <DrawLine x1="0" y1="51" z1="2" x2="1" y2="51" z2="2" type="fire"/>
-
-                    <DrawBlock x="2" y="50" z="4" type="netherrack"/>
-                    <DrawBlock x="2" y="51" z="4" type="fire"/>
-
-                    <DrawLine x1="1" y1="50" z1="5" x2="2" y2="50" z2="5" type="netherrack"/>
-                    <DrawLine x1="1" y1="51" z1="5" x2="2" y2="51" z2="5" type="fire"/>
-
-                  </DrawingDecorator>
-                  <ServerQuitFromTimeUp timeLimitMs="10000"/>
-                  <ServerQuitWhenAnyAgentFinishes/>
-                </ServerHandlers>
-              </ServerSection>
-
-              <AgentSection mode="Survival">
-                <Name>FireEscapeBot</Name>
-                <AgentStart>
-                    <Placement x="0.5" y="51" z="0.5" yaw="0"/>
-                </AgentStart>
-                <AgentHandlers>
-                    <DiscreteMovementCommands/>
-                    <AgentQuitFromTouchingBlockType>
-                        <Block type="redstone_block"/>
-                    </AgentQuitFromTouchingBlockType>
-                    <ObservationFromGrid>
-                      <Grid name="floorAll">
-                        <min x="-10" y="-1" z="-10"/>
-                        <max x="10" y="-1" z="10"/>
-                      </Grid>
-                  </ObservationFromGrid>
-                </AgentHandlers>
-              </AgentSection>
-            </Mission>'''
-
 def load_grid(world_state):
     """
     Used the agent observation API to get a 21 X 21 grid box around the agent (the agent is in the middle).
@@ -188,8 +127,7 @@ def dijkstra_shortest_path(grid_obs, source, dest):
     return path_list
 
 #--------------------------------------- Main ---------------------------------------
-#open file for error log
-#f = open("BasicDQN_Board2_ErrorLog.txt", "a")
+mission_file = 'map3.xml' #<-------------------------------------------------------------- map choice
 
 #DQN init ---------------------------------------------------------------------------
 tf.reset_default_graph()
@@ -208,10 +146,10 @@ updateModel = trainer.minimize(loss)
 
 init = tf.initialize_all_variables()
 
-#DQN parameters <------------------
+#DQN parameters 
 eps = 0.1
 y = 0.99
-num_episodes = 1500
+num_episodes = 1500  #<------------------------------------------------------------------ number of iterations
 #create lists to contain total rewards and steps per episode
 rList = []
 jList = []
@@ -253,9 +191,10 @@ with tf.Session() as sess:
         print()
         print('Repeat %d of %d' % ( i+1, num_repeats ))
 
-        #maze size parameter (not used)
-        size = int(6 + 0.5*i)
-        my_mission = MalmoPython.MissionSpec(GetMissionXML("0", 0.4 + float(i/20.0), size), True)
+        #map file selection
+        f = open(mission_file, "r") 
+        missionXML = f.read()
+        my_mission = MalmoPython.MissionSpec(missionXML, True)
 
         #setup mission to start
         my_mission_record = MalmoPython.MissionRecordSpec()
