@@ -1,6 +1,6 @@
 ---
 layout: default
-title:  openAI
+title:  FireEscape
 ---
 
 # {{ page.title }}
