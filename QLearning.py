@@ -126,7 +126,7 @@ def dijkstra_shortest_path(grid_obs, source, dest):
 
 #--------------------------------------- Main ---------------------------------------
 #file to run
-mission_file = 'map3.xml'
+mission_file = 'map2.xml' #<---------------------------------- map choice
 
 #action list = north, south, west, east
 #this calculation is reliant on knowing the grid is 21x21
@@ -138,7 +138,7 @@ Q = np.zeros([441, len(action_trans)]) #441 = len(grid)
 eps = 0.1
 lr = .9
 y = .9
-num_episodes = 2000
+num_episodes = 2000  #<-----------------------------------------number of iteration
 
 #create lists to contain total rewards and steps per episode
 rList = []
@@ -171,7 +171,7 @@ for i in range(num_repeats):
     print('Repeat %d of %d' % ( i+1, num_repeats ))
     count = i
 
-    #maze size parameter (not used)
+    #map file selection
     f = open(mission_file, "r") 
     missionXML = f.read()
     my_mission = MalmoPython.MissionSpec(missionXML, True)
