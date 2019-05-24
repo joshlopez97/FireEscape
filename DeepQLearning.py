@@ -317,4 +317,5 @@ with tf.Session() as sess:
     
     #dump errorLog into 
     np.savetxt('BasicDQN_Board2_ErrorLog.dat', errorLog)
+    np.savetxt("QLPathFind_Reward.dat", rList)
         
