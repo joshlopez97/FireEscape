@@ -239,7 +239,7 @@ for i in range(num_repeats):
         if grid[s1] == 'air':
             r = -99
             done = True
-        elif grid[s1] == 'fire':
+        elif grid[s1] == 'netherrack':
             r = (-1*(len(curPath)-1))
             r = r - 1.5
         elif grid[s1] == 'redstone_block':
