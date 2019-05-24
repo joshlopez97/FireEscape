@@ -138,7 +138,7 @@ Q = np.zeros([441, len(action_trans)]) #441 = len(grid)
 eps = 0.1
 lr = .9
 y = .9
-num_episodes = 30  #<-----------------------------------------number of iteration
+num_episodes = 3500  #<-----------------------------------------number of iteration
 
 #create lists to contain total rewards and steps per episode
 rList = []
@@ -243,7 +243,7 @@ for i in range(num_repeats):
             r = (-1*(len(curPath)-1))
             r = r - 1.5
         elif grid[s1] == 'redstone_block':
-            r = -1*(len(curPath)-1)
+            r = (-1*(len(curPath)-1))
             done = True
         else:
             r = -1*(len(curPath)-1)
@@ -263,6 +263,7 @@ for i in range(num_repeats):
         s = s1
 
         if done == True:
+            eps = 1./((count/50) + 10)
             if (count%10) == 0:
                 print()
                 print("Report for %d: " % count)
@@ -289,6 +290,7 @@ for i in range(num_repeats):
     print("Score over time: " +  str(sum(rList)/num_episodes))
 
 #dump errorLog into 
-
 statFileName = "QLearning_" + mission_file[0:4] + "_stats.dat"
+rewardFileName = "QLearning_" + mission_file[0:4] + "_rewards.dat"
 np.savetxt(statFileName, errorLog)
+np.savetxt(rewardFileName, rList)
