@@ -233,7 +233,7 @@ with tf.Session() as sess:
         #DQN start-------------------------------------------------------------------------------
         #Reset environment and get first new observation
         s = start
-        rAll = 0
+        rAll = 0.0
         done = False 
         j = 0
 
@@ -258,7 +258,7 @@ with tf.Session() as sess:
             if grid[s1] == 'air':
                 r = -99
                 done = True
-            elif grid[s1] == 'fire':
+            elif grid[s1] == 'netherrack':
                 r = -(len(curPath)-1)
                 r += -1.5
             elif grid[s1] == 'redstone_block':
