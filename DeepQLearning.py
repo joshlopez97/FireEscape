@@ -317,5 +317,7 @@ with tf.Session() as sess:
     
     #dump errorLog into 
     statFileName = "QLearning_" + mission_file[0:4] + "_stats.dat"
+    rewardFileName = "QLearning_" + mission_file[0:4] + "_rewards.dat"
     np.savetxt(statFileName, errorLog)
+    np.savetxt(rewardFileName, rList)
         
