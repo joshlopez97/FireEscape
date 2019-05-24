@@ -126,7 +126,7 @@ def dijkstra_shortest_path(grid_obs, source, dest):
 
 #--------------------------------------- Main ---------------------------------------
 #file to run
-mission_file = 'map2.xml' #<---------------------------------- map choice
+mission_file = 'map3.xml' #<---------------------------------- map choice
 
 #action list = north, south, west, east
 #this calculation is reliant on knowing the grid is 21x21
@@ -138,7 +138,7 @@ Q = np.zeros([441, len(action_trans)]) #441 = len(grid)
 eps = 0.1
 lr = .9
 y = .9
-num_episodes = 2000  #<-----------------------------------------number of iteration
+num_episodes = 30  #<-----------------------------------------number of iteration
 
 #create lists to contain total rewards and steps per episode
 rList = []
@@ -270,17 +270,17 @@ for i in range(num_repeats):
                 print("Move list found: ", moveList)
                 print()
 
-            #error Calculation
-            errorCount = 0
-            for i in range(len(moveList)):
-                if i > (len(optimalRes)-1):
-                    errorCount += 1
-                elif moveList[i] != optimalRes[i]:
-                    errorCount += 1
-            if len(moveList) < len(optimalRes):
-                lengthDiff = len(optimalRes) - len(moveList)
-                errorCount += lengthDiff
-            errorLog.append((count, errorCount))
+                #error Calculation
+                errorCount = 0
+                for i in range(len(moveList)):
+                    if i > (len(optimalRes)-1):
+                        errorCount += 1
+                    elif moveList[i] != optimalRes[i]:
+                        errorCount += 1
+                if len(moveList) < len(optimalRes):
+                    lengthDiff = len(optimalRes) - len(moveList)
+                    errorCount += lengthDiff
+                errorLog.append((count, errorCount))
 
             moveList.clear()
             break
@@ -289,4 +289,6 @@ for i in range(num_repeats):
     print("Score over time: " +  str(sum(rList)/num_episodes))
 
 #dump errorLog into 
-np.savetxt('QLPathFind_Board2_ErrorLog.dat', errorLog)
+
+statFileName = "QLearning_" + mission_file[0:4] + "_stats.dat"
+np.savetxt(statFileName, errorLog)
