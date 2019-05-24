@@ -316,8 +316,8 @@ with tf.Session() as sess:
         print("jList for %d: %d" %(count, jList[count]))
     
     #dump errorLog into 
-    statFileName = "QLearning_" + mission_file[0:4] + "_stats.dat"
-    rewardFileName = "QLearning_" + mission_file[0:4] + "_rewards.dat"
+    statFileName = "DeepQLearning_" + mission_file[0:4] + "_stats.dat"
+    rewardFileName = "DeepQLearning_" + mission_file[0:4] + "_rewards.dat"
     np.savetxt(statFileName, errorLog)
     np.savetxt(rewardFileName, rList)
         
