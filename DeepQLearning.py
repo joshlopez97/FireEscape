@@ -316,5 +316,6 @@ with tf.Session() as sess:
         print("jList for %d: %d" %(count, jList[count]))
     
     #dump errorLog into 
-    np.savetxt('BasicDQN_Board2_ErrorLog.dat', errorLog)
+    statFileName = "QLearning_" + mission_file[0:4] + "_stats.dat"
+    np.savetxt(statFileName, errorLog)
         
