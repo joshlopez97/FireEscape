@@ -126,7 +126,7 @@ def dijkstra_shortest_path(grid_obs, source, dest):
 
 #--------------------------------------- Main ---------------------------------------
 #file to run
-mission_file = 'map3.xml'
+mission_file = 'map3.xml' #<---------------------------------- map choice
 
 #action list = north, south, west, east
 #this calculation is reliant on knowing the grid is 21x21
@@ -138,7 +138,7 @@ Q = np.zeros([441, len(action_trans)]) #441 = len(grid)
 eps = 0.1
 lr = .9
 y = .9
-num_episodes = 2000
+num_episodes = 3500  #<-----------------------------------------number of iteration
 
 #create lists to contain total rewards and steps per episode
 rList = []
@@ -171,7 +171,7 @@ for i in range(num_repeats):
     print('Repeat %d of %d' % ( i+1, num_repeats ))
     count = i
 
-    #maze size parameter (not used)
+    #map file selection
     f = open(mission_file, "r") 
     missionXML = f.read()
     my_mission = MalmoPython.MissionSpec(missionXML, True)
@@ -239,11 +239,11 @@ for i in range(num_repeats):
         if grid[s1] == 'air':
             r = -99
             done = True
-        elif grid[s1] == 'fire':
+        elif grid[s1] == 'netherrack':
             r = (-1*(len(curPath)-1))
             r = r - 1.5
         elif grid[s1] == 'redstone_block':
-            r = -1*(len(curPath)-1)
+            r = (-1*(len(curPath)-1))
             done = True
         else:
             r = -1*(len(curPath)-1)
@@ -263,6 +263,7 @@ for i in range(num_repeats):
         s = s1
 
         if done == True:
+            eps = 1./((count/50) + 10)
             if (count%10) == 0:
                 print()
                 print("Report for %d: " % count)
@@ -270,17 +271,17 @@ for i in range(num_repeats):
                 print("Move list found: ", moveList)
                 print()
 
-            #error Calculation
-            errorCount = 0
-            for i in range(len(moveList)):
-                if i > (len(optimalRes)-1):
-                    errorCount += 1
-                elif moveList[i] != optimalRes[i]:
-                    errorCount += 1
-            if len(moveList) < len(optimalRes):
-                lengthDiff = len(optimalRes) - len(moveList)
-                errorCount += lengthDiff
-            errorLog.append((count, errorCount))
+                #error Calculation
+                errorCount = 0
+                for i in range(len(moveList)):
+                    if i > (len(optimalRes)-1):
+                        errorCount += 1
+                    elif moveList[i] != optimalRes[i]:
+                        errorCount += 1
+                if len(moveList) < len(optimalRes):
+                    lengthDiff = len(optimalRes) - len(moveList)
+                    errorCount += lengthDiff
+                errorLog.append((count, errorCount))
 
             moveList.clear()
             break
@@ -289,4 +290,7 @@ for i in range(num_repeats):
     print("Score over time: " +  str(sum(rList)/num_episodes))
 
 #dump errorLog into 
-np.savetxt('QLPathFind_Board2_ErrorLog.dat', errorLog)
+statFileName = "QLearning_" + mission_file[0:4] + "_stats.dat"
+rewardFileName = "QLearning_" + mission_file[0:4] + "_rewards.dat"
+np.savetxt(statFileName, errorLog)
+np.savetxt(rewardFileName, rList)

@@ -1,16 +1,16 @@
 ---
 layout: default
-title:  openAI
+title:  FireEscape
 ---
 
 # {{ page.title }}
 
 
-## Joshua Lopez
+### Joshua Lopez
 ***UCI Net ID***: lopezja4
 
-## Rikako Yamamoto
+### Rikako Yamamoto
 ***UCI Net ID***: rikakoy
 
-## Desmen Hartono
+### Desmen Hartono
 ***UCI Net ID***: hartonod
