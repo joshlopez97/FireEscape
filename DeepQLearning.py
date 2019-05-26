@@ -146,7 +146,7 @@ updateModel = trainer.minimize(loss)
 
 init = tf.initialize_all_variables()
 
-#DQN parameters 
+#DQN parameters  
 eps = 0.1
 y = 0.99
 num_episodes = 1500  #<------------------------------------------------------------------ number of iterations
@@ -239,8 +239,9 @@ with tf.Session() as sess:
 
         #The Q-Table learning algorithm
         while j < 99:
-            #time.sleep(0.1)  #add sleep here to make fire more effective
+            time.sleep(0)  #add sleep here to make fire more effective
             j+=1
+
             #Choose an action by greedily (with e chance of random action) from the Q-network
             a,allQ = sess.run([predict,Qout],feed_dict={inputs1:np.identity(441)[s:s+1]})
 
@@ -260,7 +261,7 @@ with tf.Session() as sess:
                 done = True
             elif grid[s1] == 'netherrack':
                 r = -(len(curPath)-1)
-                r += -1.5
+                r += -2
             elif grid[s1] == 'redstone_block':
                 r = -(len(curPath)-1)
                 done = True
