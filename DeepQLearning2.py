@@ -127,7 +127,7 @@ def dijkstra_shortest_path(grid_obs, source, dest):
     return path_list
 
 #--------------------------------------- Main ---------------------------------------
-mission_file = 'testmap.xml' #<-------------------------------------------------------------- map choice
+mission_file = 'map3.xml' #<-------------------------------------------------------------- map choice
 
 #DQN init ---------------------------------------------------------------------------
 tf.reset_default_graph()
@@ -146,16 +146,16 @@ updateModel = trainer.minimize(loss)
 
 init = tf.initialize_all_variables()
 
+#create lists to contain total rewards and steps per episode
+rList = []
+jList = []
+
 #DQN parameters  
 eps = 0.1
 y = 0.99
 num_episodes = 2000 
 iterationsWithNoRandom = 250
 eps_deg = eps/(num_episodes - iterationsWithNoRandom)
-
-#create lists to contain total rewards and steps per episode
-rList = []
-jList = []
 #DQN init end ----------------------------------------------------------------------
 
 #action list = north, south, west, east
