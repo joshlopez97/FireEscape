@@ -149,7 +149,9 @@ init = tf.initialize_all_variables()
 #DQN parameters  
 eps = 0.1
 y = 0.99
-num_episodes = 1500  #<------------------------------------------------------------------ number of iterations
+num_episodes = 2000 
+iterationsWithNoRandom = 250
+eps_deg = eps/(num_episodes - iterationsWithNoRandom)
 #create lists to contain total rewards and steps per episode
 rList = []
 jList = []
@@ -250,8 +252,7 @@ with tf.Session() as sess:
             a,allQ = sess.run([predict,Qout],feed_dict={inputs1:np.identity(1764)[s:s+1]})
 
             #prob of eps to choose random action
-            rng = np.random.randint(1, 100)
-            if rng>=1 and rng<=(100*eps): #P(eps)
+            if (np.random.rand(1)<eps) and (eps>0):
                 a[0] = np.random.randint(0, len(action_trans)-1)
 
             #step(a[0]) = Get new state and reward from environment
@@ -324,7 +325,7 @@ with tf.Session() as sess:
 
             if done == True:
                 #Reduce chance of random action as we train the model.
-                eps = 1./((count/50) + 10)
+                eps = eps-eps_deg
 
                 if (count%10) == 0:
                     print()
