@@ -13,10 +13,8 @@ except:
 def load_grid(world_state):
     """
     Used the agent observation API to get a 21 X 21 grid box around the agent (the agent is in the middle).
-
     Args
         world_state:    <object>    current agent world state
-
     Returns
         grid:   <list>  the world grid blocks represented as a list of blocks (see Tutorial.pdf)
     """
@@ -37,10 +35,8 @@ def load_grid(world_state):
 def find_start_end(grid):
     """
     Finds the source and destination block indexes from the list.
-
     Args
         grid:   <list>  the world grid blocks represented as a list of blocks (see Tutorial.pdf)
-
     Returns
         start: <int>   source block index in the list
         end:   <int>   destination block index in the list
@@ -52,10 +48,8 @@ def find_start_end(grid):
 def extract_action_list_from_path(path_list):
     """
     Converts a block idx path to action list.
-
     Args
         path_list:  <list>  list of block idx from source block to dest block.
-
     Returns
         action_list: <list> list of string discrete action commands (e.g. ['movesouth 1', 'movewest 1', ...]
     """
@@ -71,12 +65,10 @@ def dijkstra_shortest_path(grid_obs, source, dest):
     """
     Finds the shortest path from source to destination on the map. It used the grid observation as the graph.
     See example on the Tutorial.pdf file for knowing which index should be north, south, west and east.
-
     Args
         grid_obs:   <list>  list of block types string representing the blocks on the map.
         source:     <int>   source block index.
         dest:       <int>   destination block index.
-
     Returns
         path_list:  <list>  block indexes representing a path from source (first element) to destination (last)
     """
@@ -88,7 +80,7 @@ def dijkstra_shortest_path(grid_obs, source, dest):
         if grid_obs[i] != 'air': #<----------- Add things to avoid here
             vertexdict[i] = [1, 999, -999]  #key = index, value = (cost, shortest dist from start, prev vert)
             unvisited.append(i)  #add to unvisited list
-    
+
     #set source vertex cost and shortest_dist_from_start to 0
     if source in vertexdict:
         vertexdict[source][0] = 0
@@ -130,7 +122,7 @@ mission_file = 'map3.xml' #<---------------------------------- map choice
 
 #action list = north, south, west, east
 #this calculation is reliant on knowing the grid is 21x21
-action_trans = [(-21,'movenorth 1'), (21, 'movesouth 1'), (-1, 'movewest 1'), (1, 'moveeast 1')] 
+action_trans = [(-21,'movenorth 1'), (21, 'movesouth 1'), (-1, 'movewest 1'), (1, 'moveeast 1')]
 
 #Q-table initializer
 Q = np.zeros([441, len(action_trans)]) #441 = len(grid)
@@ -175,7 +167,7 @@ for i in range(num_repeats):
     count = i
 
     #map file selection
-    f = open(mission_file, "r") 
+    f = open(mission_file, "r")
     missionXML = f.read()
     my_mission = MalmoPython.MissionSpec(missionXML, True)
 
@@ -227,15 +219,15 @@ for i in range(num_repeats):
         time.sleep(0)  #<----- adjust sleep
 
         #prob of eps to choose random action
-        if (np.random.rand(1)<eps) and (eps>0):
-            a[0] = np.random.randint(0, len(action_trans)-1)
+        if (np.random.rand(1) < eps) and (eps>0):
+            a = np.random.randint(0, len(action_trans)-1)
         else:
             a = np.argmax(Q[s,:])
 
         #Get new state and reward from environment
         s1 = s + action_trans[a][0] #gets index of a
 
-        #calculating reward 
+        #calculating reward
         curPath = dijkstra_shortest_path(grid, s1, end)
         if grid[s1] == 'air':
             r = -99
@@ -292,7 +284,7 @@ for i in range(num_repeats):
     rList.append(rAll)
     print("Score over time: " +  str(sum(rList)/num_episodes))
 
-#dump errorLog into 
+#dump errorLog into
 statFileName = "QLearning_" + mission_file[0:4] + "_stats.dat"
 rewardFileName = "QLearning_" + mission_file[0:4] + "_rewards.dat"
 np.savetxt(statFileName, errorLog)
