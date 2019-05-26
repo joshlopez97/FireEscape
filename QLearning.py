@@ -134,11 +134,14 @@ action_trans = [(-21,'movenorth 1'), (21, 'movesouth 1'), (-1, 'movewest 1'), (1
 
 #Q-table initializer
 Q = np.zeros([441, len(action_trans)]) #441 = len(grid)
+
 # Set learning parameters
 eps = 0.1
 lr = .9
 y = .9
-num_episodes = 3500  #<-----------------------------------------number of iteration
+num_episodes = 3500            #<-----------------------------------------number of iteration
+iterationsWithNoRandom = 250   #<-----------------------------------------iteration randomness stop
+eps_deg = eps/(num_episodes - iterationsWithNoRandom)
 
 #create lists to contain total rewards and steps per episode
 rList = []
@@ -219,29 +222,27 @@ for i in range(num_repeats):
 
     #The Q-Table learning algorithm
     while j < 99:
-        #time.sleep(0.1)  #<----- adjust sleep
+        j+=1  #max move in a run
 
-        j+=1
-        #Choose an action by greedily (with noise) picking from Q table
-        #a = np.argmax(Q[s,:] + np.random.randn(1,len(action_trans)) * (1./(i+1)))
+        time.sleep(0)  #<----- adjust sleep
 
-        rng = np.random.randint(1, 100)
-        if rng>=1 and rng<=(100*eps): #P(eps)
-            a = np.random.randint(0, len(action_trans)-1)
+        #prob of eps to choose random action
+        if (np.random.rand(1)<eps) and (eps>0):
+            a[0] = np.random.randint(0, len(action_trans)-1)
         else:
             a = np.argmax(Q[s,:])
 
         #Get new state and reward from environment
         s1 = s + action_trans[a][0] #gets index of a
 
-        #calculating reward <------------- variable
+        #calculating reward 
         curPath = dijkstra_shortest_path(grid, s1, end)
         if grid[s1] == 'air':
             r = -99
             done = True
         elif grid[s1] == 'netherrack':
             r = (-1*(len(curPath)-1))
-            r = r - 1.5
+            r = r - 2
         elif grid[s1] == 'redstone_block':
             r = (-1*(len(curPath)-1))
             done = True
@@ -263,7 +264,9 @@ for i in range(num_repeats):
         s = s1
 
         if done == True:
-            eps = 1./((count/50) + 10)
+            #Reduce chance of random action as we train the model.
+            eps = eps-eps_deg
+
             if (count%10) == 0:
                 print()
                 print("Report for %d: " % count)
