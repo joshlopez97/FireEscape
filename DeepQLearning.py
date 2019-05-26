@@ -146,13 +146,16 @@ updateModel = trainer.minimize(loss)
 
 init = tf.initialize_all_variables()
 
-#DQN parameters  
-eps = 0.1
-y = 0.99
-num_episodes = 1500  #<------------------------------------------------------------------ number of iterations
 #create lists to contain total rewards and steps per episode
 rList = []
 jList = []
+
+#DQN parameters  
+eps = 0.1
+y = 0.99
+num_episodes = 2000
+iterationsWithNoRandom = 250
+eps_deg = eps/(num_episodes - iterationsWithNoRandom)
 #DQN init end ----------------------------------------------------------------------
 
 #action list = north, south, west, east
@@ -185,6 +188,9 @@ with tf.Session() as sess:
         num_repeats = 1
     else:
         num_repeats = num_episodes
+
+    #Lets us use the various minecraft cheats available
+    agent_host.sendCommand("chat /gamerule naturalRegeneration false")
 
     for i in range(num_repeats):
         count = i
@@ -239,15 +245,14 @@ with tf.Session() as sess:
 
         #The Q-Table learning algorithm
         while j < 99:
-            time.sleep(0)  #add sleep here to make fire more effective
+            time.sleep(0)  #0.35 will cause the 3 fire steps to kill the agent 
             j+=1
 
             #Choose an action by greedily (with e chance of random action) from the Q-network
             a,allQ = sess.run([predict,Qout],feed_dict={inputs1:np.identity(441)[s:s+1]})
 
             #prob of eps to choose random action
-            rng = np.random.randint(1, 100)
-            if rng>=1 and rng<=(100*eps): #P(eps)
+            if (np.random.rand(1)<eps) and (eps>0):
                 a[0] = np.random.randint(0, len(action_trans)-1)
 
             #step(a[0]) = Get new state and reward from environment
@@ -285,9 +290,11 @@ with tf.Session() as sess:
             #increment s to s1
             s = s1
 
+            print("Run %d | Reward = %d" %(count, r))
+
             if done == True:
                 #Reduce chance of random action as we train the model.
-                eps = 1./((count/50) + 10)
+                eps = eps-eps_deg
 
                 if (count%10) == 0:
                     print()

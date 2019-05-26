@@ -117,8 +117,7 @@ def dijkstra_shortest_path(grid_obs, source, dest):
     return path_list
 
 #--------------------------------------- Main ---------------------------------------
-#file to run
-mission_file = 'map3.xml' #<---------------------------------- map choice
+mission_file = 'map3.xml'
 
 #action list = north, south, west, east
 #this calculation is reliant on knowing the grid is 21x21
@@ -131,8 +130,8 @@ Q = np.zeros([441, len(action_trans)]) #441 = len(grid)
 eps = 0.1
 lr = .9
 y = .9
-num_episodes = 3500            #<-----------------------------------------number of iteration
-iterationsWithNoRandom = 250   #<-----------------------------------------iteration randomness stop
+num_episodes = 3500            #number of iteration
+iterationsWithNoRandom = 250   #iteration without randomness
 eps_deg = eps/(num_episodes - iterationsWithNoRandom)
 
 #create lists to contain total rewards and steps per episode
