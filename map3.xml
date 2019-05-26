@@ -33,7 +33,7 @@
                     <DrawLine x1="1" y1="51" z1="5" x2="2" y2="51" z2="5" type="fire"/>
 
                   </DrawingDecorator>
-                  <ServerQuitFromTimeUp timeLimitMs="10000"/>
+                  <ServerQuitFromTimeUp timeLimitMs="50000"/>
                   <ServerQuitWhenAnyAgentFinishes/>
                 </ServerHandlers>
               </ServerSection>
@@ -44,10 +44,12 @@
                     <Placement x="0.5" y="51" z="0.5" yaw="0"/>
                 </AgentStart>
                 <AgentHandlers>
+                    <ChatCommands/>
                     <DiscreteMovementCommands/>
                     <AgentQuitFromTouchingBlockType>
                         <Block type="redstone_block"/>
                     </AgentQuitFromTouchingBlockType>
+                    <ObservationFromFullStats/>
                     <ObservationFromGrid>
                       <Grid name="floorAll">
                         <min x="-10" y="-1" z="-10"/>

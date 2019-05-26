@@ -36,7 +36,7 @@
                 <DrawLine x1="0" y1="50" z1="7" x2="1" y2="50" z2="7" type="netherrack"/>
                 <DrawLine x1="0" y1="51" z1="7" x2="1" y2="51" z2="7" type="fire"/>
               </DrawingDecorator>
-              <ServerQuitFromTimeUp timeLimitMs="10000"/>
+              <ServerQuitFromTimeUp timeLimitMs="50000"/>
               <ServerQuitWhenAnyAgentFinishes/>
             </ServerHandlers>
           </ServerSection>
@@ -47,16 +47,8 @@
                 <Placement x="0.5" y="51" z="0.5" yaw="0"/>
             </AgentStart>
             <AgentHandlers>
+                <ChatCommands/>
                 <DiscreteMovementCommands/>
-                <RewardForTouchingBlockType>
-                  <Block reward="-100.0" type="air" behaviour="onceOnly"/>
-                  <Block reward="100.0" type="redstone_block" behaviour="onceOnly"/>
-                  <Block reward="-30.0" type="fire" behaviour="oncePerBlock"/>
-                </RewardForTouchingBlockType>
-                <RewardForMissionEnd rewardForDeath="-100.0">
-                    <Reward description="out_of_time" reward="-100.0"/>
-                    <Reward description="out_of_arena" reward="-100.0"/>
-                </RewardForMissionEnd>
                 <AgentQuitFromTouchingBlockType>
                     <Block type="redstone_block"/>
                 </AgentQuitFromTouchingBlockType>
