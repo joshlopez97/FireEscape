@@ -14,6 +14,7 @@ Since our project involves having an agent learn the optimal actions required to
 
  				(size of the map * number of health states)
 
+
 <ins>Map 1</ins>  
 <img style="height: 250px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/status_report_images/map1.png">
 
