@@ -14,15 +14,14 @@ Since our project involves having an agent learn the optimal actions required to
 
             (size of the map * number of health states)
 
+<ins>Figure 1: Q-learning Update Function</ins>
+<img style="height: 200px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/status_report_images/q_learn_eq.PNG">  
+
 For the basic version of our algorithm, we kept the size of the map to be less than 25 blocks and 3 health states: full health, less than ⅔ health, less than ⅓ health.  For our action states, we allow the agent to have four different actions: forward, backward, left, and right.  This would produce a Q-table with the size:
 
 			(map size * number of health states * number of action states)
 
 In our project we have a max Q-table size of:  25*3*4 = 300
-
-<ins>Figure 1: Q-learning Update Function</ins>
-<img style="height: 200px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/status_report_images/q_learn_eq.PNG">  
-
 
 <ins>Map 1</ins>  
 <img style="height: 250px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/status_report_images/map1.png">
