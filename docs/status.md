@@ -22,7 +22,7 @@ For the basic version of our algorithm, we kept the size of the map to be less t
 
 			            (map size * number of health states * number of action states)
 
-In our project we have a max Q-table size of:  25*3*4 = 300
+In our project we have a max Q-table size of:  25*3*4 = 300 <br>
 The * symbol on the maps represent the optimal path to the goal block.
 
 <ins>Map 1</ins>  
