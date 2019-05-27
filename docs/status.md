@@ -142,7 +142,7 @@ Furthermore, to ensure that our agent is learning the optimal path, we included 
 
 
 <ins>Figure 17: Graphical representation of Q-table</ins>  
-<img style="width: 150px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/status_report_images/Qtable Graphic.png">
+
 
 <br> Green Outline = Start Block <br>
 Red Outline = End Block 
