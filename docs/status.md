@@ -109,17 +109,18 @@ The metric number of moves per episode and number of successful episodes lets us
 
 ### <ins>Qualitative Measures:</ins>
 
-The goal of our project is for an agent to learn the optimal path from a start block to an goal block while avoiding obstacles if necessary.  To judge whether our agent accomplished this task, we used these three qualitative measures:
-1. Whether path found is the optimal path (agent’s error rate)
-2. Whether agent can complete map without dying
-3. Amount of health upon reaching goal
+The goal of our project is for an agent to learn the optimal path from a start block to a goal block while avoiding obstacles if necessary.  To judge whether our agent accomplished this task, we used these three qualitative measures:
+
+    1. Whether path found is the optimal path (agent’s error rate)
+    2. Whether agent can complete map without dying
+    3. Amount of health upon reaching goal
 
 Our main qualitative measure is whether the path found is optimal.  The optimal path is defined as a path to the goal that takes the least amount of moves necessary while the agent stays alive.  The agent can take damage along the path as long the damage taken would reduce the number of moves needed and does not kill the agent.  To evaluate whether it can learn the optimal path, we created several test cases with a predetermined optimal path that we can compare to the path the agent learnt.  The maps are specifically designed so that it will effectively test whether our agent can complete our qualitative measures.  There are paths that result in no damage being taken but also takes slightly more moves (Figure 11), paths that kill the agent but result in less moves (Figure 12), and paths that would result in unnecessary damage being taken (Figure 13).
 
 <img style="height: 500px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/status_report_images/3maps_updated.png">
 
 
-To evaluate the path the agent learn over a training session, we used the error rate metric.  The error rate of the path an agent chooses is the number of moves that differ between the agent’s path and the optimal path.  If an agent dies before reaching the goal block, the error rate would reflect that by calculating the difference between optimal number of steps and steps achieved.  Figure 14, Figure 15, Figure 16, and Figure 17 shows the graph of the agent’s error rate versus number of episodes for each map.  We can see that after several hundred episodes the error rate eventually converges to zero, meaning the agent has successfully found the intended optimal path. This shows that the agent has successfully completed the goal of our project.
+To evaluate the path the agent learns over a training session, we used the error rate metric.  The error rate of the path an agent chooses is the number of moves that differ between the agent’s path and the optimal path.  If an agent dies before reaching the goal block, the error rate would reflect that by calculating the difference between optimal number of steps and steps achieved.  Figure 14, Figure 15, Figure 16, and Figure 17 shows the graph of the agent’s error rate versus number of episodes for each map.  We can see that after several hundred episodes the error rate eventually converges to zero, meaning the agent has successfully found the intended optimal path. This shows that the agent has successfully completed the goal of our project.
 
 
 <ins>Figure 14: Map 1 Error-Rate Graph</ins>
@@ -137,11 +138,13 @@ To evaluate the path the agent learn over a training session, we used the error 
 <ins>Figure 16: Map 4 Error-Rate Graph</ins>
 <img style="height: 500px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/status_report_images/Map4 Error Rate Graph.png">
 
-Furthermore, to ensure that our agent is learning the optimal path, we included a graphics shown in Figure 17 for the Q-table indicating the improvement in path the agent learns.  Each square in in Figure 9 represents each block on the map.  The blocks with red backgrounds represent fire blocks, while the black background represents normal blocks.  The large white circle in the center of the block is the current agent’s position and the four small circles in each block represents the resulting Q-value of each direction from that particular block.  Red small circles mean that the Q-values for those direction results in low rewards, while green small circles means that Q-value for those direction results in high rewards.  As we can see in Figure 16, the Q-table will eventually show the optimal path that the agent learns.
+Furthermore, to ensure that our agent is learning the optimal path, we included the graphical representation of the Q-table shown in Figure 17 indicating the improvement in path the agent learns.  Each square in Figure 17 represents each block on the map.  The blocks with red backgrounds represent fire blocks, while the black background represents normal blocks.  The large white circle in the center of the block is the current agent’s position and the four small circles in each block represents the resulting Q-value of each direction from that particular block.  Red small circles mean that the Q-values for those direction results in low rewards, while green small circles means that Q-value for those direction results in high rewards.  As we can see in Figure 17, the Q-table will eventually show the optimal path that the agent learns.
 
 
-<ins>Figure 17: Graphic Q-table</ins>  
+<ins>Figure 17: Graphical representation of Q-table</ins>  
 <img style="width: 150px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/status_report_images/Qtable Graphic.png">
+Green Outline = Start Block <br>
+Red Outline = End Block <br>
 
 
 ## Remaining Goals and Challenges
