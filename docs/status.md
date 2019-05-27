@@ -10,9 +10,18 @@ Our project will aim to train an agent to complete a challenge map in the least 
 
 ## Approach
 
-Since our project involves having an agent learn the optimal actions required to reach the goal, we decided that Reinforcement Learning was the best approach.  In particular, we used the Q-Learning update function shown in Figure 1 to teach our agent to navigate the map safely.  Q-Learning is an algorithm that teaches an agent which action to take given a state through rewards and punishment.  Q-Learning uses a table of Q-values which is used to rate an action based on a given state and the value of the next best action.  The learning rate will determine the degree of change to the Q-table per iteration.  The discount factor determines how much future actions will impact the rating of the current action.  For the basic implementation of Q-Learning, we defined our state space to be:
+Since our project involves having an agent learn the optimal actions required to reach the goal, we decided that Reinforcement Learning was the best approach.  In particular, we used the Q-Learning update function shown in Figure 1 to teach our agent to navigate the map safely.  Q-Learning is an algorithm that teaches an agent which action to take given a state through rewards and punishments.  Q-Learning uses a table of Q-values which is used to rate an action based on a given state and the value of the next best action.  The learning rate will determine the degree of change to the Q-table per iteration.  The discount factor determines how much future actions will impact the rating of the current action.  For the basic implementation of Q-Learning, we defined our state space to be:
 
- 				(size of the map * number of health states)
+            (size of the map * number of health states)
+
+For the basic version of our algorithm, we kept the size of the map to be less than 25 blocks and 3 health states: full health, less than ⅔ health, less than ⅓ health.  For our action states, we allow the agent to have four different actions: forward, backward, left, and right.  This would produce a Q-table with the size:
+
+			(map size * number of health states * number of action states)
+
+In our project we have a max Q-table size of:  25*3*4 = 300
+
+<ins>Figure 1: Q-learning Update Function</ins>
+<img style="height: 200px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/status_report_images/q_learn_eq.PNG">  
 
 
 <ins>Map 1</ins>  
@@ -30,16 +39,6 @@ Since our project involves having an agent learn the optimal actions required to
 <ins>Map 4</ins>  
 <img style="height: 250px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/status_report_images/map4.png">
 
-
-For the basic version of our algorithm, we kept the size of the map to be less than 50 blocks and 3 health states: full health, less than ⅔ health, less than ⅓ health.  For our action states, we allow the agent to have four different actions: forward, backward, left, and right.   This would produce a Q-table with the size:
-
-			(map size * number of health states * number of action states)
-
-In our project we have a max Q-table size of:  50*3*4 = 600
-
-
-<ins>Figure 1: Q-learning Update Function</ins>
-<img style="height: 200px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/status_report_images/q_learn_eq.PNG">  
 
 For each action the agent completes, a positive reward or negative reward will be given based on the resulting state the agent is in.  The reward function we implemented uses three main factors to calculate the reward given for an action:
 
