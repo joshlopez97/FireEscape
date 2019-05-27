@@ -101,11 +101,11 @@ The metric number of moves per episode and number of successful episodes lets us
     
     
 <ins>Figure 9: Map3 Moves Per Episode</ins>  
-<img style="height: 500px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/status_report_images/Map1 Moves per Episode Graph.png">
+<img style="height: 500px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/status_report_images/Map2 Moves per Episode Graph.png">
 
 
 <ins>Figure 10: Map4 Moves Per Episode</ins>  
-<img style="height: 500px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/status_report_images/Map2 Moves per Episode Graph.png">
+<img style="height: 500px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/status_report_images/Map1 Moves per Episode Graph.png">
 
 ### <ins>Qualitative Measures:</ins>
 
