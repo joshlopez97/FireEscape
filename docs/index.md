@@ -16,6 +16,9 @@ Before the start of each game, the agent has 10.0 units of health (represented b
   
 <img style="display:inline-block" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/docs/img/game_loss1.gif" alt="game_loss1.gif" style="height: 270px;">
 <img style="display:inline-block" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/docs/img/game_loss2.gif" alt="game_loss2.gif" style="height: 270px;">
+
+#### Problem
+The goal of the game is to complete the map using the least amount of moves possible with the most remaining health possible. We are using Q-Learning and Deep Q-Learning to find the optimal solution to a map and perform better than a normal player would be able to, or Djikstra's shortest path would be able to. For more information on our progress so far, take a look at our [Status Report](status.html).
   
 #### Relevant Links
 - [Fire Damage in Minecraft](https://minecraft.gamepedia.com/Damage#Fire)
