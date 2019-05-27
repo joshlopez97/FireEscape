@@ -127,7 +127,7 @@ def dijkstra_shortest_path(grid_obs, source, dest):
     return path_list
 
 #--------------------------------------- Main ---------------------------------------
-mission_file = 'map3.xml' #<-------------------------------------------------------------- map choice
+mission_file = 'map4.xml'
 
 #DQN init ---------------------------------------------------------------------------
 tf.reset_default_graph()
@@ -153,8 +153,8 @@ jList = []
 #DQN parameters  
 eps = 0.1
 y = 0.99
-num_episodes = 2000 
-iterationsWithNoRandom = 250
+num_episodes = 10 
+iterationsWithNoRandom = 0
 eps_deg = eps/(num_episodes - iterationsWithNoRandom)
 #DQN init end ----------------------------------------------------------------------
 
@@ -192,20 +192,25 @@ with tf.Session() as sess:
     #Lets us use the various minecraft cheats available
     agent_host.sendCommand("chat /gamerule naturalRegeneration false")
 
+    #map file selection
+    f = open(mission_file, "r") 
+    missionXML = f.read()
+    my_mission = MalmoPython.MissionSpec(missionXML, True)
+
     for i in range(num_repeats):
         count = i
         print()
         print('Repeat %d of %d' % ( i+1, num_repeats ))
 
-        #map file selection
-        f = open(mission_file, "r") 
-        missionXML = f.read()
-        my_mission = MalmoPython.MissionSpec(missionXML, True)
-
-        #setup mission to start
-        my_mission_record = MalmoPython.MissionRecordSpec()
-        my_mission.requestVideo(800, 500)
+        #video recording
+        #put a string into MissionRecordSpec("string") as file name
+        my_mission_record = MalmoPython.MissionRecordSpec()  
+        my_mission.requestVideo(1200,720)
         my_mission.setViewpoint(1)
+
+        #comment this out if not recording anything
+        # my_mission_record.recordMP4(30, 2000000) 
+
         # Attempt to start a mission:
         max_retries = 3
         my_clients = MalmoPython.ClientPool()
@@ -356,8 +361,10 @@ with tf.Session() as sess:
         print("jList for %d: %d" %(count, jList[count]))
     
     #dump errorLog into 
-    statFileName = "DeepQLearning_" + mission_file[0:4] + "_stats.dat"
-    rewardFileName = "DeepQLearning_" + mission_file[0:4] + "_rewards.dat"
+    statFileName = "DeepQLearning2Stats/DeepQLearning2_" + mission_file[0:4] + "_stats.dat"
+    rewardFileName = "DeepQLearning2Stats/DeepQLearning2_" + mission_file[0:4] + "_rewards.dat"
+    moveFileName = "DeepQLearning2Stats/DeepQLearning2_" + mission_file[0:4] + "_moves.dat"
     np.savetxt(statFileName, errorLog)
     np.savetxt(rewardFileName, rList)
+    np.savetxt(moveFileName, jList)
         

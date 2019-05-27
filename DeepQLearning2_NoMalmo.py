@@ -127,7 +127,16 @@ def dijkstra_shortest_path(grid_obs, source, dest):
     return path_list
 
 #--------------------------------------- Main ---------------------------------------
-mission_file = 'testmap.xml' #<-------------------------------------------------------------- map choice
+mission_file = 'map5.xml' 
+#This has to be tuned to the map you're using
+#map1
+#optimalRes = ['movewest 1', 'movewest 1', 'movewest 1', 'movewest 1', 'movenorth 1', 'movenorth 1', 'movenorth 1', 'movenorth 1']
+
+#map3
+#optimalRes = ['movenorth 1', 'movenorth 1', 'movenorth 1', 'movenorth 1', 'movenorth 1', 'movenorth 1', 'movewest 1', 'movewest 1']
+
+#map5
+optimalRes = ['movewest 1', 'movewest 1', 'movenorth 1', 'movenorth 1', 'moveeast 1', 'moveeast 1', 'movenorth 1', 'movenorth 1', 'movenorth 1', 'movewest 1', 'movewest 1', 'movenorth 1', 'movenorth 1']
 
 #DQN init ---------------------------------------------------------------------------
 tf.reset_default_graph()
@@ -146,15 +155,16 @@ updateModel = trainer.minimize(loss)
 
 init = tf.initialize_all_variables()
 
-#DQN parameters  
-eps = 0.1
-y = 0.99
-num_episodes = 2000 
-iterationsWithNoRandom = 250
-eps_deg = eps/(num_episodes - iterationsWithNoRandom)
 #create lists to contain total rewards and steps per episode
 rList = []
 jList = []
+
+#DQN parameters  
+eps = 0.1
+y = 0.99
+num_episodes = 4000 
+iterationsWithNoRandom = 500
+eps_deg = eps/(num_episodes - iterationsWithNoRandom)
 #DQN init end ----------------------------------------------------------------------
 
 #action list = north, south, west, east
@@ -163,9 +173,8 @@ action_trans = [(-21,'movenorth 1'), (21, 'movesouth 1'), (-1, 'movewest 1'), (1
 #Printing Variables
 actionlist = {-21: 'movenorth 1', 21: 'movesouth 1', -1: 'movewest 1', 1: 'moveeast 1'}
 moveList = []
-#this is tuned for 2x7 board2
-optimalRes = ['movenorth 1', 'movenorth 1', 'movenorth 1', 'movenorth 1', 'movenorth 1', 'movenorth 1', 'movewest 1', 'movewest 1']
 errorLog = []
+successList = []
 
 #init the tensorflow session
 with tf.Session() as sess:
@@ -198,7 +207,7 @@ with tf.Session() as sess:
 
     #setup mission to start
     my_mission_record = MalmoPython.MissionRecordSpec()
-    my_mission.requestVideo(800, 500)
+    my_mission.requestVideo(1200,720)
     my_mission.setViewpoint(1)
     # Attempt to start a mission:
     max_retries = 3
@@ -229,6 +238,7 @@ with tf.Session() as sess:
 
     grid = load_grid(world_state)
     start, end = find_start_end(grid) #start, end = gridIndex
+    successCount = 0
 
     for i in range(num_repeats):
         count = i
@@ -296,6 +306,7 @@ with tf.Session() as sess:
                     done = True
             elif grid[s1Trans] == 'redstone_block':
                 r = 5
+                successCount += 1
                 done = True
             else:
                 r = -(len(curPath)-1)
@@ -346,6 +357,8 @@ with tf.Session() as sess:
                        errorCount += lengthDiff
                     errorLog.append((count, errorCount))
 
+                #put lists here if you want it to be recorded per episode
+                successList.append(successCount)
                 moveList.clear()
                 break
 
@@ -355,8 +368,12 @@ with tf.Session() as sess:
         print("jList for %d: %d" %(count, jList[count]))
     
     #dump errorLog into 
-    statFileName = "DeepQLearning_" + mission_file[0:4] + "_stats.dat"
-    rewardFileName = "DeepQLearning_" + mission_file[0:4] + "_rewards.dat"
+    statFileName = "DeepQLearning2Stats/DeepQLearning2_" + mission_file[0:4] + "_stats.dat"
+    rewardFileName = "DeepQLearning2Stats/DeepQLearning2_" + mission_file[0:4] + "_rewards.dat"
+    moveFileName = "DeepQLearning2Stats/DeepQLearning2_" + mission_file[0:4] + "_moves.dat"
+    successFileName = "DeepQLearning2Stats/DeepQLearning2_" + mission_file[0:4] + "_success.dat"
     np.savetxt(statFileName, errorLog)
     np.savetxt(rewardFileName, rList)
+    np.savetxt(moveFileName, jList)
+    np.savetxt(successFileName, successList)
         
