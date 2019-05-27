@@ -26,19 +26,19 @@ In our project we have a max Q-table size of:  25*3*4 = 300 <br>
 The * symbol on the maps represent the optimal path to the goal block.
 
 <ins>Map 1</ins>  
-<img style="height: 250px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/status_report_images/map1.png">
-
+<img style="width: 250px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/status_report_images/map1.png">
+  
 
 <ins>Map 2</ins>  
-<img style="height: 250px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/status_report_images/map2.png">
-
+<img style="width: 150px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/status_report_images/map2.png">
+  
 
 <ins>Map 3</ins>  
-<img style="height: 250px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/status_report_images/map3.png">
-
+<img style="width: 150px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/status_report_images/map3.png">
+  
 
 <ins>Map 4</ins>  
-<img style="height: 250px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/status_report_images/map4.png">
+<img style="width: 150px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/status_report_images/map4.png">
 
 
 For each action the agent completes, a positive reward or negative reward will be given based on the resulting state the agent is in.  The reward function we implemented uses three main factors to calculate the reward given for an action:
@@ -123,19 +123,19 @@ Our main qualitative measure is whether the path found is optimal.  The optimal 
 To evaluate the path the agent learns over a training session, we used the error rate metric.  The error rate of the path an agent chooses is the number of moves that differ between the agent’s path and the optimal path.  If an agent dies before reaching the goal block, the error rate would reflect that by calculating the difference between optimal number of steps and steps achieved.  Figure 14, Figure 15, Figure 16, and Figure 17 shows the graph of the agent’s error rate versus number of episodes for each map.  We can see that after several hundred episodes the error rate eventually converges to zero, meaning the agent has successfully found the intended optimal path. This shows that the agent has successfully completed the goal of our project.
 
 
-<ins>Figure 14: Map 1 Error-Rate Graph</ins>
+<ins>Figure 14: Map 1 Error-Rate Graph</ins>  
 <img style="height: 500px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/status_report_images/Map1 Error Rate Graph.png">
 
 
-<ins>Figure 15: Map 2 Error-Rate Graph</ins>
+<ins>Figure 15: Map 2 Error-Rate Graph</ins>  
 <img style="height: 500px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/status_report_images/Map2 Error Rate Graph.png">
 
 
-<ins>Figure 16: Map 3 Error-Rate Graph</ins>
+<ins>Figure 16: Map 3 Error-Rate Graph</ins>  
 <img style="height: 500px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/status_report_images/Map3 Error Rate Graph.png">
 
 
-<ins>Figure 16: Map 4 Error-Rate Graph</ins>
+<ins>Figure 16: Map 4 Error-Rate Graph</ins>  
 <img style="height: 500px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/status_report_images/Map4 Error Rate Graph.png">
 
 Furthermore, to ensure that our agent is learning the optimal path, we included the graphical representation of the Q-table shown in Figure 17 indicating the improvement in path the agent learns.  Each square in Figure 17 represents each block on the map.  The blocks with red backgrounds represent fire blocks, while the black background represents normal blocks.  The large white circle in the center of the block is the current agent’s position and the four small circles in each block represents the resulting Q-value of each direction from that particular block.  Red small circles mean that the Q-values for those direction results in low rewards, while green small circles means that Q-value for those direction results in high rewards.  As we can see in Figure 17, the Q-table will eventually show the optimal path that the agent learns.
