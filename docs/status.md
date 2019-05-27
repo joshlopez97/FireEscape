@@ -65,9 +65,10 @@ Our evaluation method is separated into two parts: the quantitative measures and
 ### <ins>Quantitative Measures:</ins>
 
 The quantitative evaluation of our algorithm is based on these three metrics: 
-1. Reward values per episode
-2. Number of moves per episode
-3. Number of successful episodes
+
+    1. Reward values per episode
+    2. Number of moves per episode
+    3. Number of successful episodes
 
 These four metrics help us measure the agent’s performance by measuring if it is continuously learning and improving the optimal path it knows.  The main metric we use to determine if the agent is learning is the reward value per episode.  By keeping track of this metric, we can gauge if the agent is improving on the action it chooses at each state.  The reward value per episode indicates the quality of the path chosen in that episode.  An episode where the agent dies or makes several inefficient actions will result in a low reward value at the end of the episode.  An episode where the agent optimizes its action and chooses the optimal path will result in the highest reward value.  Our main goal is to have the agent continuously achieving the maximum reward value per episode at the end of a training session.  The Figure 3, Figure 4, and Figure 5, Figure 6 below shows the reward value per episode in one training session.  As it can be seen in the graphs, at the beginning of the training session, there is a large variance in the reward value per episode.  As the agent progresses through the session, the reward values would converge to the highest reward value.  This shows that our agent has learnt the optimal path for the map. 
 
