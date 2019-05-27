@@ -15,17 +15,16 @@ Since our project involves having an agent learn the optimal actions required to
  				(size of the map * number of health states)
 
 <ins>Map 1</ins>
-![Map1](https://github.com/joshlopez97/FireEscape/blob/master/Status%20Report%20Images/map1.png)
+<img src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/docs/img/map1.png">
 
 <ins>Map 2</ins>
-![Map2](https://github.com/joshlopez97/FireEscape/blob/master/Status%20Report%20Images/map2.png)
-
+<img src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/docs/img/map2.png">
 
 <ins>Map 3</ins>
-![Map3](https://github.com/joshlopez97/FireEscape/blob/master/Status%20Report%20Images/map3.png)
+<img src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/docs/img/map3.png">
 
 <ins>Map 4</ins>
-![map4](https://github.com/joshlopez97/FireEscape/blob/master/Status%20Report%20Images/map4.png)
+<img src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/docs/img/map4.png">
 
 For the basic version of our algorithm, we kept the size of the map to be less than 50 blocks and 3 health states: full health, less than ⅔ health, less than ⅓ health.  For our action states, we allow the agent to have four different actions: forward, backward, left, and right.   This would produce a Q-table with the size:
 
