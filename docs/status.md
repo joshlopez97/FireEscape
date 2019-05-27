@@ -5,7 +5,7 @@ title: Status Report
 
 ## Summary of the Project:
 
-Our project will aim to train an agent to complete a challenge map in the least number of steps. The challenge maps will consist of obstacles such as fire blocks and holes which the agent must learn to navigate and avoid obstacles only when necessary.  In particular, we are interested in finding the minimum number of steps to complete a map without dying. The input for our agent will consist of the block type, and obstacles location on the map. The output will be the chosen movement of the agent. We will aim for the agent to take the shortest possible route during the challenge run using Q-learning and Deep Q-learning to gradually learn an optimal policy.
+Our project will aim to train an agent to complete a challenge map in the least number of steps. The challenge maps will consist of obstacles such as fire blocks and holes which the agent must learn to navigate and avoid obstacles only when necessary.  In particular, we are interested in finding the minimum number of steps to complete a map without dying. The input for our agent will consist of the block type and obstacle locations on the map. The output will be the chosen movement of the agent. We will aim for the agent to take the shortest possible route during the challenge run using Q-learning and Deep Q-learning to gradually learn an optimal policy.
 
 
 ## Approach
