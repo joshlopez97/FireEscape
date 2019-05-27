@@ -3,7 +3,7 @@ layout: default
 title:  Home
 ---
 
-### Source Code
+### [Source Code](https://github.com/joshlopez97/FireEscape)
 
 
 ### The ***Fire Escape!*** Game
