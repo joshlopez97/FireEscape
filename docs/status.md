@@ -14,16 +14,16 @@ Since our project involves having an agent learn the optimal actions required to
 
  				(size of the map * number of health states)
 
-<ins>Map 1</ins>
+<ins>Map 1</ins>  
 <img src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/status_report_images/map1.png">
 
-<ins>Map 2</ins>
+<ins>Map 2</ins>  
 <img src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/status_report_images/map2.png">
 
-<ins>Map 3</ins>
+<ins>Map 3</ins>  
 <img src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/status_report_images/map3.png">
 
-<ins>Map 4</ins>
+<ins>Map 4</ins>  
 <img src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/status_report_images/map4.png">
 
 For the basic version of our algorithm, we kept the size of the map to be less than 50 blocks and 3 health states: full health, less than ⅔ health, less than ⅓ health.  For our action states, we allow the agent to have four different actions: forward, backward, left, and right.   This would produce a Q-table with the size:
@@ -33,7 +33,7 @@ For the basic version of our algorithm, we kept the size of the map to be less t
 In our project we have a max Q-table size of:  50*3*4 = 600
 
 <ins>Figure 1: Q-learning Update Function</ins>
-<img src="../Status Report Images/q_learn_eq.PNG">
+<img src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/status_report_images/q_learn_eq.PNG">
 
 For each action the agent completes, a positive reward or negative reward will be given based on the resulting state the agent is in.  The reward function we implemented uses three main factors to calculate the reward given for an action:
 
@@ -44,7 +44,7 @@ For each action the agent completes, a positive reward or negative reward will b
 The main heuristic we used to determine the reward given to an agent is the distance from the goal block.  The farther away the block from the resulting state the lower the reward given. This will incentivize the agent to get closer to the goal.  A reward will also be given when the agent reaches the goal.  During the agent’s adventure learning the map, if the agent happens to die from falling or fire, a large negative reward will be given to deter the agent from committing the action in the future.  The negative reward given when stepping on fire will be calculated based on the health state the agent is in.  When the agent is max health, a small negative reward is given for stepping on fire.  This is to encourage the agent to go through fire if it can shorten the distance from the goal significantly.  As the agent’s health decrease, the negative reward will increase to deter the agent from dying to fire damage.  A diagram of the Markov Decision Process is shown in Figure 2:
 
 <ins>Figure 2</ins>
-<img src="../Status Report Images/Markov Decision Process.jpg">
+<img src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/status_report_images/Markov Decision Process.jpg">
 
 To ensure that the agent visits as many states as possible, a randomness factor is added when the agent picks its action.  There is a predetermined percentage chance (10% in our project) for the agent to randomly choose an action.  This randomness factor decreases linearly each time the agent completes the map. 
 
@@ -63,25 +63,25 @@ The quantitative evaluation of our algorithm is based on these three metrics:
 These four metrics help us measure the agent’s performance by measuring if it is continuously learning and improving the optimal path it knows.  The main metric we use to determine if the agent is learning is the reward value per episode.  By keeping track of this metric, we can gauge if the agent is improving on the action it chooses at each state.  The reward value per episode indicates the quality of the path chosen in that episode.  An episode where the agent dies or makes several inefficient actions will result in a low reward value at the end of the episode.  An episode where the agent optimizes its action and chooses the optimal path will result in the highest reward value.  Our main goal is to have the agent continuously achieving the maximum reward value per episode at the end of a training session.  The Figure 3, Figure 4, and Figure 5 below shows the reward value per episode in one training session.  As it can be seen in the graphs, at the beginning of the training session, there is a large variance in the reward value per episode.  As the agent progresses through the session, the reward values would converge to the highest reward value.  This shows that our agent has learnt the optimal path for the map. 
 
 
-<ins>Figure 3: Map1 Reward Per Episode</ins>
-<img src="../Status Report Images/Map1 Reward per Episode Graph.png">
+<ins>Figure 3: Map1 Reward Per Episode</ins>  
+<img src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/status_report_images/Map1 Reward per Episode Graph.png">
 
-<ins>Figure 4: Map2 Reward Per Episode</ins>
-<img src="../Status Report Images/Map2 Reward per Episode Graph.png">
+<ins>Figure 4: Map2 Reward Per Episode</ins>  
+<img src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/status_report_images/Map2 Reward per Episode Graph.png">
     
-<ins>Figure 5: Map3 Reward Per Episode</ins>
-<img src="../Status Report Images/Map3 Reward per Episode Graph.png">
+<ins>Figure 5: Map3 Reward Per Episode</ins>  
+<img src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/status_report_images/Map3 Reward per Episode Graph.png">
         
 The metric number of moves per episode and number of successful episodes lets us gauge if the agent is successfully learning to avoid lethal obstacles.  As the number of episodes increase, the number of moves per episode and successful episodes should start to increase also.  This is because the agent should start rating actions that would cause it to fall off the map or burn to death to have high negative rewards.  As a result, the agent should survive on the map longer and complete maps more consistently as it completes more episodes.  This can be seen from results of the training session of our agent in Figure 7-9.  As can be seen from (Figure 4) the graph shows that the rate of increase for the number of successful episode increases linearly at the end, meaning every episode is successful.  In the beginning, the graph shows a much slowly increase indicating that it was failing most of the episodes.  In (Figure 5), you can see that the number of moves per episode is very small in the beginning due to the agent dying early on in its episode.  The number of moves increases significantly in the middle as the agent starts learning to avoid lethal moves while also exploring the map to find the optimal path to the goal.  You can see the number of moves converge to a number at the end because the agent is starting to find the optimal path to the goal, which requires less moves.
 
-<ins>Figure 7: Map1 Moves Per Episode</ins>
-<img src="../Status Report Images/Map1 Moves per Episode Graph.png">
+<ins>Figure 7: Map1 Moves Per Episode</ins>  
+<img src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/status_report_images/Map1 Moves per Episode Graph.png">
 
-<ins>Figure 8: Map2 Moves Per Episode</ins>
-<img src="../Status Report Images/Map2 Moves per Episode Graph.png">
+<ins>Figure 8: Map2 Moves Per Episode</ins>  
+<img src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/status_report_images/Map2 Moves per Episode Graph.png">
     
-<ins>Figure 9: Map3 Moves Per Episode</ins>
-<img src="../Status Report Images/Map3 Moves per Episode Graph.png">
+<ins>Figure 9: Map3 Moves Per Episode</ins>  
+<img src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/status_report_images/Map3 Moves per Episode Graph.png">
 
 
 <ins>Qualitative Measures:</ins>
@@ -92,23 +92,23 @@ The goal of our project is for an agent to learn the optimal path from a start b
 
 Our main qualitative measure is whether the path found is optimal.  The optimal path is defined as a path to the goal that takes the least amount of moves necessary while the agent stays alive.  The agent can take damage along the path as long the damage taken would reduce the number of moves needed and does not kill the agent.  To evaluate whether it can learn the optimal path, we created several test cases with a predetermined optimal path that we can compare to the path the agent learnt.  The maps are specifically designed so that it will effectively test whether our agent can complete our qualitative measures.  There are paths that result in no damage being taken but also takes slightly more moves (Figure 10), paths that kill the agent but result in less moves (Figure 11), and paths that would result in unnecessary damage being taken (Figure 12).
 
-<img src="../Status Report Images/3maps.PNG">
+<img src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/status_report_images/3maps.PNG">
 
 To evaluate the path the agent learn over a training session, we used the error rate metric.  The error rate of the path an agent chooses is the number of moves that differ between the agent’s path and the optimal path.  If an agent dies before reaching the goal block, the error rate would reflect that by calculating the difference between optimal number of steps and steps achieved.  Figure 13, Figure 14, and Figure 15 shows the graph of the agent’s error rate versus number of episodes for each map.  We can see that after several hundred episodes the error rate eventually converges to zero, meaning the agent has successfully found the intended optimal path. This shows that the agent has successfully completed the goal of our project.
 
 <ins>Figure 13: Map 1 Error-Rate Graph</ins>
-<img src="../Status Report Images/Map1 Error Rate Graph.png">
+<img src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/status_report_images/Map1 Error Rate Graph.png">
 
 <ins>Figure 14: Map 2 Error-Rate Graph</ins>
-<img src="../Status Report Images/Map2 Error Rate Graph.png">
+<img src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/status_report_images/Map2 Error Rate Graph.png">
 
 <ins>Figure 15: Map 3 Error-Rate Graph</ins>
-<img src="../Status Report Images/Map3 Error Rate Graph.png">
+<img src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/status_report_images/Map3 Error Rate Graph.png">
 
 Furthermore, to ensure that our agent is learning the optimal path, we included a graphics shown in Figure 16 for the Q-table indicating the improvement in path the agent learns.  Each square in in Figure 9 represents each block on the map.  The blocks with red backgrounds represent fire blocks, while the black background represents normal blocks.  The large white circle in the center of the block is the current agent’s position and the four small circles in each block represents the resulting Q-value of each direction from that particular block.  Red small circles mean that the Q-values for those direction results in low rewards, while green small circles means that Q-value for those direction results in high rewards.  As we can see in Figure 16, the Q-table will eventually show the optimal path that the agent learns.
 
 <ins>Figure 16: Graphic Q-table</ins>
-<img src="../Status Report Images/Qtable Graphic.png">
+<img src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/status_report_images/Qtable Graphic.png">
 
 
 ## Remaining Goals and Challenges
