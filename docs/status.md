@@ -145,4 +145,4 @@ There are several challenges that we can anticipate as we attempt to implement Q
     - https://medium.com/emergent-future/simple-reinforcement-learning-with-tensorflow-part-0-q-learning-with-tables-and-neural-networks-d195264329d0
 
 ## Video Summary
-<iframe width="500" height="300" src="https://www.youtube.com/watch?v=TB9-oCs4BMc&feature=youtu.be" frameborder="0" allowfullscreen></iframe>
+<iframe width="500" height="300" src="https://www.youtube.com/embed/TB9-oCs4BMc" frameborder="0" allowfullscreen></iframe>
