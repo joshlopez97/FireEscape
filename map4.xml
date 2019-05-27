@@ -6,7 +6,7 @@
         <ServerSection>
           <ServerInitialConditions>
             <Time>
-                <StartTime>1</StartTime>
+                <StartTime>1000</StartTime>
                 <AllowPassageOfTime>false</AllowPassageOfTime>
             </Time>
             <Weather>clear</Weather>
@@ -30,33 +30,23 @@
                 <DrawBlock x="0" y="50" z="0" type="emerald_block"/>
                 <DrawBlock x="5" y="50" z="4" type="redstone_block"/>
               </DrawingDecorator>
-              <ServerQuitFromTimeUp timeLimitMs="20000"/>
+              <ServerQuitFromTimeUp timeLimitMs="50000"/>
               <ServerQuitWhenAnyAgentFinishes/>
             </ServerHandlers>
           </ServerSection>
+          
           <AgentSection mode="Survival">
             <Name>FireEscapeBot</Name>
             <AgentStart>
                 <Placement x="0.5" y="51" z="0.5" yaw="0"/>
             </AgentStart>
             <AgentHandlers>
+              <ChatCommands/>
                 <DiscreteMovementCommands/>
                 <AgentQuitFromTouchingBlockType>
                     <Block type="redstone_block"/>
                 </AgentQuitFromTouchingBlockType>
-                <RewardForTouchingBlockType>
-                  <Block reward="-100.0" type="air" behaviour="onceOnly"/>
-                  <Block reward="100.0" type="redstone_block" behaviour="onceOnly"/>
-                  <Block reward="-30.0" type="fire" behaviour="oncePerBlock"/>
-                </RewardForTouchingBlockType>
-
-                <RewardForMissionEnd rewardForDeath="-100.0">
-                    <Reward description="out_of_time" reward="-100.0"/>
-                    <Reward description="out_of_arena" reward="-100.0"/>
-                </RewardForMissionEnd>
-
                 <ObservationFromFullStats/>
-                <ContinuousMovementCommands turnSpeedDegs="1800"/>
                 <ObservationFromGrid>
                   <Grid name="floorAll">
                     <min x="-10" y="-1" z="-10"/>
