@@ -265,7 +265,7 @@ with tf.Session() as sess:
                 a[0] = np.random.randint(0, len(action_trans)-1)
 
             #step(a[0]) = Get new state and reward from environment
-            agent_host.sendCommand(action_trans[a[0]][1])
+            #agent_host.sendCommand(action_trans[a[0]][1])
             s1 = s + action_trans[a[0]][0] #gets index of a
 
             #used to send commands etc
@@ -284,8 +284,13 @@ with tf.Session() as sess:
                 sTrans = s - 441
 
             #jump simulation <------------------------------------------
-            if grid[s1Trans] == 'quartz_block':  #indicates raised block
-                #if movement is NOT jump
+            if (a[0] >= 4 and a[0] <= 7) or (a[0] >= 12 and a[0] <= 15): #if it is a 2movement
+                if grid[s1Trans-(action_trans[a[0]][0]/2)] == 'quartz_block':  #indicates raised block
+                    #if movement is NOT jump
+                    if a[0] < 8: #if 0-7
+                        s1 = s
+                        s1Trans = sTrans
+            else: #1movement
                 if a[0] < 8: #if 0-7
                     s1 = s
                     s1Trans = sTrans
