@@ -33,8 +33,9 @@ def load_grid(world_state):
             msg = world_state.observations[-1].text
             observations = json.loads(msg)
             grid = observations.get(u'floorAll', 0)
+            fireOnTop = observations.get(u'fireOnTop', 0)
             break
-    return grid
+    return grid, fireOnTop
 
 def find_start_end(grid):
     """
@@ -127,7 +128,7 @@ def dijkstra_shortest_path(grid_obs, source, dest):
     return path_list
 
 #--------------------------------------- Main ---------------------------------------
-mission_file = 'map6_plat.xml'
+mission_file = 'map6_with_fire.xml'
 
 #DQN init ---------------------------------------------------------------------------
 tf.reset_default_graph()
@@ -160,7 +161,7 @@ eps_deg = eps/(num_episodes - iterationsWithNoRandom)
 
 #action list = north, south, west, east
 #this calculation is reliant on knowing the grid is 21x21
-action_trans = [(-21,'movenorth 1'), (21, 'movesouth 1'), (-1, 'movewest 1'), (1, 'moveeast 1'), (-21, "jumpnorth 1"), (21, "jumpsouth 1"), (-1, "jumpwest 1"), (1, 'jumpeast 1')]#(-42, "jumpnorth 2"), (42, "jumpsouth 2"), (-2, "jumpwest 2"), (2, 'jumpeast 2')]
+action_trans = [(-21,'movenorth 1'), (21, 'movesouth 1'), (-1, 'movewest 1'), (1, 'moveeast 1'), (-21, "jumpnorth 1"), (21, "jumpsouth 1"), (-1, "jumpwest 1"), (1, 'jumpeast 1')] # (-42, "jumpnorth 2"), (42, "jumpsouth 2"), (-2, "jumpwest 2"), (2, 'jumpeast 2')]
 
 #Printing Variables
 #actionlist = {-21: 'movenorth 1', 21: 'movesouth 1', -1: 'movewest 1', 1: 'moveeast 1', -42: "jumpnorth 1", 42: "jumpsouth 1", -2: "jumpwest 1", 2: "jumpeast 1"}
@@ -239,7 +240,7 @@ with tf.Session() as sess:
                 print("Error:",error.text)
         print()
 
-        grid = load_grid(world_state)
+        grid, fireOnTop = load_grid(world_state)
         start, end = find_start_end(grid) #start, end = gridIndex
 
         #DQN start-------------------------------------------------------------------------------
@@ -252,8 +253,14 @@ with tf.Session() as sess:
 
         #The Q-Table learning algorithm
         while j < 99:
-            time.sleep(0)  #0.35 will cause the 3 fire steps to kill the agent
+            time.sleep(0.35)  #0.35 will cause the 3 fire steps to kill the agent
             j+=1
+
+            #Observation
+            world_state = agent_host.getWorldState()
+            if world_state.number_of_observations_since_last_state > 0:
+                msg = world_state.observations[-1].text
+                observations = json.loads(msg)
 
             #Choose an action by greedily (with e chance of random action) from the Q-network
             a,allQ = sess.run([predict,Qout],feed_dict={inputs1:np.identity(1764)[s:s+1]})
@@ -268,6 +275,8 @@ with tf.Session() as sess:
                     agent_host.sendCommand(action_trans[a[0]][1].split()[0] + " 1")  #gets action of a
             else:
                 agent_host.sendCommand(action_trans[a[0]][1])  #gets action o            s1 = s + action_trans[a[0]][0] #gets index of a
+
+            s1 = s + action_trans[a[0]][0] #gets index of a
 
             #used to send commands etc
             s1Trans = s1   #s1 translated back to fire=0 states
@@ -287,7 +296,7 @@ with tf.Session() as sess:
             if grid[s1Trans] == 'air':
                 r = -999
                 done = True
-            elif grid[s1Trans] == 'netherrack':
+            elif grid[s1Trans] == 'netherrack' or fireOnTop[s1Trans] == 'fire':
                 r = -(len(curPath)-1)
                 #never stepped on fire (full health)
                 if fireCount == 0: #0-440
@@ -365,9 +374,9 @@ with tf.Session() as sess:
         print("jList for %d: %d" %(count, jList[count]))
 
     #dump errorLog into
-    statFileName = "DeepQLearning2Stats/DeepQLearning2_" + mission_file[0:4] + "_stats.dat"
-    rewardFileName = "DeepQLearning2Stats/DeepQLearning2_" + mission_file[0:4] + "_rewards.dat"
-    moveFileName = "DeepQLearning2Stats/DeepQLearning2_" + mission_file[0:4] + "_moves.dat"
+    statFileName = "DeepQLearning2Stats/DeepQLearning2_" + mission_file.rstrip('.xml') + "_stats.dat"
+    rewardFileName = "DeepQLearning2Stats/DeepQLearning2_" + mission_file.rstrip('.xml') + "_rewards.dat"
+    moveFileName = "DeepQLearning2Stats/DeepQLearning2_" + mission_file.rstrip('.xml') + "_moves.dat"
     np.savetxt(statFileName, errorLog)
     np.savetxt(rewardFileName, rList)
     np.savetxt(moveFileName, jList)
