@@ -127,7 +127,7 @@ def dijkstra_shortest_path(grid_obs, source, dest):
     return path_list
 
 #--------------------------------------- Main ---------------------------------------
-mission_file = 'map3.xml'
+mission_file = 'map6_plat1.xml'
 
 #DQN init ---------------------------------------------------------------------------
 tf.reset_default_graph()
@@ -153,19 +153,20 @@ jList = []
 #DQN parameters
 eps = 0.1
 y = 0.99
-num_episodes = 10
+num_episodes = 100
 iterationsWithNoRandom = 0
 eps_deg = eps/(num_episodes - iterationsWithNoRandom)
 #DQN init end ----------------------------------------------------------------------
 
 #action list = north, south, west, east
 #this calculation is reliant on knowing the grid is 21x21
-action_trans = [(-21,'movenorth 1'), (21, 'movesouth 1'), (-1, 'movewest 1'), (1, 'moveeast 1'), (-21, "jumpnorth 1"), (21, "jumpsouth 1"), (-1, "jumpwest 1"), (1, 'jumpeast 1')] #,(-42, "jumpnorth 1"), (42, "jumpsouth 1"), (-2, "jumpwest 1"), (2, 'jumpeast 1')]
+action_trans = [(-21,'movenorth 1'), (21, 'movesouth 1'), (-1, 'movewest 1'), (1, 'moveeast 1'), (-21, "jumpnorth 1"), (21, "jumpsouth 1"), (-1, "jumpwest 1"), (1, 'jumpeast 1')]#(-42, "jumpnorth 2"), (42, "jumpsouth 2"), (-2, "jumpwest 2"), (2, 'jumpeast 2')]
+
 #Printing Variables
 #actionlist = {-21: 'movenorth 1', 21: 'movesouth 1', -1: 'movewest 1', 1: 'moveeast 1', -42: "jumpnorth 1", 42: "jumpsouth 1", -2: "jumpwest 1", 2: "jumpeast 1"}
 moveList = []
 #this is tuned for 2x7 board2
-optimalRes = ['movenorth 1', 'movenorth 1', 'movenorth 1', 'movenorth 1', 'movenorth 1', 'movenorth 1', 'movewest 1', 'movewest 1']
+optimalRes = ['movenorth 1', 'jumpwest 2', 'jumpnorth 2', 'jumpnorth 2', 'jumpnorth 2']
 errorLog = []
 
 #init the tensorflow session
@@ -262,11 +263,8 @@ with tf.Session() as sess:
                 a[0] = np.random.randint(0, len(action_trans)-1)
 
             #step(a[0]) = Get new state and reward from environment
-            if a[0] >= 8: #jump
-                for i in range(2):
-                    agent_host.sendCommand(action_trans[a[0]][1])  #gets action of a
-            else:
-                agent_host.sendCommand(action_trans[a[0]][1])  #gets action of a
+            
+            agent_host.sendCommand(action_trans[a[0]][1])  #gets action of a
             s1 = s + action_trans[a[0]][0] #gets index of a
 
             #used to send commands etc
