@@ -31,8 +31,9 @@ def load_grid(world_state):
             msg = world_state.observations[-1].text
             observations = json.loads(msg)
             grid = observations.get(u'floorAll', 0)
+            fireOnTop = observations.get(u'fireOnTop', 0)
             break
-    return grid
+    return grid, fireOnTop
 
 def find_start_end(grid):
     """
@@ -119,7 +120,7 @@ def dijkstra_shortest_path(grid_obs, source, dest):
     return path_list
 
 #--------------------------------------- Main ---------------------------------------
-mission_file = 'map/map6_plat1.xml'
+mission_file = 'map6_with_fire.xml'
 #This has to be tuned to the map you're using
 #map1
 #optimalRes = ['movewest 1', 'movewest 1', 'movewest 1', 'movewest 1', 'movenorth 1', 'movenorth 1', 'movenorth 1', 'movenorth 1']
@@ -199,7 +200,7 @@ with tf.Session() as sess:
     agent_host.sendCommand("chat /gamerule naturalRegeneration false")
 
     #map file selection
-    f = open(mission_file, "r")
+    f = open('./map/'+mission_file, "r")
     missionXML = f.read()
     my_mission = MalmoPython.MissionSpec(missionXML, True)
 
@@ -234,7 +235,7 @@ with tf.Session() as sess:
             print("Error:",error.text)
     print()
 
-    grid = load_grid(world_state)
+    grid, fireOnTop = load_grid(world_state)
     start, end = find_start_end(grid) #start, end = gridIndex
     successCount = 0
 
@@ -299,8 +300,8 @@ with tf.Session() as sess:
             if grid[s1Trans] == 'air':
                 r += -999
                 done = True
-            elif grid[s1Trans] == 'netherrack':
-                r += -(len(curPath)-1)
+            elif grid[s1Trans] == 'netherrack' or fireOnTop[s1Trans] == 'fire':
+                r = -(len(curPath)-1)
                 #never stepped on fire (full health)
                 if fireCount == 0: #0-440
                     r += -2.5
@@ -380,10 +381,10 @@ with tf.Session() as sess:
         print("jList for %d: %d" %(count, jList[count]))
 
     #dump errorLog into
-    statFileName = "DeepQLearning2Stats/DeepQLearning2_" + mission_file[0:4] + "_stats.dat"
-    rewardFileName = "DeepQLearning2Stats/DeepQLearning2_" + mission_file[0:4] + "_rewards.dat"
-    moveFileName = "DeepQLearning2Stats/DeepQLearning2_" + mission_file[0:4] + "_moves.dat"
-    successFileName = "DeepQLearning2Stats/DeepQLearning2_" + mission_file[0:4] + "_success.dat"
+    statFileName = "DeepQLearning2Stats/DeepQLearning2_" + mission_file.rstrip('.xml') + "_stats.dat"
+    rewardFileName = "DeepQLearning2Stats/DeepQLearning2_" + mission_file.rstrip('.xml') + "_rewards.dat"
+    moveFileName = "DeepQLearning2Stats/DeepQLearning2_" + mission_file.rstrip('.xml') + "_moves.dat"
+    successFileName = "DeepQLearning2Stats/DeepQLearning2_" + mission_file.rstrip('.xml') + "_success.dat"
     np.savetxt(statFileName, errorLog)
     np.savetxt(rewardFileName, rList)
     np.savetxt(moveFileName, jList)
