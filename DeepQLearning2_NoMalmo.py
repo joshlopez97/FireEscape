@@ -134,8 +134,8 @@ optimalRes = ['movewest 1', 'movewest 1', 'movenorth 1', 'movenorth 1', 'moveeas
 tf.reset_default_graph()
 
 #These lines establish the feed-forward part of the network used to choose actions
-inputs1 = tf.placeholder(shape=[1,1764],dtype=tf.float32)
-W = tf.Variable(tf.random_uniform([1764,16],0,0.01))
+inputs1 = tf.placeholder(shape=[1,1323],dtype=tf.float32)
+W = tf.Variable(tf.random_uniform([1323,16],0,0.01))
 Qout = tf.matmul(inputs1,W)
 predict = tf.argmax(Qout,1)
 
@@ -270,13 +270,15 @@ with tf.Session() as sess:
             #used to send commands etc
             s1Trans = s1   #s1 translated back to fire=0 states
             sTrans = s     #s translated back to fire=0 states
-            if s1 >= 1323:
-                s1Trans = s1 - 1323
-                sTrans = s - 1323
-            elif s1 >= 882:
-                s1Trans = s1 - 882
+
+            #translate fire=2 to fire=0
+            #882-1322  => 882-882=0, 1322-882=440
+            if s1 >= 882: 
+                s1Trans = s1 - 882  
                 sTrans = s - 882
-            elif s1 >= 441:
+            #translate fire=1 to fire=0
+            #441-881 => 441-441=0, 881-441=440
+            elif s1 >= 441: 
                 s1Trans = s1 - 441
                 sTrans = s - 441
 
@@ -286,7 +288,7 @@ with tf.Session() as sess:
                 if a[0] < 8: #if 0-7
                     s1 = s
                     s1Trans = sTrans
-
+                    
             r = 0
             #if its a jump2
             if a[0] >= 12:
