@@ -31,7 +31,6 @@ def load_grid(world_state):
             msg = world_state.observations[-1].text
             observations = json.loads(msg)
             grid = observations.get(u'floorAll', 0)
-            print(grid)
             #print(grid)
             fireOnTop = observations.get(u'fireOnTop', 0)
             break
@@ -290,8 +289,6 @@ with tf.Session() as sess:
                 sTrans = s - 441
 
             #jump simulation <------------------------------------------
-            if grid[s1Trans] == 'quartz_block':  #indicates raised block
-                #if movement is NOT jump
             if (a[0] >= 4 and a[0] <= 7) or (a[0] >= 12 and a[0] <= 15): #if it is a 2movement
                 if grid[s1Trans-int((action_trans[a[0]][0]/2))] == 'quartz_block':  #indicates raised block
                     #if movement is NOT jump
@@ -300,10 +297,8 @@ with tf.Session() as sess:
                         s1Trans = sTrans
             else: #1movement
                 if a[0] < 8: #if 0-7
-                if a[0] < 4 or (8 <= a[0] and a[0] < 12): #if 0-7
                     s1 = s
                     s1Trans = sTrans
-                    
 
             r = 0
             #if its a jump2
@@ -344,14 +339,12 @@ with tf.Session() as sess:
             #print(chatState)
 
             #Update Q-Table with new knowledge
-            Q1 = sess.run(Qout,feed_dict={inputs1:np.identity(1764)[s1:s1+1]})
             Q1 = sess.run(Qout,feed_dict={inputs1:np.identity(1323)[s1:s1+1]})
             #Obtain maxQ' and set our target value for chosen action.
             maxQ1 = np.max(Q1)
             targetQ = allQ
             targetQ[0,a[0]] = r + y*maxQ1
             #Train our network using target and predicted Q values
-            _,W1 = sess.run([updateModel,W],feed_dict={inputs1:np.identity(1764)[s:s+1],nextQ:targetQ})
             _,W1 = sess.run([updateModel,W],feed_dict={inputs1:np.identity(1323)[s:s+1],nextQ:targetQ})
             rAll += r
 
