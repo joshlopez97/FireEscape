@@ -22,6 +22,7 @@
                 <DrawBlock x="0" y="50" z="2" type="redstone_block"/>
 
                 <DrawLine x1="0" y1="51" z1="1" x2="2" y2="51" z2="1" type="quartz_block"/>
+                <DrawLine x1="0" y1="50" z1="1" x2="2" y2="50" z2="1" type="quartz_block"/>
                 <DrawLine x1="0" y1="52" z1="1" x2="2" y2="52" z2="1" type="fire"/>
 
               </DrawingDecorator>
