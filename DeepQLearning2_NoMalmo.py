@@ -135,12 +135,12 @@ tf.reset_default_graph()
 
 #These lines establish the feed-forward part of the network used to choose actions
 inputs1 = tf.placeholder(shape=[1,1764],dtype=tf.float32)
-W = tf.Variable(tf.random_uniform([1764,8],0,0.01))
+W = tf.Variable(tf.random_uniform([1764,16],0,0.01))
 Qout = tf.matmul(inputs1,W)
 predict = tf.argmax(Qout,1)
 
 #Below we obtain the loss by taking the sum of squares difference between the target and prediction Q values.
-nextQ = tf.placeholder(shape=[1,8],dtype=tf.float32)
+nextQ = tf.placeholder(shape=[1,16],dtype=tf.float32)
 loss = tf.reduce_sum(tf.square(nextQ - Qout))
 trainer = tf.train.GradientDescentOptimizer(learning_rate=0.1)
 updateModel = trainer.minimize(loss)
@@ -155,15 +155,21 @@ jList = []
 eps = 0.1
 y = 0.99
 num_episodes = 1000
-iterationsWithNoRandom = 200
+iterationsWithNoRandom = 100
 eps_deg = eps/(num_episodes - iterationsWithNoRandom)
 #DQN init end ----------------------------------------------------------------------
 
 #action list = north, south, west, east
 #this calculation is reliant on knowing the grid is 21x21
-action_trans = [(-21,'movenorth 1'), (21, 'movesouth 1'), (-1, 'movewest 1'), (1, 'moveeast 1'), (-21, "jumpnorth 1"), (21, "jumpsouth 1"), (-1, "jumpwest 1"), (1, 'jumpeast 1')] #,(-42, "jumpnorth 1"), (42, "jumpsouth 1"), (-2, "jumpwest 1"), (2, 'jumpeast 1')]
+action_trans = [(-21,'movenorth 1'), (21, 'movesouth 1'), (-1, 'movewest 1'), (1, 'moveeast 1'), \
+                (-42,'movenorth 2'), (42, 'movesouth 2'), (-2, 'movewest 2'), (2, 'moveeast 2'), \
+                (-21, "jumpnorth 1"), (21, "jumpsouth 1"), (-1, "jumpwest 1"), (1, 'jumpeast 1'), \
+                (-42, "jumpnorth 2"), (42, "jumpsouth 2"), (-2, "jumpwest 2"), (2, 'jumpeast 2')]
+
 #Printing Variables
-actionlist = {-21: 'movenorth 1', 21: 'movesouth 1', -1: 'movewest 1', 1: 'moveeast 1', -21: "jumpnorth 1", 21: "jumpsouth 1", -1: "jumpwest 1", 1: "jumpeast 1"}
+# actionlist = {-21: 'movenorth 1', 21: 'movesouth 1', -1: 'movewest 1', 1: 'moveeast 1', \
+#               -21: 'jumpnorth 1', 21: 'jumpsouth 1', -1: 'jumpwest 1', 1: 'jumpeast 1', \}
+
 moveList = []
 errorLog = []
 successList = []
@@ -274,20 +280,25 @@ with tf.Session() as sess:
                 s1Trans = s1 - 441
                 sTrans = s - 441
 
-            #jump simulation
+            #jump simulation <------------------------------------------
             if grid[s1Trans] == 'quartz_block':  #indicates raised block
                 #if movement is NOT jump
-                if a[0] < 4:
+                if a[0] < 8: #if 0-7
                     s1 = s
                     s1Trans = sTrans
+
+            r = 0
+            #if its a jump2
+            if a[0] >= 12:
+                r += -1.5
 
             #calculating immediate reward
             curPath = dijkstra_shortest_path(grid, s1Trans, end)
             if grid[s1Trans] == 'air':
-                r = -999
+                r += -999
                 done = True
             elif grid[s1Trans] == 'netherrack':
-                r = -(len(curPath)-1)
+                r += -(len(curPath)-1)
                 #never stepped on fire (full health)
                 if fireCount == 0: #0-440
                     r += -2.5
@@ -304,11 +315,11 @@ with tf.Session() as sess:
                     fireCount += 1
                     done = True
             elif grid[s1Trans] == 'redstone_block':
-                r = 5
+                r += 5
                 successCount += 1
                 done = True
             else:
-                r = -(len(curPath)-1)
+                r += -(len(curPath)-1)
 
             #testing fire state moves
             #chatState = "Run " + str(count) + ": state = " + str(s) + " | s1 = " + str(s1) + " | fire = " + str(fireCount)
