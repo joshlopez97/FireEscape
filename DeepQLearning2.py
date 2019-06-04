@@ -263,7 +263,7 @@ with tf.Session() as sess:
 
             #step(a[0]) = Get new state and reward from environment
             if a[0] >= 8: #jump
-                for i in range(2):
+                for i in range(1):
                     agent_host.sendCommand(action_trans[a[0]][1])  #gets action of a
             else:
                 agent_host.sendCommand(action_trans[a[0]][1])  #gets action of a
