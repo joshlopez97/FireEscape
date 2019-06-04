@@ -90,7 +90,7 @@ def dijkstra_shortest_path(grid_obs, source, dest):
         if grid_obs[i] != 'air': #<----------- Add things to avoid here
             vertexdict[i] = [1, 999, -999]  #key = index, value = (cost, shortest dist from start, prev vert)
             unvisited.append(i)  #add to unvisited list
-    
+
     #set source vertex cost and shortest_dist_from_start to 0
     if source in vertexdict:
         vertexdict[source][0] = 0
@@ -127,19 +127,19 @@ def dijkstra_shortest_path(grid_obs, source, dest):
     return path_list
 
 #--------------------------------------- Main ---------------------------------------
-mission_file = 'map4.xml'
+mission_file = 'map3.xml'
 
 #DQN init ---------------------------------------------------------------------------
 tf.reset_default_graph()
 
 #These lines establish the feed-forward part of the network used to choose actions
 inputs1 = tf.placeholder(shape=[1,1764],dtype=tf.float32)
-W = tf.Variable(tf.random_uniform([1764,4],0,0.01))
+W = tf.Variable(tf.random_uniform([1764,8],0,0.01))
 Qout = tf.matmul(inputs1,W)
 predict = tf.argmax(Qout,1)
 
 #Below we obtain the loss by taking the sum of squares difference between the target and prediction Q values.
-nextQ = tf.placeholder(shape=[1,4],dtype=tf.float32)
+nextQ = tf.placeholder(shape=[1,8],dtype=tf.float32)
 loss = tf.reduce_sum(tf.square(nextQ - Qout))
 trainer = tf.train.GradientDescentOptimizer(learning_rate=0.1)
 updateModel = trainer.minimize(loss)
@@ -150,19 +150,19 @@ init = tf.initialize_all_variables()
 rList = []
 jList = []
 
-#DQN parameters  
+#DQN parameters
 eps = 0.1
 y = 0.99
-num_episodes = 10 
+num_episodes = 10
 iterationsWithNoRandom = 0
 eps_deg = eps/(num_episodes - iterationsWithNoRandom)
 #DQN init end ----------------------------------------------------------------------
 
 #action list = north, south, west, east
 #this calculation is reliant on knowing the grid is 21x21
-action_trans = [(-21,'movenorth 1'), (21, 'movesouth 1'), (-1, 'movewest 1'), (1, 'moveeast 1')] 
+action_trans = [(-21,'movenorth 1'), (21, 'movesouth 1'), (-1, 'movewest 1'), (1, 'moveeast 1'), (-21, "jumpnorth 1"), (21, "jumpsouth 1"), (-1, "jumpwest 1"), (1, 'jumpeast 1')] #,(-42, "jumpnorth 1"), (42, "jumpsouth 1"), (-2, "jumpwest 1"), (2, 'jumpeast 1')]
 #Printing Variables
-actionlist = {-21: 'movenorth 1', 21: 'movesouth 1', -1: 'movewest 1', 1: 'moveeast 1'}
+#actionlist = {-21: 'movenorth 1', 21: 'movesouth 1', -1: 'movewest 1', 1: 'moveeast 1', -42: "jumpnorth 1", 42: "jumpsouth 1", -2: "jumpwest 1", 2: "jumpeast 1"}
 moveList = []
 #this is tuned for 2x7 board2
 optimalRes = ['movenorth 1', 'movenorth 1', 'movenorth 1', 'movenorth 1', 'movenorth 1', 'movenorth 1', 'movewest 1', 'movewest 1']
@@ -193,7 +193,7 @@ with tf.Session() as sess:
     agent_host.sendCommand("chat /gamerule naturalRegeneration false")
 
     #map file selection
-    f = open(mission_file, "r") 
+    f = open("./map/"+mission_file, "r")
     missionXML = f.read()
     my_mission = MalmoPython.MissionSpec(missionXML, True)
 
@@ -204,12 +204,12 @@ with tf.Session() as sess:
 
         #video recording
         #put a string into MissionRecordSpec("string") as file name
-        my_mission_record = MalmoPython.MissionRecordSpec()  
+        my_mission_record = MalmoPython.MissionRecordSpec()
         my_mission.requestVideo(1200,720)
         my_mission.setViewpoint(1)
 
         #comment this out if not recording anything
-        # my_mission_record.recordMP4(30, 2000000) 
+        # my_mission_record.recordMP4(30, 2000000)
 
         # Attempt to start a mission:
         max_retries = 3
@@ -245,13 +245,13 @@ with tf.Session() as sess:
         #Reset environment and get first new observation
         s = start
         rAll = 0.0
-        done = False 
+        done = False
         j = 0
         fireCount = 0
 
         #The Q-Table learning algorithm
         while j < 99:
-            time.sleep(0)  #0.35 will cause the 3 fire steps to kill the agent 
+            time.sleep(0)  #0.35 will cause the 3 fire steps to kill the agent
             j+=1
 
             #Choose an action by greedily (with e chance of random action) from the Q-network
@@ -262,7 +262,11 @@ with tf.Session() as sess:
                 a[0] = np.random.randint(0, len(action_trans)-1)
 
             #step(a[0]) = Get new state and reward from environment
-            agent_host.sendCommand(action_trans[a[0]][1])  #gets action of a
+            if a[0] >= 8: #jump
+                for i in range(2):
+                    agent_host.sendCommand(action_trans[a[0]][1])  #gets action of a
+            else:
+                agent_host.sendCommand(action_trans[a[0]][1])  #gets action of a
             s1 = s + action_trans[a[0]][0] #gets index of a
 
             #used to send commands etc
@@ -296,7 +300,7 @@ with tf.Session() as sess:
                     fireCount += 1
                     s1 += 441
                 #stepped on fire twice already (next touch is death)
-                elif fireCount == 2: #882-1322  
+                elif fireCount == 2: #882-1322
                     r += -999
                     fireCount += 1
                     done = True
@@ -322,8 +326,8 @@ with tf.Session() as sess:
 
             #for printing
             s_diff = sTrans - s1Trans
-            moveList.append(actionlist[s_diff])
-            
+            moveList.append(a[0])
+
             #increment s to s1
             s = s1
 
@@ -359,12 +363,11 @@ with tf.Session() as sess:
         rList.append(rAll)
         print("rList for %d: %d" %(count, rList[count]))
         print("jList for %d: %d" %(count, jList[count]))
-    
-    #dump errorLog into 
+
+    #dump errorLog into
     statFileName = "DeepQLearning2Stats/DeepQLearning2_" + mission_file[0:4] + "_stats.dat"
     rewardFileName = "DeepQLearning2Stats/DeepQLearning2_" + mission_file[0:4] + "_rewards.dat"
     moveFileName = "DeepQLearning2Stats/DeepQLearning2_" + mission_file[0:4] + "_moves.dat"
     np.savetxt(statFileName, errorLog)
     np.savetxt(rewardFileName, rList)
     np.savetxt(moveFileName, jList)
-        
