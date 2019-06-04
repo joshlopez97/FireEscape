@@ -326,7 +326,7 @@ with tf.Session() as sess:
 
             #for printing
             s_diff = sTrans - s1Trans
-            moveList.append(a[0])
+            moveList.append(action_trans[a[0]][1])
 
             #increment s to s1
             s = s1
