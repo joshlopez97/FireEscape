@@ -15,10 +15,8 @@ except:
 def load_grid(world_state):
     """
     Used the agent observation API to get a 21 X 21 grid box around the agent (the agent is in the middle).
-
     Args
         world_state:    <object>    current agent world state
-
     Returns
         grid:   <list>  the world grid blocks represented as a list of blocks (see Tutorial.pdf)
     """
@@ -39,10 +37,8 @@ def load_grid(world_state):
 def find_start_end(grid):
     """
     Finds the source and destination block indexes from the list.
-
     Args
         grid:   <list>  the world grid blocks represented as a list of blocks (see Tutorial.pdf)
-
     Returns
         start: <int>   source block index in the list
         end:   <int>   destination block index in the list
@@ -54,10 +50,8 @@ def find_start_end(grid):
 def extract_action_list_from_path(path_list):
     """
     Converts a block idx path to action list.
-
     Args
         path_list:  <list>  list of block idx from source block to dest block.
-
     Returns
         action_list: <list> list of string discrete action commands (e.g. ['movesouth 1', 'movewest 1', ...]
     """
@@ -73,12 +67,10 @@ def dijkstra_shortest_path(grid_obs, source, dest):
     """
     Finds the shortest path from source to destination on the map. It used the grid observation as the graph.
     See example on the Tutorial.pdf file for knowing which index should be north, south, west and east.
-
     Args
         grid_obs:   <list>  list of block types string representing the blocks on the map.
         source:     <int>   source block index.
         dest:       <int>   destination block index.
-
     Returns
         path_list:  <list>  block indexes representing a path from source (first element) to destination (last)
     """
@@ -90,7 +82,7 @@ def dijkstra_shortest_path(grid_obs, source, dest):
         if grid_obs[i] != 'air': #<----------- Add things to avoid here
             vertexdict[i] = [1, 999, -999]  #key = index, value = (cost, shortest dist from start, prev vert)
             unvisited.append(i)  #add to unvisited list
-    
+
     #set source vertex cost and shortest_dist_from_start to 0
     if source in vertexdict:
         vertexdict[source][0] = 0
@@ -127,7 +119,7 @@ def dijkstra_shortest_path(grid_obs, source, dest):
     return path_list
 
 #--------------------------------------- Main ---------------------------------------
-mission_file = 'map5.xml' 
+mission_file = 'map/map6_plat1.xml'
 #This has to be tuned to the map you're using
 #map1
 #optimalRes = ['movewest 1', 'movewest 1', 'movewest 1', 'movewest 1', 'movenorth 1', 'movenorth 1', 'movenorth 1', 'movenorth 1']
@@ -143,12 +135,12 @@ tf.reset_default_graph()
 
 #These lines establish the feed-forward part of the network used to choose actions
 inputs1 = tf.placeholder(shape=[1,1764],dtype=tf.float32)
-W = tf.Variable(tf.random_uniform([1764,4],0,0.01))
+W = tf.Variable(tf.random_uniform([1764,8],0,0.01))
 Qout = tf.matmul(inputs1,W)
 predict = tf.argmax(Qout,1)
 
 #Below we obtain the loss by taking the sum of squares difference between the target and prediction Q values.
-nextQ = tf.placeholder(shape=[1,4],dtype=tf.float32)
+nextQ = tf.placeholder(shape=[1,8],dtype=tf.float32)
 loss = tf.reduce_sum(tf.square(nextQ - Qout))
 trainer = tf.train.GradientDescentOptimizer(learning_rate=0.1)
 updateModel = trainer.minimize(loss)
@@ -159,19 +151,19 @@ init = tf.initialize_all_variables()
 rList = []
 jList = []
 
-#DQN parameters  
+#DQN parameters
 eps = 0.1
 y = 0.99
-num_episodes = 4000 
-iterationsWithNoRandom = 500
+num_episodes = 1000
+iterationsWithNoRandom = 200
 eps_deg = eps/(num_episodes - iterationsWithNoRandom)
 #DQN init end ----------------------------------------------------------------------
 
 #action list = north, south, west, east
 #this calculation is reliant on knowing the grid is 21x21
-action_trans = [(-21,'movenorth 1'), (21, 'movesouth 1'), (-1, 'movewest 1'), (1, 'moveeast 1')] 
+action_trans = [(-21,'movenorth 1'), (21, 'movesouth 1'), (-1, 'movewest 1'), (1, 'moveeast 1'), (-21, "jumpnorth 1"), (21, "jumpsouth 1"), (-1, "jumpwest 1"), (1, 'jumpeast 1')] #,(-42, "jumpnorth 1"), (42, "jumpsouth 1"), (-2, "jumpwest 1"), (2, 'jumpeast 1')]
 #Printing Variables
-actionlist = {-21: 'movenorth 1', 21: 'movesouth 1', -1: 'movewest 1', 1: 'moveeast 1'}
+actionlist = {-21: 'movenorth 1', 21: 'movesouth 1', -1: 'movewest 1', 1: 'moveeast 1', -21: "jumpnorth 1", 21: "jumpsouth 1", -1: "jumpwest 1", 1: "jumpeast 1"}
 moveList = []
 errorLog = []
 successList = []
@@ -201,7 +193,7 @@ with tf.Session() as sess:
     agent_host.sendCommand("chat /gamerule naturalRegeneration false")
 
     #map file selection
-    f = open(mission_file, "r") 
+    f = open(mission_file, "r")
     missionXML = f.read()
     my_mission = MalmoPython.MissionSpec(missionXML, True)
 
@@ -249,13 +241,13 @@ with tf.Session() as sess:
         #Reset environment and get first new observation
         s = start
         rAll = 0.0
-        done = False 
+        done = False
         j = 0
         fireCount = 0
 
         #The Q-Table learning algorithm
         while j < 99:
-            #time.sleep(0)  #0.35 will cause the 3 fire steps to kill the agent 
+            #time.sleep(0)  #0.35 will cause the 3 fire steps to kill the agent
             j+=1
 
             #Choose an action by greedily (with e chance of random action) from the Q-network
@@ -266,7 +258,7 @@ with tf.Session() as sess:
                 a[0] = np.random.randint(0, len(action_trans)-1)
 
             #step(a[0]) = Get new state and reward from environment
-            agent_host.sendCommand(action_trans[a[0]][1])  #gets action of a
+            agent_host.sendCommand(action_trans[a[0]][1])
             s1 = s + action_trans[a[0]][0] #gets index of a
 
             #used to send commands etc
@@ -281,6 +273,13 @@ with tf.Session() as sess:
             elif s1 >= 441:
                 s1Trans = s1 - 441
                 sTrans = s - 441
+
+            #jump simulation
+            if grid[s1Trans] == 'quartz_block':  #indicates raised block
+                #if movement is NOT jump
+                if a[0] < 4:
+                    s1 = s
+                    s1Trans = sTrans
 
             #calculating immediate reward
             curPath = dijkstra_shortest_path(grid, s1Trans, end)
@@ -300,7 +299,7 @@ with tf.Session() as sess:
                     fireCount += 1
                     s1 += 441
                 #stepped on fire twice already (next touch is death)
-                elif fireCount == 2: #882-1322  
+                elif fireCount == 2: #882-1322
                     r += -999
                     fireCount += 1
                     done = True
@@ -327,8 +326,8 @@ with tf.Session() as sess:
 
             #for printing
             s_diff = sTrans - s1Trans
-            moveList.append(actionlist[s_diff])
-            
+            moveList.append(action_trans[a[0]][1])
+
             #increment s to s1
             s = s1
 
@@ -366,8 +365,8 @@ with tf.Session() as sess:
         rList.append(rAll)
         print("rList for %d: %d" %(count, rList[count]))
         print("jList for %d: %d" %(count, jList[count]))
-    
-    #dump errorLog into 
+
+    #dump errorLog into
     statFileName = "DeepQLearning2Stats/DeepQLearning2_" + mission_file[0:4] + "_stats.dat"
     rewardFileName = "DeepQLearning2Stats/DeepQLearning2_" + mission_file[0:4] + "_rewards.dat"
     moveFileName = "DeepQLearning2Stats/DeepQLearning2_" + mission_file[0:4] + "_moves.dat"
@@ -376,4 +375,3 @@ with tf.Session() as sess:
     np.savetxt(rewardFileName, rList)
     np.savetxt(moveFileName, jList)
     np.savetxt(successFileName, successList)
-        
