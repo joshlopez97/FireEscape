@@ -267,6 +267,7 @@ with tf.Session() as sess:
                     agent_host.sendCommand(action_trans[a[0]][1])  #gets action of a
             else:
                 agent_host.sendCommand(action_trans[a[0]][1])  #gets action of a
+                
             s1 = s + action_trans[a[0]][0] #gets index of a
 
             #used to send commands etc
