@@ -31,6 +31,7 @@ def load_grid(world_state):
             msg = world_state.observations[-1].text
             observations = json.loads(msg)
             grid = observations.get(u'floorAll', 0)
+            print(grid)
             fireOnTop = observations.get(u'fireOnTop', 0)
             break
     return grid, fireOnTop
@@ -156,7 +157,6 @@ jList = []
 eps = 0.1
 y = 0.99
 num_episodes = 1000
-iterationsWithNoRandom = 100
 eps_deg = eps/(num_episodes - iterationsWithNoRandom)
 #DQN init end ----------------------------------------------------------------------
 
@@ -258,14 +258,12 @@ with tf.Session() as sess:
             j+=1
 
             #Choose an action by greedily (with e chance of random action) from the Q-network
-            a,allQ = sess.run([predict,Qout],feed_dict={inputs1:np.identity(1764)[s:s+1]})
 
             #prob of eps to choose random action
             if (np.random.rand(1)<eps) and (eps>0):
                 a[0] = np.random.randint(0, len(action_trans)-1)
 
             #step(a[0]) = Get new state and reward from environment
-            agent_host.sendCommand(action_trans[a[0]][1])
             s1 = s + action_trans[a[0]][0] #gets index of a
 
             #used to send commands etc
@@ -274,12 +272,11 @@ with tf.Session() as sess:
 
             #translate fire=2 to fire=0
             #882-1322  => 882-882=0, 1322-882=440
-            if s1 >= 882: 
-                s1Trans = s1 - 882  
+                s1Trans = s1 - 882
                 sTrans = s - 882
             #translate fire=1 to fire=0
             #441-881 => 441-441=0, 881-441=440
-            elif s1 >= 441: 
+            elif s1 >= 441:
                 s1Trans = s1 - 441
                 sTrans = s - 441
 
@@ -287,9 +284,11 @@ with tf.Session() as sess:
             if grid[s1Trans] == 'quartz_block':  #indicates raised block
                 #if movement is NOT jump
                 if a[0] < 8: #if 0-7
+                if a[0] < 4 or (8 <= a[0] and a[0] < 12): #if 0-7
                     s1 = s
                     s1Trans = sTrans
                     
+
             r = 0
             #if its a jump2
             if a[0] >= 12:
@@ -330,12 +329,14 @@ with tf.Session() as sess:
 
             #Update Q-Table with new knowledge
             Q1 = sess.run(Qout,feed_dict={inputs1:np.identity(1764)[s1:s1+1]})
+            Q1 = sess.run(Qout,feed_dict={inputs1:np.identity(1323)[s1:s1+1]})
             #Obtain maxQ' and set our target value for chosen action.
             maxQ1 = np.max(Q1)
             targetQ = allQ
             targetQ[0,a[0]] = r + y*maxQ1
             #Train our network using target and predicted Q values
             _,W1 = sess.run([updateModel,W],feed_dict={inputs1:np.identity(1764)[s:s+1],nextQ:targetQ})
+            _,W1 = sess.run([updateModel,W],feed_dict={inputs1:np.identity(1323)[s:s+1],nextQ:targetQ})
             rAll += r
 
             #for printing
