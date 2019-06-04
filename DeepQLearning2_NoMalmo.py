@@ -127,7 +127,7 @@ def dijkstra_shortest_path(grid_obs, source, dest):
     return path_list
 
 #--------------------------------------- Main ---------------------------------------
-mission_file = 'map5.xml' 
+mission_file = 'map/map6_plat1.xml' 
 #This has to be tuned to the map you're using
 #map1
 #optimalRes = ['movewest 1', 'movewest 1', 'movewest 1', 'movewest 1', 'movenorth 1', 'movenorth 1', 'movenorth 1', 'movenorth 1']
@@ -143,12 +143,12 @@ tf.reset_default_graph()
 
 #These lines establish the feed-forward part of the network used to choose actions
 inputs1 = tf.placeholder(shape=[1,1764],dtype=tf.float32)
-W = tf.Variable(tf.random_uniform([1764,4],0,0.01))
+W = tf.Variable(tf.random_uniform([1764,8],0,0.01))
 Qout = tf.matmul(inputs1,W)
 predict = tf.argmax(Qout,1)
 
 #Below we obtain the loss by taking the sum of squares difference between the target and prediction Q values.
-nextQ = tf.placeholder(shape=[1,4],dtype=tf.float32)
+nextQ = tf.placeholder(shape=[1,8],dtype=tf.float32)
 loss = tf.reduce_sum(tf.square(nextQ - Qout))
 trainer = tf.train.GradientDescentOptimizer(learning_rate=0.1)
 updateModel = trainer.minimize(loss)
@@ -162,16 +162,16 @@ jList = []
 #DQN parameters  
 eps = 0.1
 y = 0.99
-num_episodes = 4000 
-iterationsWithNoRandom = 500
+num_episodes = 1000 
+iterationsWithNoRandom = 200
 eps_deg = eps/(num_episodes - iterationsWithNoRandom)
 #DQN init end ----------------------------------------------------------------------
 
 #action list = north, south, west, east
 #this calculation is reliant on knowing the grid is 21x21
-action_trans = [(-21,'movenorth 1'), (21, 'movesouth 1'), (-1, 'movewest 1'), (1, 'moveeast 1')] 
+action_trans = [(-21,'movenorth 1'), (21, 'movesouth 1'), (-1, 'movewest 1'), (1, 'moveeast 1'), (-21, "jumpnorth 1"), (21, "jumpsouth 1"), (-1, "jumpwest 1"), (1, 'jumpeast 1')] #,(-42, "jumpnorth 1"), (42, "jumpsouth 1"), (-2, "jumpwest 1"), (2, 'jumpeast 1')]
 #Printing Variables
-actionlist = {-21: 'movenorth 1', 21: 'movesouth 1', -1: 'movewest 1', 1: 'moveeast 1'}
+actionlist = {-21: 'movenorth 1', 21: 'movesouth 1', -1: 'movewest 1', 1: 'moveeast 1', -21: "jumpnorth 1", 21: "jumpsouth 1", -1: "jumpwest 1", 1: "jumpeast 1"}
 moveList = []
 errorLog = []
 successList = []
@@ -266,7 +266,12 @@ with tf.Session() as sess:
                 a[0] = np.random.randint(0, len(action_trans)-1)
 
             #step(a[0]) = Get new state and reward from environment
-            agent_host.sendCommand(action_trans[a[0]][1])  #gets action of a
+            # if a[0] >= 8: #jump
+            #     for i in range(1):
+            #         agent_host.sendCommand(action_trans[a[0]][1])  #gets action of a
+            # else:
+            #     agent_host.sendCommand(action_trans[a[0]][1])  #gets action of a
+    
             s1 = s + action_trans[a[0]][0] #gets index of a
 
             #used to send commands etc
@@ -281,6 +286,13 @@ with tf.Session() as sess:
             elif s1 >= 441:
                 s1Trans = s1 - 441
                 sTrans = s - 441
+
+            #jump simulation
+            if grid[s1Trans] == 'quartz_block':  #indicates raised block
+                #if movement is NOT jump
+                if a[0] < 8:
+                    s1 = s
+                    s1Trans = sTrans
 
             #calculating immediate reward
             curPath = dijkstra_shortest_path(grid, s1Trans, end)
@@ -327,7 +339,7 @@ with tf.Session() as sess:
 
             #for printing
             s_diff = sTrans - s1Trans
-            moveList.append(actionlist[s_diff])
+            moveList.append(action_trans[a[0]][1])
             
             #increment s to s1
             s = s1
