@@ -32,6 +32,7 @@ def load_grid(world_state):
             observations = json.loads(msg)
             grid = observations.get(u'floorAll', 0)
             print(grid)
+            #print(grid)
             fireOnTop = observations.get(u'fireOnTop', 0)
             break
     return grid, fireOnTop
@@ -154,9 +155,9 @@ rList = []
 jList = []
 
 #DQN parameters
-eps = 0.1
 y = 0.99
 num_episodes = 1000
+iterationsWithNoRandom = 200
 eps_deg = eps/(num_episodes - iterationsWithNoRandom)
 #DQN init end ----------------------------------------------------------------------
 
@@ -258,12 +259,18 @@ with tf.Session() as sess:
             j+=1
 
             #Choose an action by greedily (with e chance of random action) from the Q-network
+            a,allQ = sess.run([predict,Qout],feed_dict={inputs1:np.identity(1323)[s:s+1]})
 
             #prob of eps to choose random action
             if (np.random.rand(1)<eps) and (eps>0):
                 a[0] = np.random.randint(0, len(action_trans)-1)
 
             #step(a[0]) = Get new state and reward from environment
+            if (4 <= a[0] and a[0] < 8) or (12 <= a[0] and a[0] < 16):
+                for i in range(2):
+                    agent_host.sendCommand(action_trans[a[0]][1].split()[0] + " 1")  #gets action of a
+            else:
+                agent_host.sendCommand(action_trans[a[0]][1])
             s1 = s + action_trans[a[0]][0] #gets index of a
 
             #used to send commands etc
@@ -272,6 +279,8 @@ with tf.Session() as sess:
 
             #translate fire=2 to fire=0
             #882-1322  => 882-882=0, 1322-882=440
+
+            if s1 >= 882:
                 s1Trans = s1 - 882
                 sTrans = s - 882
             #translate fire=1 to fire=0
@@ -283,6 +292,13 @@ with tf.Session() as sess:
             #jump simulation <------------------------------------------
             if grid[s1Trans] == 'quartz_block':  #indicates raised block
                 #if movement is NOT jump
+            if (a[0] >= 4 and a[0] <= 7) or (a[0] >= 12 and a[0] <= 15): #if it is a 2movement
+                if grid[s1Trans-int((action_trans[a[0]][0]/2))] == 'quartz_block':  #indicates raised block
+                    #if movement is NOT jump
+                    if a[0] < 8: #if 0-7
+                        s1 = s
+                        s1Trans = sTrans
+            else: #1movement
                 if a[0] < 8: #if 0-7
                 if a[0] < 4 or (8 <= a[0] and a[0] < 12): #if 0-7
                     s1 = s
