@@ -154,6 +154,7 @@ rList = []
 jList = []
 
 #DQN parameters
+eps = 0.1
 y = 0.99
 num_episodes = 1000
 iterationsWithNoRandom = 200
