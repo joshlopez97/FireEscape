@@ -120,7 +120,7 @@ def dijkstra_shortest_path(grid_obs, source, dest):
     return path_list
 
 #--------------------------------------- Main ---------------------------------------
-mission_file = 'map6_with_fire.xml'
+mission_file = 'map6_plat1.xml'
 #This has to be tuned to the map you're using
 #map1
 #optimalRes = ['movewest 1', 'movewest 1', 'movewest 1', 'movewest 1', 'movenorth 1', 'movenorth 1', 'movenorth 1', 'movenorth 1']
@@ -135,6 +135,7 @@ optimalRes = ['movewest 1', 'movewest 1', 'movenorth 1', 'movenorth 1', 'moveeas
 tf.reset_default_graph()
 
 #These lines establish the feed-forward part of the network used to choose actions
+#441*3 = 1323 -> number of blocks(21x21=441) * number of tracked fire states(3)
 inputs1 = tf.placeholder(shape=[1,1323],dtype=tf.float32)
 W = tf.Variable(tf.random_uniform([1323,16],0,0.01))
 Qout = tf.matmul(inputs1,W)
@@ -239,6 +240,8 @@ with tf.Session() as sess:
     start, end = find_start_end(grid) #start, end = gridIndex
     successCount = 0
 
+    print(fireOnTop)
+
     for i in range(num_repeats):
         count = i
         print()
@@ -258,7 +261,7 @@ with tf.Session() as sess:
             j+=1
 
             #Choose an action by greedily (with e chance of random action) from the Q-network
-            a,allQ = sess.run([predict,Qout],feed_dict={inputs1:np.identity(1764)[s:s+1]})
+            a,allQ = sess.run([predict,Qout],feed_dict={inputs1:np.identity(1323)[s:s+1]})
 
             #prob of eps to choose random action
             if (np.random.rand(1)<eps) and (eps>0):
@@ -285,7 +288,8 @@ with tf.Session() as sess:
 
             #jump simulation <------------------------------------------
             if (a[0] >= 4 and a[0] <= 7) or (a[0] >= 12 and a[0] <= 15): #if it is a 2movement
-                if grid[s1Trans-(action_trans[a[0]][0]/2)] == 'quartz_block':  #indicates raised block
+                oneStep = int(s1Trans-(action_trans[a[0]][0]/2))
+                if grid[oneStep] == 'quartz_block':  #indicates raised block
                     #if movement is NOT jump
                     if a[0] < 8: #if 0-7
                         s1 = s
@@ -334,13 +338,13 @@ with tf.Session() as sess:
             #print(chatState)
 
             #Update Q-Table with new knowledge
-            Q1 = sess.run(Qout,feed_dict={inputs1:np.identity(1764)[s1:s1+1]})
+            Q1 = sess.run(Qout,feed_dict={inputs1:np.identity(1323)[s1:s1+1]})
             #Obtain maxQ' and set our target value for chosen action.
             maxQ1 = np.max(Q1)
             targetQ = allQ
             targetQ[0,a[0]] = r + y*maxQ1
             #Train our network using target and predicted Q values
-            _,W1 = sess.run([updateModel,W],feed_dict={inputs1:np.identity(1764)[s:s+1],nextQ:targetQ})
+            _,W1 = sess.run([updateModel,W],feed_dict={inputs1:np.identity(1323)[s:s+1],nextQ:targetQ})
             rAll += r
 
             #for printing
