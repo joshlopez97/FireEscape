@@ -121,7 +121,7 @@ def dijkstra_shortest_path(grid_obs, source, dest):
     return path_list
 
 #--------------------------------------- Main ---------------------------------------
-mission_file = 'map6_with_fire.xml'
+mission_file = 'map3.xml'
 #This has to be tuned to the map you're using
 #map1
 #optimalRes = ['movewest 1', 'movewest 1', 'movewest 1', 'movewest 1', 'movenorth 1', 'movenorth 1', 'movenorth 1', 'movenorth 1']
@@ -158,10 +158,10 @@ rList = []
 jList = []
 
 #DQN parameters
-eps = 0.2
-y = 0.95
-num_episodes = 5000
-iterationsWithNoRandom = 200
+eps = 0.1
+y = 0.99
+num_episodes = 100
+iterationsWithNoRandom = 0
 eps_deg = eps/(num_episodes - iterationsWithNoRandom)
 #DQN init end ----------------------------------------------------------------------
 
@@ -313,7 +313,7 @@ with tf.Session() as sess:
                     if grid[middleBlock] == 'air':
                         r += -999
                         midDone = True
-                    elif grid[middleBlock] == 'quartz_block' and fireOnTop[middleBlock] == 'fire':
+                    elif grid[middleBlock] == 'quartz_block' and fireOnTop[middleBlock] == 'fire': 
                         s1 = s
                         s1Trans = sTrans
                         curPath = dijkstra_shortest_path(grid, s1Trans, end)
@@ -370,8 +370,10 @@ with tf.Session() as sess:
                             r += -999
                             fireCount += 1
                             midDone = True
-                    else:
+                    elif grid[middleBlock] == 'air':
                         r += -(len(curPath)-1) + 1
+                    else:
+                        r += -(len(curPath)-1)
 
             #if action is move1 -> can't move if elevated ground
             elif (a[0] >= 0 and a[0] <= 3):
