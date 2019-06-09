@@ -121,7 +121,7 @@ def dijkstra_shortest_path(grid_obs, source, dest):
     return path_list
 
 #--------------------------------------- Main ---------------------------------------
-mission_file = 'map3.xml'
+mission_file = 'map6_plat1.xml'
 #This has to be tuned to the map you're using
 #map1
 #optimalRes = ['movewest 1', 'movewest 1', 'movewest 1', 'movewest 1', 'movenorth 1', 'movenorth 1', 'movenorth 1', 'movenorth 1']
@@ -157,8 +157,8 @@ jList = []
 #DQN parameters
 eps = 0.1
 y = 0.95
-num_episodes = 5000
-iterationsWithNoRandom = 500
+num_episodes = 1500
+iterationsWithNoRandom = 150
 eps_deg = eps/(num_episodes - iterationsWithNoRandom)
 #DQN init end ----------------------------------------------------------------------
 
@@ -375,7 +375,7 @@ with tf.Session() as sess:
                     
             #if action is jump2, add a neg reward to deter jumping uselessly
             if (a[0] >= 12 and a[0] <= 15):
-                r += -5
+                r += -1
 
             #original checks ------------------------------------------------------
             if midDone == False:
@@ -401,7 +401,7 @@ with tf.Session() as sess:
                         fireCount += 1
                         done = True
                 elif grid[s1Trans] == 'redstone_block':
-                    r += 5
+                    r += 10
                     successCount += 1
                     done = True
                 else:
