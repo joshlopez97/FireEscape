@@ -31,6 +31,7 @@ def load_grid(world_state):
             msg = world_state.observations[-1].text
             observations = json.loads(msg)
             grid = observations.get(u'floorAll', 0)
+            #print(grid)
             fireOnTop = observations.get(u'fireOnTop', 0)
             break
     return grid, fireOnTop
@@ -157,7 +158,7 @@ jList = []
 eps = 0.1
 y = 0.99
 num_episodes = 1000
-iterationsWithNoRandom = 100
+iterationsWithNoRandom = 200
 eps_deg = eps/(num_episodes - iterationsWithNoRandom)
 #DQN init end ----------------------------------------------------------------------
 
@@ -268,7 +269,11 @@ with tf.Session() as sess:
                 a[0] = np.random.randint(0, len(action_trans)-1)
 
             #step(a[0]) = Get new state and reward from environment
-            #agent_host.sendCommand(action_trans[a[0]][1])
+            if (4 <= a[0] and a[0] < 8) or (12 <= a[0] and a[0] < 16):
+                for i in range(2):
+                    agent_host.sendCommand(action_trans[a[0]][1].split()[0] + " 1")  #gets action of a
+            else:
+                agent_host.sendCommand(action_trans[a[0]][1])
             s1 = s + action_trans[a[0]][0] #gets index of a
 
             #used to send commands etc
@@ -277,12 +282,13 @@ with tf.Session() as sess:
 
             #translate fire=2 to fire=0
             #882-1322  => 882-882=0, 1322-882=440
-            if s1 >= 882: 
-                s1Trans = s1 - 882  
+
+            if s1 >= 882:
+                s1Trans = s1 - 882
                 sTrans = s - 882
             #translate fire=1 to fire=0
             #441-881 => 441-441=0, 881-441=440
-            elif s1 >= 441: 
+            elif s1 >= 441:
                 s1Trans = s1 - 441
                 sTrans = s - 441
 
