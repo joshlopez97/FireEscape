@@ -121,7 +121,7 @@ def dijkstra_shortest_path(grid_obs, source, dest):
     return path_list
 
 #--------------------------------------- Main ---------------------------------------
-mission_file = 'map7.xml'
+mission_file = 'map3.xml'
 #This has to be tuned to the map you're using
 #map1
 #optimalRes = ['movewest 1', 'movewest 1', 'movewest 1', 'movewest 1', 'movenorth 1', 'movenorth 1', 'movenorth 1', 'movenorth 1']
@@ -156,9 +156,9 @@ jList = []
 
 #DQN parameters
 eps = 0.1
-y = 0.99
-num_episodes = 1000
-iterationsWithNoRandom = 200
+y = 0.95
+num_episodes = 5000
+iterationsWithNoRandom = 500
 eps_deg = eps/(num_episodes - iterationsWithNoRandom)
 #DQN init end ----------------------------------------------------------------------
 
@@ -268,14 +268,14 @@ with tf.Session() as sess:
             if (np.random.rand(1)<eps) and (eps>0):
                 a[0] = np.random.randint(0, len(action_trans)-1)
 
-            #step(a[0]) = Get new state and reward from environment
-            if (4 <= a[0] and a[0] < 8) or (12 <= a[0] and a[0] < 16):
-                for i in range(2):
-                    agent_host.sendCommand(action_trans[a[0]][1].split()[0] + " 1")  #gets action of a
-            else:
-                agent_host.sendCommand(action_trans[a[0]][1])
-            s1 = s + action_trans[a[0]][0] #gets index of a
+            #step(a[0]) = Get new state and reward from environment <-------- Not used in simulation
+            # if (4 <= a[0] and a[0] < 8) or (12 <= a[0] and a[0] < 16):
+            #     for i in range(2):
+            #         agent_host.sendCommand(action_trans[a[0]][1].split()[0] + " 1")  #gets action of a
+            # else:
+            #     agent_host.sendCommand(action_trans[a[0]][1])
 
+            s1 = s + action_trans[a[0]][0] #gets index of a
             #used to send commands etc
             s1Trans = s1   #s1 translated back to fire=0 states
             sTrans = s     #s translated back to fire=0 states
@@ -292,7 +292,6 @@ with tf.Session() as sess:
                 s1Trans = s1 - 441
                 sTrans = s - 441
 
-            
             r = 0
             midDone = False
             curPath = dijkstra_shortest_path(grid, s1Trans, end)
@@ -301,6 +300,7 @@ with tf.Session() as sess:
             if (a[0] >= 4 and a[0] <= 7):
                 #move2 - end block checks
                 if grid[s1Trans] == 'quartz_block':
+                    r += -5 #deter agent from useless jump2
                     s1 = s + (action_trans[a[0]][0] / 2) #only move to middle
                     s1Trans = sTrans + (action_trans[a[0]][0] / 2)
                     curPath = dijkstra_shortest_path(grid, s1Trans, end)
@@ -310,7 +310,7 @@ with tf.Session() as sess:
                     if grid[middleBlock] == 'air':
                         r += -999
                         midDone = True
-                    elif grid[middleBlock] == 'fire':
+                    elif grid[middleBlock] == 'netherrack' or fireOnTop[middleBlock] == 'fire':
                         r += -(len(curPath)-1)
                         #never stepped on fire (full health)
                         if fireCount == 0: #0-440
@@ -339,35 +339,43 @@ with tf.Session() as sess:
             #if action is jump2 -> middle block checks
             elif (a[0] >= 12 and a[0] <= 15):
                 middleBlock = int(s1Trans-(action_trans[a[0]][0]/2))
-                if grid[middleBlock] == 'netherrack' or fireOnTop[middleBlock] == 'fire':
-                    #never stepped on fire (full health)
-                    r += -(len(curPath)-1)
-                    if fireCount == 0: #0-440
-                        r += -2.5
-                        fireCount += 1
-                        s1 += 441
-                    #stepped on fire once already (half health)
-                    elif fireCount == 1: #441-881
-                        r += -4
-                        fireCount += 1
-                        s1 += 441
-                    #stepped on fire twice already (next touch is death)
-                    elif fireCount == 2: #882-1322
-                        r += -999
-                        fireCount += 1
-                        midDone = True
+                #jump2 end block check -> if 2 quartz_block, then end at middle
+                if grid[s1Trans] == 'quartz_block' and grid[middleBlock] == 'quartz_block':
+                    r += -5
+                    s1 = s + (action_trans[a[0]][0] / 2) #only move to middle
+                    s1Trans = sTrans + (action_trans[a[0]][0] / 2)
+                    curPath = dijkstra_shortest_path(grid, s1Trans, end)
+                else:
+                    if grid[middleBlock] == 'netherrack' or fireOnTop[middleBlock] == 'fire':
+                        #never stepped on fire (full health)
+                        r += -(len(curPath)-1)
+                        if fireCount == 0: #0-440
+                            r += -2.5
+                            fireCount += 1
+                            s1 += 441
+                        #stepped on fire once already (half health)
+                        elif fireCount == 1: #441-881
+                            r += -4
+                            fireCount += 1
+                            s1 += 441
+                        #stepped on fire twice already (next touch is death)
+                        elif fireCount == 2: #882-1322
+                            r += -999
+                            fireCount += 1
+                            midDone = True
+                    else:
+                        r += -(len(curPath)-1)
 
-            #Miscellaneous Checks
-            #if action is move1
-            if (a[0] >= 0 and a[0] <= 3):
+            #if action is move1 -> can't move if elevated ground
+            elif (a[0] >= 0 and a[0] <= 3):
                 if grid[s1Trans] == 'quartz_block':
                     s1 = s
                     s1Trans = sTrans
                     curPath = dijkstra_shortest_path(grid, s1Trans, end)
                     
-            #if action is jump2, add a neg reward to deter jumping
+            #if action is jump2, add a neg reward to deter jumping uselessly
             if (a[0] >= 12 and a[0] <= 15):
-                r += -3
+                r += -5
 
             #original checks ------------------------------------------------------
             if midDone == False:
@@ -422,7 +430,7 @@ with tf.Session() as sess:
 
             print("Run %d | Reward = %d" %(count, r))
 
-            if done == True or midDone = True:
+            if (done == True) or (midDone == True):
                 #Reduce chance of random action as we train the model.
                 eps = eps-eps_deg
 
@@ -456,10 +464,10 @@ with tf.Session() as sess:
         print("jList for %d: %d" %(count, jList[count]))
 
     #dump errorLog into
-    statFileName = "DeepQLearning2Stats/DeepQLearning2_" + mission_file.rstrip('.xml') + "_stats.dat"
-    rewardFileName = "DeepQLearning2Stats/DeepQLearning2_" + mission_file.rstrip('.xml') + "_rewards.dat"
-    moveFileName = "DeepQLearning2Stats/DeepQLearning2_" + mission_file.rstrip('.xml') + "_moves.dat"
-    successFileName = "DeepQLearning2Stats/DeepQLearning2_" + mission_file.rstrip('.xml') + "_success.dat"
+    statFileName = "DHStats/DeepQLearning2_" + mission_file.rstrip('.xml') + "_stats.dat"
+    rewardFileName = "DHStats/DeepQLearning2_" + mission_file.rstrip('.xml') + "_rewards.dat"
+    moveFileName = "DHStats/DeepQLearning2_" + mission_file.rstrip('.xml') + "_moves.dat"
+    successFileName = "DHStats/DeepQLearning2_" + mission_file.rstrip('.xml') + "_success.dat"
     np.savetxt(statFileName, errorLog)
     np.savetxt(rewardFileName, rList)
     np.savetxt(moveFileName, jList)
