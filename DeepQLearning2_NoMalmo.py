@@ -121,7 +121,7 @@ def dijkstra_shortest_path(grid_obs, source, dest):
     return path_list
 
 #--------------------------------------- Main ---------------------------------------
-mission_file = 'map3.xml'
+mission_file = 'map7.xml'
 #This has to be tuned to the map you're using
 #map1
 #optimalRes = ['movewest 1', 'movewest 1', 'movewest 1', 'movewest 1', 'movenorth 1', 'movenorth 1', 'movenorth 1', 'movenorth 1']
@@ -373,6 +373,9 @@ with tf.Session() as sess:
                             r += -999
                             fireCount += 1
                             midDone = True
+                    elif grid[middleBlock] == 'diamond_block' and grid[s1Trans] != 'quartz_block':
+                        r += -(len(curPath)-1)
+                        r += -99
                     else:
                         r += -(len(curPath)-1)
                         r += 1
@@ -413,7 +416,7 @@ with tf.Session() as sess:
                         fireCount += 1
                         done = True
                 elif grid[s1Trans] == 'redstone_block':
-                    r += 5
+                    r += 10
                     successCount += 1
                     done = True
                 else:
