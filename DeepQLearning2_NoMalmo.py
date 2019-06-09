@@ -301,8 +301,8 @@ with tf.Session() as sess:
                 #move2 - end block checks
                 if grid[s1Trans] == 'quartz_block':
                     r += -5 #deter agent from useless jump2
-                    s1 = s + (action_trans[a[0]][0] / 2) #only move to middle
-                    s1Trans = sTrans + (action_trans[a[0]][0] / 2)
+                    s1 = s + int(action_trans[a[0]][0] / 2) #only move to middle
+                    s1Trans = sTrans + int(action_trans[a[0]][0] / 2)
                     curPath = dijkstra_shortest_path(grid, s1Trans, end)
                 else:
                     middleBlock = int(s1Trans-(action_trans[a[0]][0] / 2))
@@ -338,12 +338,12 @@ with tf.Session() as sess:
             
             #if action is jump2 -> middle block checks
             elif (a[0] >= 12 and a[0] <= 15):
-                middleBlock = int(s1Trans-(action_trans[a[0]][0]/2))
+                middleBlock = int(s1Trans-(action_trans[a[0]][0] / 2))
                 #jump2 end block check -> if 2 quartz_block, then end at middle
                 if grid[s1Trans] == 'quartz_block' and grid[middleBlock] == 'quartz_block':
                     r += -5
-                    s1 = s + (action_trans[a[0]][0] / 2) #only move to middle
-                    s1Trans = sTrans + (action_trans[a[0]][0] / 2)
+                    s1 = s + int(action_trans[a[0]][0] / 2) #only move to middle
+                    s1Trans = sTrans + int(action_trans[a[0]][0] / 2)
                     curPath = dijkstra_shortest_path(grid, s1Trans, end)
                 else:
                     if grid[middleBlock] == 'netherrack' or fireOnTop[middleBlock] == 'fire':
