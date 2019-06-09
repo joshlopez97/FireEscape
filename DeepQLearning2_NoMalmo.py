@@ -158,10 +158,10 @@ rList = []
 jList = []
 
 #DQN parameters
-eps = 0.1
-y = 0.99
-num_episodes = 100
-iterationsWithNoRandom = 0
+eps = 0.8
+y = 0.95
+num_episodes = 5000
+iterationsWithNoRandom = 500
 eps_deg = eps/(num_episodes - iterationsWithNoRandom)
 #DQN init end ----------------------------------------------------------------------
 
@@ -318,7 +318,8 @@ with tf.Session() as sess:
                         s1Trans = sTrans
                         curPath = dijkstra_shortest_path(grid, s1Trans, end)
                     elif grid[middleBlock] == 'netherrack' or fireOnTop[middleBlock] == 'fire':
-                        r += -(len(curPath)-1) + 1
+                        r += -(len(curPath)-1)
+                        r += 1
                         #never stepped on fire (full health)
                         if fireCount == 0: #0-440
                             r += -2.5
@@ -340,7 +341,8 @@ with tf.Session() as sess:
                         curPath = dijkstra_shortest_path(grid, s1Trans, end)
                         r += -(len(curPath)-1)
                     else:
-                        r += -(len(curPath)-1) + 1
+                        r += -(len(curPath)-1)
+                        r += 1
 
 
             #if action is jump2 -> middle block checks
@@ -355,7 +357,8 @@ with tf.Session() as sess:
                 else:
                     if grid[middleBlock] == 'netherrack' or fireOnTop[middleBlock] == 'fire':
                         #never stepped on fire (full health)
-                        r += -(len(curPath)-1) + 1
+                        r += -(len(curPath)-1)
+                        r += -1
                         if fireCount == 0: #0-440
                             r += -2.5
                             fireCount += 1
@@ -371,9 +374,11 @@ with tf.Session() as sess:
                             fireCount += 1
                             midDone = True
                     elif grid[middleBlock] == 'air':
-                        r += -(len(curPath)-1) + 1
+                        r += -(len(curPath)-1)
+                        r += 1
                     else:
                         r += -(len(curPath)-1)
+                        r += -1
 
             #if action is move1 -> can't move if elevated ground
             elif (a[0] >= 0 and a[0] <= 3):
