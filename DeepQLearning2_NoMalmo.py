@@ -121,7 +121,7 @@ def dijkstra_shortest_path(grid_obs, source, dest):
     return path_list
 
 #--------------------------------------- Main ---------------------------------------
-mission_file = 'map6_plat1.xml'
+mission_file = 'map6_with_fire.xml'
 #This has to be tuned to the map you're using
 #map1
 #optimalRes = ['movewest 1', 'movewest 1', 'movewest 1', 'movewest 1', 'movenorth 1', 'movenorth 1', 'movenorth 1', 'movenorth 1']
@@ -130,7 +130,10 @@ mission_file = 'map6_plat1.xml'
 #optimalRes = ['movenorth 1', 'movenorth 1', 'movenorth 1', 'movenorth 1', 'movenorth 1', 'movenorth 1', 'movewest 1', 'movewest 1']
 
 #map5
-optimalRes = ['movewest 1', 'movewest 1', 'movenorth 1', 'movenorth 1', 'moveeast 1', 'moveeast 1', 'movenorth 1', 'movenorth 1', 'movenorth 1', 'movewest 1', 'movewest 1', 'movenorth 1', 'movenorth 1']
+#optimalRes = ['movewest 1', 'movewest 1', 'movenorth 1', 'movenorth 1', 'moveeast 1', 'moveeast 1', 'movenorth 1', 'movenorth 1', 'movenorth 1', 'movewest 1', 'movewest 1', 'movenorth 1', 'movenorth 1']
+
+#map7
+optimalRes =['jumpsouth 2', 'moveeast 2', 'moveeast 2', 'jumpsouth 1', 'movesouth 2', 'jumpeast 2', 'moveeast 1', 'jumpeast 2']
 
 #DQN init ---------------------------------------------------------------------------
 tf.reset_default_graph()
@@ -157,8 +160,8 @@ jList = []
 #DQN parameters
 eps = 0.1
 y = 0.95
-num_episodes = 1500
-iterationsWithNoRandom = 150
+num_episodes = 4000
+iterationsWithNoRandom = 500
 eps_deg = eps/(num_episodes - iterationsWithNoRandom)
 #DQN init end ----------------------------------------------------------------------
 
@@ -241,7 +244,7 @@ with tf.Session() as sess:
     start, end = find_start_end(grid) #start, end = gridIndex
     successCount = 0
 
-    print(fireOnTop)
+    print(grid)
 
     for i in range(num_repeats):
         count = i
@@ -301,8 +304,8 @@ with tf.Session() as sess:
                 #move2 - end block checks
                 if grid[s1Trans] == 'quartz_block':
                     r += -5 #deter agent from useless jump2
-                    s1 = s + int(action_trans[a[0]][0] / 2) #only move to middle
-                    s1Trans = sTrans + int(action_trans[a[0]][0] / 2)
+                    s1 = int(s + (action_trans[a[0]][0] / 2)) #only move to middle
+                    s1Trans = int(sTrans + (action_trans[a[0]][0] / 2))
                     curPath = dijkstra_shortest_path(grid, s1Trans, end)
                 else:
                     middleBlock = int(s1Trans-(action_trans[a[0]][0] / 2))
@@ -310,6 +313,10 @@ with tf.Session() as sess:
                     if grid[middleBlock] == 'air':
                         r += -999
                         midDone = True
+                    elif grid[middleBlock] == 'quartz_block' and fireOnTop[middleBlock] == 'fire':
+                        s1 = s
+                        s1Trans = sTrans
+                        curPath = dijkstra_shortest_path(grid, s1Trans, end)
                     elif grid[middleBlock] == 'netherrack' or fireOnTop[middleBlock] == 'fire':
                         r += -(len(curPath)-1)
                         #never stepped on fire (full health)
@@ -335,15 +342,15 @@ with tf.Session() as sess:
                     else:
                         r += -(len(curPath)-1)
 
-            
+
             #if action is jump2 -> middle block checks
             elif (a[0] >= 12 and a[0] <= 15):
-                middleBlock = int(s1Trans-(action_trans[a[0]][0] / 2))
+                middleBlock = int(s1Trans-(action_trans[a[0]][0]/2))
                 #jump2 end block check -> if 2 quartz_block, then end at middle
                 if grid[s1Trans] == 'quartz_block' and grid[middleBlock] == 'quartz_block':
                     r += -5
-                    s1 = s + int(action_trans[a[0]][0] / 2) #only move to middle
-                    s1Trans = sTrans + int(action_trans[a[0]][0] / 2)
+                    s1 = int(s + (action_trans[a[0]][0] / 2)) #only move to middle
+                    s1Trans = int(sTrans + (action_trans[a[0]][0] / 2))
                     curPath = dijkstra_shortest_path(grid, s1Trans, end)
                 else:
                     if grid[middleBlock] == 'netherrack' or fireOnTop[middleBlock] == 'fire':
@@ -372,14 +379,15 @@ with tf.Session() as sess:
                     s1 = s
                     s1Trans = sTrans
                     curPath = dijkstra_shortest_path(grid, s1Trans, end)
-                    
+
             #if action is jump2, add a neg reward to deter jumping uselessly
             if (a[0] >= 12 and a[0] <= 15):
-                r += -1
+                r += -5
 
             #original checks ------------------------------------------------------
             if midDone == False:
                 #calculating immediate reward
+                print(s1Trans)
                 if grid[s1Trans] == 'air':
                     r += -999
                     done = True
@@ -401,7 +409,7 @@ with tf.Session() as sess:
                         fireCount += 1
                         done = True
                 elif grid[s1Trans] == 'redstone_block':
-                    r += 10
+                    r += 5
                     successCount += 1
                     done = True
                 else:
