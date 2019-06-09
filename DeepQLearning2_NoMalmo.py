@@ -121,7 +121,7 @@ def dijkstra_shortest_path(grid_obs, source, dest):
     return path_list
 
 #--------------------------------------- Main ---------------------------------------
-mission_file = 'map6_with_fire.xml'
+mission_file = 'map6_plat1.xml'
 #This has to be tuned to the map you're using
 #map1
 #optimalRes = ['movewest 1', 'movewest 1', 'movewest 1', 'movewest 1', 'movenorth 1', 'movenorth 1', 'movenorth 1', 'movenorth 1']
@@ -136,6 +136,7 @@ optimalRes = ['movewest 1', 'movewest 1', 'movenorth 1', 'movenorth 1', 'moveeas
 tf.reset_default_graph()
 
 #These lines establish the feed-forward part of the network used to choose actions
+#441*3 = 1323 -> number of blocks(21x21=441) * number of tracked fire states(3)
 inputs1 = tf.placeholder(shape=[1,1323],dtype=tf.float32)
 W = tf.Variable(tf.random_uniform([1323,16],0,0.01))
 Qout = tf.matmul(inputs1,W)
@@ -240,6 +241,8 @@ with tf.Session() as sess:
     start, end = find_start_end(grid) #start, end = gridIndex
     successCount = 0
 
+    print(fireOnTop)
+
     for i in range(num_repeats):
         count = i
         print()
@@ -291,7 +294,8 @@ with tf.Session() as sess:
 
             #jump simulation <------------------------------------------
             if (a[0] >= 4 and a[0] <= 7) or (a[0] >= 12 and a[0] <= 15): #if it is a 2movement
-                if grid[s1Trans-int((action_trans[a[0]][0]/2))] == 'quartz_block':  #indicates raised block
+                oneStep = int(s1Trans-(action_trans[a[0]][0]/2))
+                if grid[oneStep] == 'quartz_block':  #indicates raised block
                     #if movement is NOT jump
                     if a[0] < 8: #if 0-7
                         s1 = s
