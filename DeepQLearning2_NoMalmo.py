@@ -121,7 +121,7 @@ def dijkstra_shortest_path(grid_obs, source, dest):
     return path_list
 
 #--------------------------------------- Main ---------------------------------------
-mission_file = 'map6_plat1.xml'
+mission_file = 'map7.xml'
 #This has to be tuned to the map you're using
 #map1
 #optimalRes = ['movewest 1', 'movewest 1', 'movewest 1', 'movewest 1', 'movenorth 1', 'movenorth 1', 'movenorth 1', 'movenorth 1']
@@ -155,10 +155,10 @@ rList = []
 jList = []
 
 #DQN parameters
-eps = 0.1
+eps = 0.2
 y = 0.95
-num_episodes = 1500
-iterationsWithNoRandom = 150
+num_episodes = 5000
+iterationsWithNoRandom = 200
 eps_deg = eps/(num_episodes - iterationsWithNoRandom)
 #DQN init end ----------------------------------------------------------------------
 
@@ -300,7 +300,7 @@ with tf.Session() as sess:
             if (a[0] >= 4 and a[0] <= 7):
                 #move2 - end block checks
                 if grid[s1Trans] == 'quartz_block':
-                    r += -5 #deter agent from useless jump2
+                    r += -5 #deter agent from uselessly move2
                     s1 = s + int(action_trans[a[0]][0] / 2) #only move to middle
                     s1Trans = sTrans + int(action_trans[a[0]][0] / 2)
                     curPath = dijkstra_shortest_path(grid, s1Trans, end)
@@ -311,7 +311,7 @@ with tf.Session() as sess:
                         r += -999
                         midDone = True
                     elif grid[middleBlock] == 'netherrack' or fireOnTop[middleBlock] == 'fire':
-                        r += -(len(curPath)-1)
+                        r += -(len(curPath)-1) + 1
                         #never stepped on fire (full health)
                         if fireCount == 0: #0-440
                             r += -2.5
@@ -333,7 +333,7 @@ with tf.Session() as sess:
                         curPath = dijkstra_shortest_path(grid, s1Trans, end)
                         r += -(len(curPath)-1)
                     else:
-                        r += -(len(curPath)-1)
+                        r += -(len(curPath)-1) + 1
 
             
             #if action is jump2 -> middle block checks
@@ -348,7 +348,7 @@ with tf.Session() as sess:
                 else:
                     if grid[middleBlock] == 'netherrack' or fireOnTop[middleBlock] == 'fire':
                         #never stepped on fire (full health)
-                        r += -(len(curPath)-1)
+                        r += -(len(curPath)-1) + 1
                         if fireCount == 0: #0-440
                             r += -2.5
                             fireCount += 1
@@ -364,7 +364,7 @@ with tf.Session() as sess:
                             fireCount += 1
                             midDone = True
                     else:
-                        r += -(len(curPath)-1)
+                        r += -(len(curPath)-1) + 1
 
             #if action is move1 -> can't move if elevated ground
             elif (a[0] >= 0 and a[0] <= 3):
@@ -374,7 +374,7 @@ with tf.Session() as sess:
                     curPath = dijkstra_shortest_path(grid, s1Trans, end)
                     
             #if action is jump2, add a neg reward to deter jumping uselessly
-            if (a[0] >= 12 and a[0] <= 15):
+            if (a[0] >= 8 and a[0] <= 15):
                 r += -1
 
             #original checks ------------------------------------------------------
