@@ -158,10 +158,10 @@ rList = []
 jList = []
 
 #DQN parameters
-eps = 0.8
-y = 0.95
-num_episodes = 5000
-iterationsWithNoRandom = 500
+eps = 0.1
+y = 0.99
+num_episodes = 2000
+iterationsWithNoRandom = 200
 eps_deg = eps/(num_episodes - iterationsWithNoRandom)
 #DQN init end ----------------------------------------------------------------------
 
@@ -339,7 +339,7 @@ with tf.Session() as sess:
                         s1 = s
                         s1Trans = sTrans
                         curPath = dijkstra_shortest_path(grid, s1Trans, end)
-                        r += -(len(curPath)-1)
+                        r += -(len(curPath)-1)  #no need +1 bcs stuck
                     else:
                         r += -(len(curPath)-1)
                         r += 1
@@ -358,7 +358,7 @@ with tf.Session() as sess:
                     if grid[middleBlock] == 'netherrack' or fireOnTop[middleBlock] == 'fire':
                         #never stepped on fire (full health)
                         r += -(len(curPath)-1)
-                        r += -1
+                        r += 1
                         if fireCount == 0: #0-440
                             r += -2.5
                             fireCount += 1
@@ -373,12 +373,9 @@ with tf.Session() as sess:
                             r += -999
                             fireCount += 1
                             midDone = True
-                    elif grid[middleBlock] == 'air':
-                        r += -(len(curPath)-1)
-                        r += 1
                     else:
                         r += -(len(curPath)-1)
-                        r += -1
+                        r += 1
 
             #if action is move1 -> can't move if elevated ground
             elif (a[0] >= 0 and a[0] <= 3):
@@ -399,7 +396,7 @@ with tf.Session() as sess:
                     r += -999
                     done = True
                 elif grid[s1Trans] == 'netherrack' or fireOnTop[s1Trans] == 'fire':
-                    r = -(len(curPath)-1)
+                    r += -(len(curPath)-1)
                     #never stepped on fire (full health)
                     if fireCount == 0: #0-440
                         r += -2.5
@@ -416,7 +413,7 @@ with tf.Session() as sess:
                         fireCount += 1
                         done = True
                 elif grid[s1Trans] == 'redstone_block':
-                    r += 10
+                    r += 5
                     successCount += 1
                     done = True
                 else:
