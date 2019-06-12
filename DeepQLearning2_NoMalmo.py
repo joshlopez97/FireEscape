@@ -78,6 +78,7 @@ def dijkstra_shortest_path(grid_obs, source, dest):
     """
 
     direction = [21, -1, -21, 1]
+    outer_neighbors = [42, -2, -42, 2]
     vertexdict = dict()
     unvisited = []
     for i in range(len(grid_obs)):
@@ -102,14 +103,20 @@ def dijkstra_shortest_path(grid_obs, source, dest):
                 lowestDist = vertexdict[i][1]
 
         #examine neighbors of curVert
-        for i in direction:
-            adjVert = curVert + i
+        for i in range(len(direction)):
+            adjVert = curVert + direction[i]
+            furtherVert = curVert + outer_neighbors[i]
             if adjVert in unvisited:
                 #newcost = (cost of adjVert) + (shortest dist from curVert)
                 newCost = vertexdict[adjVert][0] + vertexdict[curVert][1]
                 if newCost < vertexdict[adjVert][1]:
                     vertexdict[adjVert][1] = newCost
                     vertexdict[adjVert][2] = curVert
+            if furtherVert in unvisited:
+                newCost = vertexdict[furtherVert][0] + vertexdict[curVert][1] + 1
+                if newCost < vertexdict[furtherVert][1]:
+                    vertexdict[furtherVert][1] = newCost
+                    vertexdict[furtherVert][2] = curVert
         unvisited.remove(curVert)
 
     backtrack = dest
