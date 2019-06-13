@@ -80,6 +80,7 @@
                 </AgentStart>
                 <AgentHandlers>
                     <ChatCommands/>
+                    <MissionQuitCommands quitDescription="quit"/>
                     <DiscreteMovementCommands/>
                     <AgentQuitFromTouchingBlockType>
                         <Block type="redstone_block"/>
