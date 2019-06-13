@@ -213,9 +213,6 @@ with tf.Session() as sess:
     else:
         num_repeats = num_episodes
 
-    #Lets us use the various minecraft cheats available
-    agent_host.sendCommand("chat /gamerule naturalRegeneration false")
-
     #map file selection
     f = open("./map/"+mission_file, "r")
     missionXML = f.read()
@@ -262,6 +259,9 @@ with tf.Session() as sess:
                 print("Error:",error.text)
         print()
 
+        #Lets us use the various minecraft cheats available
+        agent_host.sendCommand("chat /gamerule naturalRegeneration false")
+
         grid, fireOnTop = load_grid(world_state)
         start, end = find_start_end(grid) #start, end = gridIndex
         successCount = 0
@@ -271,13 +271,15 @@ with tf.Session() as sess:
         s = start
         rAll = 0.0
         done = False
+        midDone = False
         j = 0
         fireCount = 0
 
         #The Q-Table learning algorithm
         while j < 99:
-            time.sleep(0.35)  #0.35 will cause the 3 fire steps to kill the agent
             j+=1
+            sleepTime = 0.35 #0.35 will cause the 3 fire steps to kill the agent
+            time.sleep(sleepTime)  
 
             #Observation
             world_state = agent_host.getWorldState()
@@ -285,20 +287,27 @@ with tf.Session() as sess:
                 msg = world_state.observations[-1].text
                 observations = json.loads(msg)
 
-            #Choose an action by greedily (with e chance of random action) from the Q-network
+            #epsilon-greedy strategy in choosing actions
             a,allQ = sess.run([predict,Qout],feed_dict={inputs1:np.identity(1323)[s:s+1]})
 
             #prob of eps to choose random action
             if (np.random.rand(1)<eps) and (eps>0):
                 a[0] = np.random.randint(0, len(action_trans)-1)
 
-            #step(a[0]) = Get new state and reward from environment
-            if a[0] >= 8: #jump
+            #agent's ACTION_CHOICE
+            #if jump2
+            if(a[0] >= 12 and a[0] <= 15):
                 for i in range(2):
-                    agent_host.sendCommand(action_trans[a[0]][1].split()[0] + " 1")  #gets action of a
+                    agent_host.sendCommand(action_trans[a[0]][1].split()[0] + " 1")
+                time.sleep(sleepTime)
+            #else if move2
+            elif (a[0] >= 4 and a[0] <= 7):
+                for i in range(2):
+                    agent_host.sendCommand(action_trans[a[0]][1].split()[0] + " 1")
             else:
-                agent_host.sendCommand(action_trans[a[0]][1])  #gets action o            s1 = s + action_trans[a[0]][0] #gets index of a
+                agent_host.sendCommand(action_trans[a[0]][1])  
 
+            #step(a[0]) = Get new state and reward from environment
             s1 = s + action_trans[a[0]][0] #gets index of a
             #used to send commands etc
             s1Trans = s1   #s1 translated back to fire=0 states
@@ -306,7 +315,6 @@ with tf.Session() as sess:
             
             #translate fire=2 to fire=0
             #882-1322  => 882-882=0, 1322-882=440
-
             if s1 >= 882:
                 s1Trans = s1 - 882
                 sTrans = s - 882
@@ -317,7 +325,6 @@ with tf.Session() as sess:
                 sTrans = s - 441
 
             r = 0
-            midDone = False
             curPath = dijkstra_shortest_path(grid, s1Trans, end)
             #2 Block Movement Checks<------------------------------------------
             #if action is move2 -> middle block checks
@@ -492,6 +499,8 @@ with tf.Session() as sess:
                 #put lists here if you want it to be recorded per episode
                 successList.append(successCount)
                 moveList.clear()
+                time.sleep(1)
+                agent_host.sendCommand("chat /kill")
                 break
 
         jList.append(j)
