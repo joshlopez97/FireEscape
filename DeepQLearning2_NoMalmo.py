@@ -31,7 +31,6 @@ def load_grid(world_state):
             msg = world_state.observations[-1].text
             observations = json.loads(msg)
             grid = observations.get(u'floorAll', 0)
-            #print(grid)
             fireOnTop = observations.get(u'fireOnTop', 0)
             break
     return grid, fireOnTop
@@ -128,7 +127,7 @@ def dijkstra_shortest_path(grid_obs, source, dest):
     return path_list
 
 #--------------------------------------- Main ---------------------------------------
-mission_file = 'map7.xml'
+mission_file = 'map9.xml'
 #This has to be tuned to the map you're using
 #map1
 #optimalRes = ['movewest 1', 'movewest 1', 'movewest 1', 'movewest 1', 'movenorth 1', 'movenorth 1', 'movenorth 1', 'movenorth 1']
@@ -165,9 +164,9 @@ rList = []
 jList = []
 
 #DQN parameters
-eps = 0.1
+eps = 0.2
 y = 0.99
-num_episodes = 2000
+num_episodes = 2500
 iterationsWithNoRandom = 200
 eps_deg = eps/(num_episodes - iterationsWithNoRandom)
 #DQN init end ----------------------------------------------------------------------
@@ -253,6 +252,9 @@ with tf.Session() as sess:
 
     print(grid)
 
+    #testingAction = [7, 9, 13, 5, 1, 3]
+    #testingAction = [3, 9, 13, 15, 13, 1]
+
     for i in range(num_repeats):
         count = i
         print()
@@ -263,12 +265,14 @@ with tf.Session() as sess:
         s = start
         rAll = 0.0
         done = False
+        midDone = False
         j = 0
         fireCount = 0
+        fire1re = -6
+        fire2re = -6
 
         #The Q-Table learning algorithm
         while j < 99:
-            #time.sleep(0)  #0.35 will cause the 3 fire steps to kill the agent
             j+=1
 
             #Choose an action by greedily (with e chance of random action) from the Q-network
@@ -278,13 +282,7 @@ with tf.Session() as sess:
             if (np.random.rand(1)<eps) and (eps>0):
                 a[0] = np.random.randint(0, len(action_trans)-1)
 
-            #step(a[0]) = Get new state and reward from environment <-------- Not used in simulation
-            # if (4 <= a[0] and a[0] < 8) or (12 <= a[0] and a[0] < 16):
-            #     for i in range(2):
-            #         agent_host.sendCommand(action_trans[a[0]][1].split()[0] + " 1")  #gets action of a
-            # else:
-            #     agent_host.sendCommand(action_trans[a[0]][1])
-
+            #a[0] = testingAction[j-1]
             s1 = s + action_trans[a[0]][0] #gets index of a
             #used to send commands etc
             s1Trans = s1   #s1 translated back to fire=0 states
@@ -302,15 +300,14 @@ with tf.Session() as sess:
                 s1Trans = s1 - 441
                 sTrans = s - 441
 
-            r = 0
-            midDone = False
+            r = 0.0
             curPath = dijkstra_shortest_path(grid, s1Trans, end)
             #2 Block Movement Checks<------------------------------------------
             #if action is move2 -> middle block checks
             if (a[0] >= 4 and a[0] <= 7):
                 #move2 - end block checks
-                if grid[s1Trans] == 'quartz_block':
-                    r += -5 #deter agent from uselessly move2
+                if (grid[s1Trans]=='quartz_block') and (grid[sTrans]!='quartz_block'):
+                    r += -20 #deter agent from uselessly move2
                     s1 = int(s + (action_trans[a[0]][0] / 2)) #only move to middle
                     s1Trans = int(sTrans + (action_trans[a[0]][0] / 2))
                     curPath = dijkstra_shortest_path(grid, s1Trans, end)
@@ -320,7 +317,9 @@ with tf.Session() as sess:
                     if grid[middleBlock] == 'air':
                         r += -999
                         midDone = True
-                    elif grid[middleBlock] == 'quartz_block' and fireOnTop[middleBlock] == 'fire': 
+                    elif (grid[middleBlock]=='quartz_block') and (fireOnTop[middleBlock]=='fire') and \
+                         (grid[sTrans]!='quartz_block'):
+                        r += -20
                         s1 = s
                         s1Trans = sTrans
                         curPath = dijkstra_shortest_path(grid, s1Trans, end)
@@ -329,12 +328,12 @@ with tf.Session() as sess:
                         r += 1
                         #never stepped on fire (full health)
                         if fireCount == 0: #0-440
-                            r += -2.5
+                            r += fire1re
                             fireCount += 1
                             s1 += 441
                         #stepped on fire once already (half health)
                         elif fireCount == 1: #441-881
-                            r += -4
+                            r += fire2re
                             fireCount += 1
                             s1 += 441
                         #stepped on fire twice already (next touch is death)
@@ -342,7 +341,8 @@ with tf.Session() as sess:
                             r += -999
                             fireCount += 1
                             midDone = True
-                    elif grid[middleBlock] == 'quartz_block':
+                    elif (grid[middleBlock]=='quartz_block') and (grid[sTrans]!='quartz_block'):
+                        r += -20
                         s1 = s
                         s1Trans = sTrans
                         curPath = dijkstra_shortest_path(grid, s1Trans, end)
@@ -356,52 +356,51 @@ with tf.Session() as sess:
             elif (a[0] >= 12 and a[0] <= 15):
                 middleBlock = int(s1Trans-(action_trans[a[0]][0]/2))
                 #jump2 end block check -> if 2 quartz_block, then end at middle
-                if grid[s1Trans] == 'quartz_block' and grid[middleBlock] == 'quartz_block':
-                    r += -5
-                    s1 = int(s + (action_trans[a[0]][0] / 2)) #only move to middle
-                    s1Trans = int(sTrans + (action_trans[a[0]][0] / 2))
-                    curPath = dijkstra_shortest_path(grid, s1Trans, end)
+                if grid[middleBlock] == 'netherrack' or fireOnTop[middleBlock] == 'fire':
+                    #never stepped on fire (full health)
+                    r += -(len(curPath)-1)
+                    r += 1
+                    if fireCount == 0: #0-440
+                        r += fire1re
+                        fireCount += 1
+                        s1 += 441
+                    #stepped on fire once already (half health)
+                    elif fireCount == 1: #441-881
+                        r += fire2re
+                        fireCount += 1
+                        s1 += 441
+                    #stepped on fire twice already (next touch is death)
+                    elif fireCount == 2: #882-1322
+                        r += -999
+                        fireCount += 1
+                        midDone = True
+                #if middle is diamond or fire, and end != quartz don't jump
+                elif (grid[middleBlock]=='diamond_block') and (grid[s1Trans]!='quartz_block'):
+                    r += -(len(curPath)-1)
+                    r += -90
+                #Already on platform, you dont need to jump anymore
+                elif (grid[sTrans]=='quartz_block') and (grid[s1Trans]!='quartz_block'):
+                    r += -(len(curPath)-1)
+                    r += -90
                 else:
-                    if grid[middleBlock] == 'netherrack' or fireOnTop[middleBlock] == 'fire':
-                        #never stepped on fire (full health)
-                        r += -(len(curPath)-1)
-                        r += 1
-                        if fireCount == 0: #0-440
-                            r += -2.5
-                            fireCount += 1
-                            s1 += 441
-                        #stepped on fire once already (half health)
-                        elif fireCount == 1: #441-881
-                            r += -4
-                            fireCount += 1
-                            s1 += 441
-                        #stepped on fire twice already (next touch is death)
-                        elif fireCount == 2: #882-1322
-                            r += -999
-                            fireCount += 1
-                            midDone = True
-                    elif grid[middleBlock] == 'diamond_block' and grid[s1Trans] != 'quartz_block':
-                        r += -(len(curPath)-1)
-                        r += -99
-                    else:
-                        r += -(len(curPath)-1)
-                        r += 1
+                    r += -(len(curPath)-1)
+                    r += 1
 
             #if action is move1 -> can't move if elevated ground
             elif (a[0] >= 0 and a[0] <= 3):
-                if grid[s1Trans] == 'quartz_block':
+                if (grid[s1Trans]=='quartz_block') and (grid[sTrans]!='quartz_block'):
+                    r += -20
                     s1 = s
                     s1Trans = sTrans
                     curPath = dijkstra_shortest_path(grid, s1Trans, end)
 
             #if action is jump2, add a neg reward to deter jumping uselessly
             if (a[0] >= 8 and a[0] <= 15):
-                r += -1
+                r += -1.5
 
             #original checks ------------------------------------------------------
             if midDone == False:
                 #calculating immediate reward
-                print(s1Trans)
                 if grid[s1Trans] == 'air':
                     r += -999
                     done = True
@@ -409,12 +408,12 @@ with tf.Session() as sess:
                     r += -(len(curPath)-1)
                     #never stepped on fire (full health)
                     if fireCount == 0: #0-440
-                        r += -2.5
+                        r += fire1re
                         fireCount += 1
                         s1 += 441
                     #stepped on fire once already (half health)
                     elif fireCount == 1: #441-881
-                        r += -4
+                        r += fire2re
                         fireCount += 1
                         s1 += 441
                     #stepped on fire twice already (next touch is death)
