@@ -74,17 +74,16 @@ def dijkstra_shortest_path(grid_obs, source, dest):
     """
     Finds the shortest path from source to destination on the map. It used the grid observation as the graph.
     See example on the Tutorial.pdf file for knowing which index should be north, south, west and east.
-
     Args
         grid_obs:   <list>  list of block types string representing the blocks on the map.
         source:     <int>   source block index.
         dest:       <int>   destination block index.
-
     Returns
         path_list:  <list>  block indexes representing a path from source (first element) to destination (last)
     """
 
     direction = [21, -1, -21, 1]
+    outer_neighbors = [42, -2, -42, 2]
     vertexdict = dict()
     unvisited = []
     for i in range(len(grid_obs)):
@@ -109,14 +108,20 @@ def dijkstra_shortest_path(grid_obs, source, dest):
                 lowestDist = vertexdict[i][1]
 
         #examine neighbors of curVert
-        for i in direction:
-            adjVert = curVert + i
+        for i in range(len(direction)):
+            adjVert = curVert + direction[i]
+            furtherVert = curVert + outer_neighbors[i]
             if adjVert in unvisited:
                 #newcost = (cost of adjVert) + (shortest dist from curVert)
                 newCost = vertexdict[adjVert][0] + vertexdict[curVert][1]
                 if newCost < vertexdict[adjVert][1]:
                     vertexdict[adjVert][1] = newCost
                     vertexdict[adjVert][2] = curVert
+            if furtherVert in unvisited:
+                newCost = vertexdict[furtherVert][0] + vertexdict[curVert][1] + 1
+                if newCost < vertexdict[furtherVert][1]:
+                    vertexdict[furtherVert][1] = newCost
+                    vertexdict[furtherVert][2] = curVert
         unvisited.remove(curVert)
 
     backtrack = dest
@@ -128,19 +133,32 @@ def dijkstra_shortest_path(grid_obs, source, dest):
     return path_list
 
 #--------------------------------------- Main ---------------------------------------
-mission_file = 'map6_with_fire.xml'
+mission_file = 'map9.xml'
+#This has to be tuned to the map you're using
+#map1
+#optimalRes = ['movewest 1', 'movewest 1', 'movewest 1', 'movewest 1', 'movenorth 1', 'movenorth 1', 'movenorth 1', 'movenorth 1']
+
+#map3
+#optimalRes = ['movenorth 1', 'movenorth 1', 'movenorth 1', 'movenorth 1', 'movenorth 1', 'movenorth 1', 'movewest 1', 'movewest 1']
+
+#map5
+#optimalRes = ['movewest 1', 'movewest 1', 'movenorth 1', 'movenorth 1', 'moveeast 1', 'moveeast 1', 'movenorth 1', 'movenorth 1', 'movenorth 1', 'movewest 1', 'movewest 1', 'movenorth 1', 'movenorth 1']
+
+#map7
+optimalRes =['jumpsouth 2', 'moveeast 2', 'moveeast 2', 'jumpsouth 1', 'movesouth 2', 'jumpeast 2', 'moveeast 1', 'jumpeast 2']
 
 #DQN init ---------------------------------------------------------------------------
 tf.reset_default_graph()
 
 #These lines establish the feed-forward part of the network used to choose actions
-inputs1 = tf.placeholder(shape=[1,1764],dtype=tf.float32)
-W = tf.Variable(tf.random_uniform([1764,8],0,0.01))
+#441*3 = 1323 -> number of blocks(21x21=441) * number of tracked fire states(3)
+inputs1 = tf.placeholder(shape=[1,1323],dtype=tf.float32)
+W = tf.Variable(tf.random_uniform([1323,16],0,0.01))
 Qout = tf.matmul(inputs1,W)
 predict = tf.argmax(Qout,1)
 
 #Below we obtain the loss by taking the sum of squares difference between the target and prediction Q values.
-nextQ = tf.placeholder(shape=[1,8],dtype=tf.float32)
+nextQ = tf.placeholder(shape=[1,16],dtype=tf.float32)
 loss = tf.reduce_sum(tf.square(nextQ - Qout))
 trainer = tf.train.GradientDescentOptimizer(learning_rate=0.1)
 updateModel = trainer.minimize(loss)
@@ -152,23 +170,27 @@ rList = []
 jList = []
 
 #DQN parameters
-eps = 0.1
+eps = 0.2
 y = 0.99
-num_episodes = 100
-iterationsWithNoRandom = 0
+num_episodes = 2500
+iterationsWithNoRandom = 200
 eps_deg = eps/(num_episodes - iterationsWithNoRandom)
 #DQN init end ----------------------------------------------------------------------
 
 #action list = north, south, west, east
 #this calculation is reliant on knowing the grid is 21x21
-action_trans = [(-21,'movenorth 1'), (21, 'movesouth 1'), (-1, 'movewest 1'), (1, 'moveeast 1'), (-21, "jumpnorth 1"), (21, "jumpsouth 1"), (-1, "jumpwest 1"), (1, 'jumpeast 1')] # (-42, "jumpnorth 2"), (42, "jumpsouth 2"), (-2, "jumpwest 2"), (2, 'jumpeast 2')]
+action_trans = [(-21,'movenorth 1'), (21, 'movesouth 1'), (-1, 'movewest 1'), (1, 'moveeast 1'), \
+                (-42,'movenorth 2'), (42, 'movesouth 2'), (-2, 'movewest 2'), (2, 'moveeast 2'), \
+                (-21, "jumpnorth 1"), (21, "jumpsouth 1"), (-1, "jumpwest 1"), (1, 'jumpeast 1'), \
+                (-42, "jumpnorth 2"), (42, "jumpsouth 2"), (-2, "jumpwest 2"), (2, 'jumpeast 2')]
 
 #Printing Variables
-#actionlist = {-21: 'movenorth 1', 21: 'movesouth 1', -1: 'movewest 1', 1: 'moveeast 1', -42: "jumpnorth 1", 42: "jumpsouth 1", -2: "jumpwest 1", 2: "jumpeast 1"}
+# actionlist = {-21: 'movenorth 1', 21: 'movesouth 1', -1: 'movewest 1', 1: 'moveeast 1', \
+#               -21: 'jumpnorth 1', 21: 'jumpsouth 1', -1: 'jumpwest 1', 1: 'jumpeast 1', \}
+
 moveList = []
-#this is tuned for 2x7 board2
-optimalRes = ['movenorth 1', 'jumpwest 2', 'jumpnorth 2', 'jumpnorth 2', 'jumpnorth 2']
 errorLog = []
+successList = []
 
 #init the tensorflow session
 with tf.Session() as sess:
@@ -191,13 +213,13 @@ with tf.Session() as sess:
     else:
         num_repeats = num_episodes
 
-    #Lets us use the various minecraft cheats available
-    agent_host.sendCommand("chat /gamerule naturalRegeneration false")
-
     #map file selection
     f = open("./map/"+mission_file, "r")
     missionXML = f.read()
     my_mission = MalmoPython.MissionSpec(missionXML, True)
+
+    #Lets us use the various minecraft cheats available
+    agent_host.sendCommand("chat /gamerule naturalRegeneration false")
 
     for i in range(num_repeats):
         count = i
@@ -230,7 +252,7 @@ with tf.Session() as sess:
                     time.sleep(2)
 
         # Loop until mission starts:
-        print("Waiting for the mission", (i+1), "to start ",)
+        #print("Waiting for the mission", (i+1), "to start ",)
         world_state = agent_host.getWorldState()
         while not world_state.has_mission_begun:
             #sys.stdout.write(".")
@@ -242,19 +264,25 @@ with tf.Session() as sess:
 
         grid, fireOnTop = load_grid(world_state)
         start, end = find_start_end(grid) #start, end = gridIndex
+        successCount = 0
 
         #DQN start-------------------------------------------------------------------------------
         #Reset environment and get first new observation
         s = start
         rAll = 0.0
         done = False
+        midDone = False
         j = 0
         fireCount = 0
+        #fire reward adjustment
+        fire1re = -6
+        fire2re = -6 
+        sleepTime = 0.4 #0.35 will cause the 3 fire steps to kill the agent
 
         #The Q-Table learning algorithm
         while j < 99:
-            time.sleep(0.35)  #0.35 will cause the 3 fire steps to kill the agent
             j+=1
+            time.sleep(sleepTime)  
 
             #Observation
             world_state = agent_host.getWorldState()
@@ -262,75 +290,183 @@ with tf.Session() as sess:
                 msg = world_state.observations[-1].text
                 observations = json.loads(msg)
 
-            #Choose an action by greedily (with e chance of random action) from the Q-network
-            a,allQ = sess.run([predict,Qout],feed_dict={inputs1:np.identity(1764)[s:s+1]})
+            #epsilon-greedy strategy in choosing actions
+            a,allQ = sess.run([predict,Qout],feed_dict={inputs1:np.identity(1323)[s:s+1]})
 
             #prob of eps to choose random action
             if (np.random.rand(1)<eps) and (eps>0):
                 a[0] = np.random.randint(0, len(action_trans)-1)
 
-            #step(a[0]) = Get new state and reward from environment
-            if a[0] >= 8: #jump
+            #agent's ACTION_CHOICE
+            #if jump2
+            if(a[0] >= 12 and a[0] <= 15):
                 for i in range(2):
-                    agent_host.sendCommand(action_trans[a[0]][1].split()[0] + " 1")  #gets action of a
+                    agent_host.sendCommand(action_trans[a[0]][1].split()[0] + " 1")
+            #else if move2
+            elif (a[0] >= 4 and a[0] <= 7):
+                agent_host.sendCommand(action_trans[a[0]][1].split()[0] + " 1")
+                time.sleep(sleepTime) 
+                agent_host.sendCommand(action_trans[a[0]][1].split()[0] + " 1")
             else:
-                agent_host.sendCommand(action_trans[a[0]][1])  #gets action o            s1 = s + action_trans[a[0]][0] #gets index of a
+                agent_host.sendCommand(action_trans[a[0]][1])  
 
+            #step(a[0]) = Get new state and reward from environment
             s1 = s + action_trans[a[0]][0] #gets index of a
-
             #used to send commands etc
             s1Trans = s1   #s1 translated back to fire=0 states
             sTrans = s     #s translated back to fire=0 states
-            if s1 >= 1323:
-                s1Trans = s1 - 1323
-                sTrans = s - 1323
-            elif s1 >= 882:
+            
+            #translate fire=2 to fire=0
+            #882-1322  => 882-882=0, 1322-882=440
+            if s1 >= 882:
                 s1Trans = s1 - 882
                 sTrans = s - 882
+            #translate fire=1 to fire=0
+            #441-881 => 441-441=0, 881-441=440
             elif s1 >= 441:
                 s1Trans = s1 - 441
                 sTrans = s - 441
 
-            #calculating immediate reward
+            r = 0.0
             curPath = dijkstra_shortest_path(grid, s1Trans, end)
-            if grid[s1Trans] == 'air':
-                r = -999
-                done = True
-            elif grid[s1Trans] == 'netherrack' or fireOnTop[s1Trans] == 'fire':
-                r = -(len(curPath)-1)
-                #never stepped on fire (full health)
-                if fireCount == 0: #0-440
-                    r += -2.5
-                    fireCount += 1
-                    s1 += 441
-                #stepped on fire once already (half health)
-                elif fireCount == 1: #441-881
-                    r += -4
-                    fireCount += 1
-                    s1 += 441
-                #stepped on fire twice already (next touch is death)
-                elif fireCount == 2: #882-1322
+            #2 Block Movement Checks<------------------------------------------
+            #if action is move2 -> middle block checks
+            if (a[0] >= 4 and a[0] <= 7):
+                #move2 - end block checks
+                if (grid[s1Trans]=='quartz_block') and (grid[sTrans]!='quartz_block'):
+                    r += -20 #deter agent from uselessly move2
+                    s1 = int(s + (action_trans[a[0]][0] / 2)) #only move to middle
+                    s1Trans = int(sTrans + (action_trans[a[0]][0] / 2))
+                    curPath = dijkstra_shortest_path(grid, s1Trans, end)
+                else:
+                    middleBlock = int(s1Trans-(action_trans[a[0]][0] / 2))
+                    #middle block checks
+                    if grid[middleBlock] == 'air':
+                        r += -999
+                        midDone = True
+                    elif (grid[middleBlock]=='quartz_block') and (fireOnTop[middleBlock]=='fire') and \
+                         (grid[sTrans]!='quartz_block'):
+                        r += -20
+                        s1 = s
+                        s1Trans = sTrans
+                        curPath = dijkstra_shortest_path(grid, s1Trans, end)
+                    elif grid[middleBlock] == 'netherrack' or fireOnTop[middleBlock] == 'fire':
+                        r += -(len(curPath)-1)
+                        r += 1
+                        #never stepped on fire (full health)
+                        if fireCount == 0: #0-440
+                            r += fire1re
+                            fireCount += 1
+                            s1 += 441
+                        #stepped on fire once already (half health)
+                        elif fireCount == 1: #441-881
+                            r += fire2re
+                            fireCount += 1
+                            s1 += 441
+                        #stepped on fire twice already (next touch is death)
+                        elif fireCount == 2: #882-1322
+                            r += -999
+                            fireCount += 1
+                            midDone = True
+                    elif (grid[middleBlock]=='quartz_block') and (grid[sTrans]!='quartz_block'):
+                        r += -20
+                        s1 = s
+                        s1Trans = sTrans
+                        curPath = dijkstra_shortest_path(grid, s1Trans, end)
+                        r += -(len(curPath)-1)  #no need +1 bcs stuck
+                    else:
+                        r += -(len(curPath)-1)
+                        r += 1
+
+
+            #if action is jump2 -> middle block checks
+            elif (a[0] >= 12 and a[0] <= 15):
+                middleBlock = int(s1Trans-(action_trans[a[0]][0]/2))
+                #jump2 end block check -> if 2 quartz_block, then end at middle
+                if grid[middleBlock] == 'netherrack' or fireOnTop[middleBlock] == 'fire':
+                    #never stepped on fire (full health)
+                    r += -(len(curPath)-1)
+                    r += 1
+                    if fireCount == 0: #0-440
+                        r += fire1re
+                        #fireCount += 1
+                        #s1 += 441
+                    #stepped on fire once already (half health)
+                    elif fireCount == 1: #441-881
+                        r += fire2re
+                        #fireCount += 1
+                        #s1 += 441
+                    #stepped on fire twice already (next touch is death)
+                    elif fireCount == 2: #882-1322
+                        r += -50
+                        #fireCount += 1
+                        #midDone = True
+                #if middle is diamond or fire, and end != quartz don't jump
+                elif (grid[middleBlock]=='diamond_block') and (grid[s1Trans]!='quartz_block'):
+                    r += -(len(curPath)-1)
+                    r += -90
+                #Already on platform, you dont need to jump anymore
+                elif (grid[sTrans]=='quartz_block') and (grid[s1Trans]!='quartz_block'):
+                    r += -(len(curPath)-1)
+                    r += -90
+                else:
+                    r += -(len(curPath)-1)
+                    r += 1
+
+            #if action is move1 -> can't move if elevated ground
+            elif (a[0] >= 0 and a[0] <= 3):
+                if (grid[s1Trans]=='quartz_block') and (grid[sTrans]!='quartz_block'):
+                    r += -20
+                    s1 = s
+                    s1Trans = sTrans
+                    curPath = dijkstra_shortest_path(grid, s1Trans, end)
+
+            #if action is jump2, add a neg reward to deter jumping uselessly
+            if (a[0] >= 8 and a[0] <= 15):
+                r += -2
+
+            #original checks ------------------------------------------------------
+            if midDone == False:
+                #calculating immediate reward
+                if grid[s1Trans] == 'air':
                     r += -999
-                    fireCount += 1
                     done = True
-            elif grid[s1Trans] == 'redstone_block':
-                r = 5
-                done = True
-            else:
-                r = -(len(curPath)-1)
+                elif grid[s1Trans] == 'netherrack' or fireOnTop[s1Trans] == 'fire':
+                    r += -(len(curPath)-1)
+                    #never stepped on fire (full health)
+                    if fireCount == 0: #0-440
+                        r += fire1re
+                        fireCount += 1
+                        s1 += 441
+                    #stepped on fire once already (half health)
+                    elif fireCount == 1: #441-881
+                        r += fire2re
+                        fireCount += 1
+                        s1 += 441
+                    #stepped on fire twice already (next touch is death)
+                    elif fireCount == 2: #882-1322
+                        r += -999
+                        fireCount += 1
+                        done = True
+                elif grid[s1Trans] == 'redstone_block':
+                    r += 10
+                    successCount += 1
+                    done = True
+                else:
+                    r += -(len(curPath)-1)
 
             #testing fire state moves
             #chatState = "Run " + str(count) + ": state = " + str(s) + " | s1 = " + str(s1) + " | fire = " + str(fireCount)
             #print(chatState)
 
             #Update Q-Table with new knowledge
-            Q1 = sess.run(Qout,feed_dict={inputs1:np.identity(1764)[s1:s1+1]})
+            Q1 = sess.run(Qout,feed_dict={inputs1:np.identity(1323)[s1:s1+1]})
             #Obtain maxQ' and set our target value for chosen action.
             maxQ1 = np.max(Q1)
             targetQ = allQ
             targetQ[0,a[0]] = r + y*maxQ1
             #Train our network using target and predicted Q values
-            _,W1 = sess.run([updateModel,W],feed_dict={inputs1:np.identity(1764)[s:s+1],nextQ:targetQ})
+            _,W1 = sess.run([updateModel,W],feed_dict={inputs1:np.identity(1323)[s:s+1],nextQ:targetQ})
             rAll += r
 
             #for printing
@@ -342,7 +478,7 @@ with tf.Session() as sess:
 
             print("Run %d | Reward = %d" %(count, r))
 
-            if done == True:
+            if (done == True) or (midDone == True):
                 #Reduce chance of random action as we train the model.
                 eps = eps-eps_deg
 
@@ -365,7 +501,11 @@ with tf.Session() as sess:
                        errorCount += lengthDiff
                     errorLog.append((count, errorCount))
 
+                #put lists here if you want it to be recorded per episode
+                successList.append(successCount)
                 moveList.clear()
+                time.sleep(0.8)
+                agent_host.sendCommand("chat /kill")
                 break
 
         jList.append(j)
@@ -374,9 +514,11 @@ with tf.Session() as sess:
         print("jList for %d: %d" %(count, jList[count]))
 
     #dump errorLog into
-    statFileName = "DeepQLearning2Stats/DeepQLearning2_" + mission_file.rstrip('.xml') + "_stats.dat"
-    rewardFileName = "DeepQLearning2Stats/DeepQLearning2_" + mission_file.rstrip('.xml') + "_rewards.dat"
-    moveFileName = "DeepQLearning2Stats/DeepQLearning2_" + mission_file.rstrip('.xml') + "_moves.dat"
+    statFileName = "DHStats/DeepQLearning2_" + mission_file.rstrip('.xml') + "_stats.dat"
+    rewardFileName = "DHStats/DeepQLearning2_" + mission_file.rstrip('.xml') + "_rewards.dat"
+    moveFileName = "DHStats/DeepQLearning2_" + mission_file.rstrip('.xml') + "_moves.dat"
+    successFileName = "DHStats/DeepQLearning2_" + mission_file.rstrip('.xml') + "_success.dat"
     np.savetxt(statFileName, errorLog)
     np.savetxt(rewardFileName, rList)
     np.savetxt(moveFileName, jList)
+    np.savetxt(successFileName, successList)
