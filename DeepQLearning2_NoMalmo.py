@@ -139,8 +139,10 @@ mission_file = 'map9.xml'
 #optimalRes = ['movewest 1', 'movewest 1', 'movenorth 1', 'movenorth 1', 'moveeast 1', 'moveeast 1', 'movenorth 1', 'movenorth 1', 'movenorth 1', 'movewest 1', 'movewest 1', 'movenorth 1', 'movenorth 1']
 
 #map7
-optimalRes =['jumpsouth 2', 'moveeast 2', 'moveeast 2', 'jumpsouth 1', 'movesouth 2', 'jumpeast 2', 'moveeast 1', 'jumpeast 2']
+#optimalRes =['jumpsouth 2', 'moveeast 2', 'moveeast 2', 'jumpsouth 1', 'movesouth 2', 'jumpeast 2', 'moveeast 1', 'jumpeast 2']
 
+#map9
+optimalRes =['moveeast 2', 'jumpsouth 1', 'jumpsouth 2', 'movesouth 1', 'movesouth 2', 'moveeast 1']
 #DQN init ---------------------------------------------------------------------------
 tf.reset_default_graph()
 
@@ -167,7 +169,7 @@ jList = []
 eps = 0.2
 y = 0.99
 num_episodes = 2500
-iterationsWithNoRandom = 250
+iterationsWithNoRandom = 500
 eps_deg = eps/(num_episodes - iterationsWithNoRandom)
 #DQN init end ----------------------------------------------------------------------
 
@@ -493,10 +495,10 @@ with tf.Session() as sess:
         print("jList for %d: %d" %(count, jList[count]))
 
     #dump errorLog into
-    statFileName = "DHStats/DeepQLearning2_" + mission_file.rstrip('.xml') + "_stats.dat"
-    rewardFileName = "DHStats/DeepQLearning2_" + mission_file.rstrip('.xml') + "_rewards.dat"
-    moveFileName = "DHStats/DeepQLearning2_" + mission_file.rstrip('.xml') + "_moves.dat"
-    successFileName = "DHStats/DeepQLearning2_" + mission_file.rstrip('.xml') + "_success.dat"
+    statFileName = "final_stats/DeepQLearning2_" + mission_file.rstrip('.xml') + "_stats.dat"
+    rewardFileName = "final_stats/DeepQLearning2_" + mission_file.rstrip('.xml') + "_rewards.dat"
+    moveFileName = "final_stats/DeepQLearning2_" + mission_file.rstrip('.xml') + "_moves.dat"
+    successFileName = "final_stats/DeepQLearning2_" + mission_file.rstrip('.xml') + "_success.dat"
     np.savetxt(statFileName, errorLog)
     np.savetxt(rewardFileName, rList)
     np.savetxt(moveFileName, jList)
