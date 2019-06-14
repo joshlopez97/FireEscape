@@ -28,17 +28,28 @@
 
                     <!-- Start / End Blocks -->
                     <DrawBlock x="0" y="50" z="0" type="emerald_block"/>
-                    <DrawBlock x="2" y="50" z="6" type="redstone_block"/>
+                    <DrawBlock x="3" y="50" z="6" type="redstone_block"/>
 
                     <!-- Platforms / Platform Fires -->
+                    <DrawBlock x="0" y="50" z="5" type="quartz_block"/>
                     <DrawBlock x="0" y="51" z="5" type="diamond_block"/>
+
+                    <DrawBlock x="1" y="50" z="1" type="quartz_block"/>
                     <DrawBlock x="1" y="51" z="1" type="netherrack"/>
                     <DrawBlock x="1" y="52" z="1" type="fire"/>
+
+                    <DrawBlock x="2" y="50" z="1" type="quartz_block"/>
                     <DrawBlock x="2" y="51" z="1" type="diamond_block"/>
+                    
+                    <DrawLine x1="2" y1="50" z1="3" x2="2" y2="50" z2="5" type="quartz_block"/>
                     <DrawBlock x="2" y="51" z="3" type="diamond_block"/>
                     <DrawBlock x="2" y="51" z="4" type="diamond_block"/>
                     <DrawBlock x="2" y="51" z="5" type="diamond_block"/>
+
+                    <DrawBlock x="3" y="50" z="1" type="quartz_block"/>
                     <DrawBlock x="3" y="51" z="1" type="diamond_block"/>
+                    
+                    <DrawLine x1="4" y1="50" z1="3" x2="4" y2="50" z2="4" type="quartz_block"/>
                     <DrawLine x1="4" y1="51" z1="3" x2="4" y2="51" z2="4" type="diamond_block"/>
 
                     <!-- Gaps -->
@@ -64,6 +75,8 @@
                     <DrawBlock x="3" y="51" z="2" type="fire"/>
                     <DrawBlock x="3" y="50" z="5" type="netherrack"/>
                     <DrawBlock x="3" y="51" z="5" type="fire"/>
+                    <DrawBlock x="0" y="50" z="6" type="netherrack"/>
+                    <DrawBlock x="0" y="51" z="6" type="fire"/>
                     <DrawLine x1="4" y1="50" z1="4" x2="4" y2="50" z2="5" type="netherrack"/>
                     <DrawLine x1="4" y1="51" z1="4" x2="4" y2="51" z2="5" type="fire"/>
 
