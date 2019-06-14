@@ -21,51 +21,6 @@ The motivation of our project is to implement an algorithm that can be generaliz
 
 ## Approach
 
-Since our project involves having an agent learn the optimal actions required to reach the goal, we decided that Reinforcement Learning was the best approach.  In particular, we used the Q-Learning update function shown in Figure 1 to teach our agent to navigate the map safely.  Q-Learning is an algorithm that teaches an agent which action to take given a state through rewards and punishments.  Q-Learning uses a table of Q-values which is used to rate an action based on a given state and the value of the next best action.  The learning rate will determine the degree of change to the Q-table per iteration.  The discount factor determines how much future actions will impact the rating of the current action.  For the basic implementation of Q-Learning, we defined our state space to be:
-
-                                (size of the map * number of health states)
-
-<ins>Figure 1: Q-learning Update Function</ins>
-<img style="height: 200px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/status_report_images/q_learn_eq.PNG">  
-
-
-For the basic version of our algorithm, we kept the size of the map to be less than 25 blocks and 3 health states: full health, less than ⅔ health, less than ⅓ health.  For our action states, we allow the agent to have four different actions: forward, backward, left, and right.  This would produce a Q-table with the size:
-
-			            (map size * number of health states * number of action states)
-
-In our project we have a max Q-table size of:  25*3*4 = 300 <br>
-The * symbol on the maps represent the optimal path to the goal block.
-
-<ins>Map 1</ins>  
-<img style="width: 250px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/status_report_images/map1.png">
-  
-
-<ins>Map 2</ins>  
-<img style="width: 150px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/status_report_images/map2.png">
-  
-
-<ins>Map 3</ins>  
-<img style="width: 150px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/status_report_images/map3.png">
-  
-
-<ins>Map 4</ins>  
-<img style="width: 150px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/status_report_images/map4.png">
-
-
-For each action the agent completes, a positive reward or negative reward will be given based on the resulting state the agent is in.  The reward function we implemented uses three main factors to calculate the reward given for an action:
-
-    1. Distance from goal block calculated using Dijkstra’s Shortest Path
-    2. Amount of health remaining
-    3. The agent’s survival after an action
-    
-The main heuristic we used to determine the reward given to an agent is the distance from the goal block.  The farther away from the goal block, the lower the reward given. This will incentivize the agent to get closer to the goal block with each action.  A reward will also be given when the agent reaches the goal.  During the agent’s adventure learning the map, if the agent happens to die from falling or fire, a large negative reward will be given to deter the agent from committing the same action in the future.  The negative reward given when stepping on fire will be calculated based on the health state the agent is in.  When the agent is max health, a small negative reward is given for stepping on fire.  This is to encourage the agent to go through fire if it can shorten the distance from the goal significantly.  As the agent’s health decrease, the negative reward will increase to deter the agent from dying to fire damage.  A diagram of the Markov Decision Process is shown in Figure 2:
-
-
-<ins>Figure 2</ins>
-<img src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/status_report_images/Markov Decision Process.jpg">
-
-
-To ensure that the agent visits as many states as possible, a randomness factor is added when the agent picks its action.  There is a predetermined percentage chance (10% in our project) for the agent to randomly choose an action.  This randomness factor decreases linearly each time the agent completes the map. 
 
 
 ## Evaluation
