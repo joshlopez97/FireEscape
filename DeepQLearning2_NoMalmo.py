@@ -166,7 +166,7 @@ jList = []
 #DQN parameters
 eps = 0.2
 y = 0.99
-num_episodes = 2500
+num_episodes = 2000
 iterationsWithNoRandom = 200
 eps_deg = eps/(num_episodes - iterationsWithNoRandom)
 #DQN init end ----------------------------------------------------------------------
@@ -268,8 +268,9 @@ with tf.Session() as sess:
         midDone = False
         j = 0
         fireCount = 0
+        #fire reward adjustment
         fire1re = -6
-        fire2re = -6
+        fire2re = -6 
 
         #The Q-Table learning algorithm
         while j < 99:
@@ -362,18 +363,18 @@ with tf.Session() as sess:
                     r += 1
                     if fireCount == 0: #0-440
                         r += fire1re
-                        fireCount += 1
-                        s1 += 441
+                        # fireCount += 1
+                        # s1 += 441
                     #stepped on fire once already (half health)
                     elif fireCount == 1: #441-881
                         r += fire2re
-                        fireCount += 1
-                        s1 += 441
+                        # fireCount += 1
+                        # s1 += 441
                     #stepped on fire twice already (next touch is death)
                     elif fireCount == 2: #882-1322
-                        r += -999
-                        fireCount += 1
-                        midDone = True
+                        r += -50
+                        # fireCount += 1
+                        # midDone = True
                 #if middle is diamond or fire, and end != quartz don't jump
                 elif (grid[middleBlock]=='diamond_block') and (grid[s1Trans]!='quartz_block'):
                     r += -(len(curPath)-1)
@@ -396,7 +397,7 @@ with tf.Session() as sess:
 
             #if action is jump2, add a neg reward to deter jumping uselessly
             if (a[0] >= 8 and a[0] <= 15):
-                r += -1.5
+                r += -2
 
             #original checks ------------------------------------------------------
             if midDone == False:
