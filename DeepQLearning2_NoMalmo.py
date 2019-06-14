@@ -166,8 +166,8 @@ jList = []
 #DQN parameters
 eps = 0.2
 y = 0.99
-num_episodes = 2000
-iterationsWithNoRandom = 200
+num_episodes = 2500
+iterationsWithNoRandom = 250
 eps_deg = eps/(num_episodes - iterationsWithNoRandom)
 #DQN init end ----------------------------------------------------------------------
 
@@ -363,18 +363,18 @@ with tf.Session() as sess:
                     r += 1
                     if fireCount == 0: #0-440
                         r += fire1re
-                        # fireCount += 1
-                        # s1 += 441
+                        #fireCount += 1
+                        #s1 += 441
                     #stepped on fire once already (half health)
                     elif fireCount == 1: #441-881
                         r += fire2re
-                        # fireCount += 1
-                        # s1 += 441
+                        #fireCount += 1
+                        #s1 += 441
                     #stepped on fire twice already (next touch is death)
                     elif fireCount == 2: #882-1322
                         r += -50
-                        # fireCount += 1
-                        # midDone = True
+                        #fireCount += 1
+                        #midDone = True
                 #if middle is diamond or fire, and end != quartz don't jump
                 elif (grid[middleBlock]=='diamond_block') and (grid[s1Trans]!='quartz_block'):
                     r += -(len(curPath)-1)
@@ -394,6 +394,13 @@ with tf.Session() as sess:
                     s1 = s
                     s1Trans = sTrans
                     curPath = dijkstra_shortest_path(grid, s1Trans, end)
+
+            #if action is jump1 -> don't jump unless you need to
+            if (a[0] >= 8 and a[0] <= 11):
+                if (grid[s1Trans]!='quartz_block'):
+                    r += -50
+                elif (grid[sTrans]=='quartz_block'):
+                    r += -90
 
             #if action is jump2, add a neg reward to deter jumping uselessly
             if (a[0] >= 8 and a[0] <= 15):
