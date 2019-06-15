@@ -29,20 +29,16 @@ Since our project involves having an agent learn the shortest path from a start 
 
 In the first version of our project, we used the Q-Learning update function shown in Figure 1 to teach our agent to navigate the map safely.  Q-Learning is an algorithm that teaches an agent which action to take given a state through rewards and punishments.  For our implementation of Q-learning, we define each unique block on the map to be a state.  Q-Learning uses a table of Q-values which is used to rate an action based on a given state and the value of the next best action. The learning rate will determine the degree of change to the Q-table per iteration. The discount factor determines how much future actions will impact the rating of the current action.
 
-Initially, we set the maximum size of our maps to be 25 blocks, which translates to a state-space of 25.
 
 <ins>Figure 2: Initial set of maps</ins>
 
 <img style="width: 500px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/final_report_images/map_design14.png">  
 
-We had an action-space of four actions (movement in the four cardinal directions), and three health status per state
-(full health, less than ⅔ health, less than ⅓ health).  This would produce a Q-table with the size:
 
     (number of blocks on map * number of health states * number of action states) = 25*3*4 = 300
 
 For each action the agent completes, a positive reward or negative reward will be given based on the resulting state the agent is in. The reward function we implemented uses three main factors to calculate the reward given for an action:
 
-    1. Distance from goal block calculated using improved Dijkstra’s Shortest Path
     2. Amount of health remaining
     3. The agent’s survival after an action
 
@@ -56,10 +52,32 @@ For each action the agent completes, a positive reward or negative reward will b
 
 #### 1-2. Improved version
 The tabular Q-learning algorithm performs adequately for a Q-table of size 300.   However, the final version of our project has a maximum map size of 100 blocks, which translates to a state-space of 100.
+While tabular Q-learning algorithm performs adequately for a Q-table of size 300, we wanted to expand our maps to have a maximum map size of 100 blocks, which translates to a state-space of 100.
+
+<ins>Figure 4: Expanded Maps </ins>
+<img style="width: 500px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/final_report_images/map_design56.png">  <br>
+
+
+With the map size expansion, we also added 2 new obstacles into the maps.  The maps now include raised blocks and gaps which the agent would need to learn to navigate and find the shortest path. With the inclusion of new obstacles, we also added 12 new actions to the action-space making a total of 16 actions available to our agent.  The actions available are:
 
 <img style="width: 500px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/final_report_images/map_design679.PNG">  
+<ins>Figure 5: Improved Action State</ins>
 
 We also increase our action-space to 16 actions, and the same 3 health states per state. The final version of our project would have a max Q-table size of:
+    ['movenorth 1',  'movesouth 1', 'movewest 1',  'moveeast 1',
+     'movenorth 2',  'movesouth 2', 'movewest 2',  'moveeast 2',
+     ‘jumpnorth 1’, ‘jumpsouth 1’, ’jumpwest 1’, ‘jumpeast 1’,
+     ‘jumpnorth 2’, ‘jumpsouth 2’, ‘jumpwest 2’,  'jumpeast 2']
+
+
+     move 1 : the agent can move one block
+     move 2 : the agent can move two blocks in the same direction
+     jump  1 : the agent can jump up one block
+     jump 2  : the agent can jump over one block
+
+ With the new additions to the state-action space, the final version of our project would have a max Q-table size of:
+
+    (# of blocks on map * number of health states * number of action states) = (100 * 3 * 16) = 4800
 
         (100 * 16 * 3) = 4800
 
@@ -84,6 +102,7 @@ Our implementation of Q-network Algorithm is shown in the pseudo-code below:
 
 
 #### 2-2. Actions / Reward
+With all the changes to the Q-learning algorithm, we updated our main heuristic function, Dijkstra’s shortest path algorithm.  The new heuristic function needs to take into account the ability to jump over air blocks.  In our initial implementation of Dijkstra’s shortest path algorithm, we only considered solid blocks that are directly connected to each other as walkable.  With the implementation of jump, this is no longer the case.  The agent can now jump over a single air block to reach a block directly across from it.  To solve this problem, we implemented a constrained version of Dijkstra’s which connects solid blocks with a single air block in between them.  This allows our previous implementation to continue working correctly.
 
 
 ## Evaluation
