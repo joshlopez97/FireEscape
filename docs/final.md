@@ -33,7 +33,6 @@ In the first version of our project, we used the Q-Learning update function show
 
 
 <ins>Figure 2: Initial set of maps</ins>
-
 <img style="width: 500px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/final_report_images/map_design14.png">  
 
 For the first version of our algorithm, we kept the size of the map to be less than 25 blocks with 3 health states: full health, less than ⅔ health, less than ⅓ health. For our action states, we allow the agent to have four different actions: forward, backward, left, and right. This would produce a Q-table with the size:
@@ -63,7 +62,7 @@ The main heuristic we used to determine the reward given to an agent is the dist
 While tabular Q-learning algorithm performs adequately for a Q-table of size 300, we wanted to expand our maps to have a maximum map size of 100 blocks, which translates to a state-space of 100.
 
 <ins>Figure 4: Newly added maps </ins>
-<img style="width: 500px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/final_report_images/map_design56.png">  <br>
+<img style="width: 500px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/final_report_images/map_design56.png">
 
 
 With the map size expansion, we also added 2 new obstacles into the maps.  The maps now include raised blocks and gaps which the agent would need to learn to navigate and find the shortest path. With the inclusion of new obstacles, we also added 12 new actions to the action-space making a total of 16 actions available to our agent.  The actions available are:
