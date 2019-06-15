@@ -25,15 +25,13 @@ Since our project involves having an agent learn the shortest path from a start 
 ### 1. Algorithm
 #### 1-1. Initial Approach
 
-<ins>Figure 1: Q-learning Update Function</ins><br/>
-
+<ins>Figure 1: Q-learning Update Function</ins>
 <img style="height: 200px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/status_report_images/q_learn_eq.PNG">  
 
 In the first version of our project, we used the Q-Learning update function shown in Figure 1 to teach our agent to navigate the map safely.  Q-Learning is an algorithm that teaches an agent which action to take given a state through rewards and punishments.  For our implementation of Q-learning, we define each unique block on the map to be a state.  Q-Learning uses a table of Q-values which is used to rate an action based on a given state and the value of the next best action. The learning rate will determine the degree of change to the Q-table per iteration. The discount factor determines how much future actions will impact the rating of the current action.
 
 
-<ins>Figure 2: Initial set of maps</ins><br/>
-
+<ins>Figure 2: Initial set of maps</ins>
 <img style="width: 500px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/final_report_images/map_design14.png">  
 
 For the first version of our algorithm, we kept the size of the map to be less than 25 blocks with 3 health states: full health, less than ⅔ health, less than ⅓ health. For our action states, we allow the agent to have four different actions: forward, backward, left, and right. This would produce a Q-table with the size:
@@ -51,7 +49,7 @@ The main heuristic we used to determine the reward given to an agent is the dist
 
 The main heuristic we used to determine the reward given to an agent is the distance from the goal block. The farther away from the goal block, the lower the reward given. This will incentivize the agent to get closer to the goal block with each action. A reward will also be given when the agent reaches the goal. During the agent’s adventure learning the map, if the agent happens to die from falling or fire, a large negative reward will be given to deter the agent from committing the same action in the future. The negative reward given when stepping on fire will be calculated based on the health state the agent is in. When the agent is max health, a small negative reward is given for stepping on fire. This is to encourage the agent to go through fire if it can shorten the distance from the goal significantly. As the agent’s health decreases, the negative reward will increase to deter the agent from dying to fire damage. A diagram of the Markov Decision Process is shown in Figure 3:
 
-<ins>Figure 3: Markov Decision Process </ins><br/>
+<ins>Figure 3: Markov Decision Process </ins>
 <img src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/final_report_images/Markov%20Decision%20Process.jpg"> <br>
 
     Note:
@@ -62,7 +60,7 @@ The main heuristic we used to determine the reward given to an agent is the dist
 While tabular Q-learning algorithm performs adequately for a Q-table of size 300, we wanted to expand our maps to have a maximum map size of 100 blocks, which translates to a state-space of 100.
 
 <ins>Figure 4: Newly added maps </ins>
-<img style="width: 500px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/final_report_images/map_design56.png">  <br>
+<img style="width: 500px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/final_report_images/map_design56.png">
 
 
 With the map size expansion, we also added 2 new obstacles into the maps.  The maps now include raised blocks and gaps which the agent would need to learn to navigate and find the shortest path. With the inclusion of new obstacles, we also added 12 new actions to the action-space making a total of 16 actions available to our agent.  The actions available are:
