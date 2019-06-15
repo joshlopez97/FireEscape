@@ -174,12 +174,11 @@ To evaluate the path the agent learns over a training session, we used the error
 <ins>Figure 16: Map 1 Error-Rate Graph</ins>  
 <img style="height: 500px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/final_report_images/plots/DeepQLearning_map1_stats.png">
 
+<ins>Figure 17: Map 2 Error-Rate Graph</ins>  
+<img style="height: 500px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/final_report_images/plots/DeepQLearning_map2_stats.png">
 
-<ins>Figure 17: Map 3 Error-Rate Graph</ins>  
+<ins>Figure 18: Map 3 Error-Rate Graph</ins>  
 <img style="height: 500px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/final_report_images/plots/DeepQLearning_map3_stats.png">
-
-<ins>Figure 18: Map 9 Error-Rate Graph</ins>  
-<img style="height: 500px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/final_report_images/map9_error.png">
 
 
 As we can see, all the maps have the same general trend.  In the early episodes, the epsilon-greedy strategy for picking actions causes the agent to choose paths with high error rates as it randomly explores its options.  As the number of episodes increases, the randomness factor decreases and the agent starts to prioritize paths with high reward values, which leads it closer to the optimal path.  After several hundred episodes the error rate eventually converges to zero, meaning the agent has successfully found the intended optimal path. This shows that the agent has successfully completed the goal of our project.
