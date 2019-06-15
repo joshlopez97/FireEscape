@@ -135,8 +135,8 @@ As it can be seen in Figure 7, at the beginning of the training session, there i
 The metric “number of moves per episode” and “number of successful episodes” lets us gauge if the agent is successfully learning to avoid lethal obstacles. As the number of episodes increases, the number of both metrics should also increase. This is because the agent should start rating actions that would cause it to fall off the map or burn to death to have high negative rewards. As a result, the agent should survive on the map longer and complete maps more consistently as it completes more episodes. This can be seen from the results of the training sessions in Figure 9 and Figure 10 below.
 
 
-<ins>Figure 9: Map2 Success per Episode Graph</ins>  
-<img style="height: 500px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/final_report_images/plots/DeepQLearning2_map2_success.png">
+<ins>Figure 9: Map9 Success per Episode Graph</ins>  
+<img style="height: 500px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/final_report_images/plots/DeepQLearning2_map9_success.png">
 
 
 As can be seen from Figure 9, in the beginning, the graph shows a much slower increase indicating that it was dying before reaching the goal block in most of the early episodes.  As the agent iterates through more episodes, the slope for the number of successful episode changes to a linear curve, meaning every episode is successful.
