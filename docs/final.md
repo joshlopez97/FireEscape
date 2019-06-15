@@ -20,7 +20,28 @@ The motivation of our project is to implement an algorithm that can be generaliz
 
 
 ## Approach
+Since our project involves having an agent learn the shortest path from a start block to a goal block, the obvious baseline would be Dijkstra’s shortest path algorithm.  Our algorithm should be able to find a path the same length as Dijkstra’s while optimizing the amount of damage taken.
 
+### 1. Algorithm
+1-1. Initial Approach
+<ins>Figure 1: Q-learning Update Function</ins>
+<img style="height: 200px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/status_report_images/q_learn_eq.PNG">  
+
+In the first version of our project, we used the Q-Learning update function shown in Figure 1 to teach our agent to navigate the map safely.  Q-Learning is an algorithm that teaches an agent which action to take given a state through rewards and punishments.  For our implementation of Q-learning, we define each unique block on the map to be a state.  Q-Learning uses a table of Q-values which is used to rate an action based on a given state and the value of the next best action. The learning rate will determine the degree of change to the Q-table per iteration. The discount factor determines how much future actions will impact the rating of the current action.
+
+Initially, we set the maximum size of our maps to be 25 blocks, which translates to a state-space of 25.
+<ins>Figure 2: Initial set of maps</ins>
+<img style="height: 200px;" src="https://github.com/joshlopez97/FireEscape/blob/master/final_report_images/map_design14.png">  
+
+We had an action-space of four actions (movement in the four cardinal directions), and three health status per state
+(full health, less than ⅔ health, less than ⅓ health).  This would produce a Q-table with the size:
+
+    (number of blocks on map * number of health states * number of action states) = 25*3*4 = 300
+
+For each action the agent completes, a positive reward or negative reward will be given based on the resulting state the agent is in. The reward function we implemented uses three main factors to calculate the reward given for an action:
+1. Distance from goal block calculated using improved Dijkstra’s Shortest Path
+2. Amount of health remaining
+3. The agent’s survival after an action
 
 
 ## Evaluation
@@ -30,13 +51,13 @@ Our evaluation method is separated into two parts: the quantitative measures and
 
 ### <ins>Quantitative Measures:</ins>
 
-The quantitative evaluation of our algorithm is based on these three metrics: 
+The quantitative evaluation of our algorithm is based on these three metrics:
 
     1. Reward values per episode
     2. Number of moves per episode
     3. Number of successful episodes
 
-These three metrics help us measure the agent’s performance by measuring if it is continuously learning and improving the path it knows. The main metric we use to determine if the agent is learning is the reward value per episode. By keeping track of this metric, we can gauge if the agent is improving on the action it chooses at each state. The reward value per episode indicates the quality of the path chosen in that episode. An episode where the agent dies or makes several inefficient actions will result in a low reward value at the end of the episode. An episode where the agent optimizes its action and chooses the optimal path will result in the highest reward value. Our main goal is to have the agent continuously achieve the maximum reward value per episode at the end of a training session. Figure 3 below shows the reward value per episode in one training session. 
+These three metrics help us measure the agent’s performance by measuring if it is continuously learning and improving the path it knows. The main metric we use to determine if the agent is learning is the reward value per episode. By keeping track of this metric, we can gauge if the agent is improving on the action it chooses at each state. The reward value per episode indicates the quality of the path chosen in that episode. An episode where the agent dies or makes several inefficient actions will result in a low reward value at the end of the episode. An episode where the agent optimizes its action and chooses the optimal path will result in the highest reward value. Our main goal is to have the agent continuously achieve the maximum reward value per episode at the end of a training session. Figure 3 below shows the reward value per episode in one training session.
 
 
 <ins>Figure 3: Map1 Reward Per Episode</ins>  
@@ -45,7 +66,7 @@ These three metrics help us measure the agent’s performance by measuring if it
 
 <ins>Figure 4: Map2 Reward Per Episode</ins>  
 <img style="height: 500px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/status_report_images/Map2 Reward per Episode Graph.png">
- 
+
 
 As it can be seen in Figure 3, at the beginning of the training session, there is a large variance in the reward value per episode. As the agent progresses through the session, the variance decreases and the reward values converges to the highest reward value.  This shows that our agent has learnt the optimal path for the map.  The same trend applies to Figure 4 and the our other maps.
 
@@ -56,14 +77,14 @@ The metric “number of moves per episode” and “number of successful episode
 <img style="height: 500px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/status_report_images/Map1 Success per Episode Graph.png">
 
 
-As can be seen from Figure 7, in the beginning, the graph shows a much slower increase indicating that it was dying before reaching the goal block in most of the early episodes.  As the agent iterates through more episodes, the slope for the number of successful episode changes to a linear curve, meaning every episode is successful. 
+As can be seen from Figure 7, in the beginning, the graph shows a much slower increase indicating that it was dying before reaching the goal block in most of the early episodes.  As the agent iterates through more episodes, the slope for the number of successful episode changes to a linear curve, meaning every episode is successful.
 
 
 <ins>Figure 8: Map2 Success per Episode Graph</ins>  
 <img style="height: 500px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/status_report_images/Map2 Success per Episode Graph.png">
 
 
-In Figure 8 shown above, you can see that the number of moves per episode is very small in the beginning due to the agent dying early on in the episode.  The number of moves increases significantly in the middle as the agent starts learning to avoid lethal moves while also exploring the map to find the optimal path to the goal. You can see the variance in the number of moves reduces as the agent goes through more episodes.  At the end of the training session, the number of moves per episode converges to a stable number indicating the agent has found the optimal shortest path. 
+In Figure 8 shown above, you can see that the number of moves per episode is very small in the beginning due to the agent dying early on in the episode.  The number of moves increases significantly in the middle as the agent starts learning to avoid lethal moves while also exploring the map to find the optimal path to the goal. You can see the variance in the number of moves reduces as the agent goes through more episodes.  At the end of the training session, the number of moves per episode converges to a stable number indicating the agent has found the optimal shortest path.
 
 
 ### <ins>Qualitative Measures:</ins>
@@ -111,4 +132,3 @@ As we can see, all the maps have the same general trend.  In the early episodes,
 
 - Deep Q-learning:
     - https://medium.com/emergent-future/simple-reinforcement-learning-with-tensorflow-part-0-q-learning-with-tables-and-neural-networks-d195264329d0
-
