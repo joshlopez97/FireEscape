@@ -20,7 +20,6 @@ The motivation of our project is to implement an algorithm that can be generaliz
 
 
 ## Approach
-<<<<<<< HEAD
 Since our project involves having an agent learn the shortest path from a start block to a goal block, the obvious baseline for our project would be Dijkstra’s shortest path algorithm.  Our algorithm should be able to find a path the same length as Dijkstra’s while minimizing the amount of damage taken.  To do this we decided that Reinforcement Learning was the best approach.
 
 ### 1. Initial Version
@@ -109,17 +108,9 @@ Figure 3: Q-network Algorithm
         Perform the gradient descent with respect to the actual network parameters 
         in order to minimize the loss.
         After C iterations, copy the actual network weights to the target network weights.
-4. Repeat these steps until converge.
+    4. Repeat these steps until converge.
 
 With all the changes to the Q-learning algorithm, we updated our main heuristic function, Dijkstra’s shortest path algorithm.  The new heuristic function needs to take into account the ability to jump over air blocks.  In our initial implementation of Dijkstra’s shortest path algorithm, we only considered solid blocks that are directly connected to each other as walkable.  With the implementation of jump, this is no longer the case.  The agent can now jump over a single air block to reach a block directly across from it.  To solve this problem, we implemented a constrained version of Dijkstra’s which connects solid blocks with a single air block in between them.  This allows our previous implementation to continue working correctly.
-=======
-Since our project involves having an agent learn the shortest path from a start block to a goal block, the obvious baseline would be Dijkstra’s shortest path algorithm.  Our algorithm should be able to find a path the same length as Dijkstra’s while optimizing the amount of damage taken.
-
-### 1. Algorithm
-1-1. Initial Approach
-<ins>Figure 1: Q-learning Update Function</ins>
-<img style="height: 200px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/status_report_images/q_learn_eq.PNG">  
->>>>>>> 74eada80ded3686c8d17af4dca8177ae147abcf3
 
 In the first version of our project, we used the Q-Learning update function shown in Figure 1 to teach our agent to navigate the map safely.  Q-Learning is an algorithm that teaches an agent which action to take given a state through rewards and punishments.  For our implementation of Q-learning, we define each unique block on the map to be a state.  Q-Learning uses a table of Q-values which is used to rate an action based on a given state and the value of the next best action. The learning rate will determine the degree of change to the Q-table per iteration. The discount factor determines how much future actions will impact the rating of the current action.
 
@@ -172,29 +163,19 @@ The quantitative evaluation of our algorithm is based on these three metrics:
     3. Number of successful episodes
 
 These three metrics help us measure the agent’s performance by measuring if it is continuously learning and improving the path it knows. The main metric we use to determine if the agent is learning is the reward value per episode. By keeping track of this metric, we can gauge if the agent is improving on the action it chooses at each state. The reward value per episode indicates the quality of the path chosen in that episode. An episode where the agent dies or makes several inefficient actions will result in a low reward value at the end of the episode. An episode where the agent optimizes its action and chooses the optimal path will result in the highest reward value. Our main goal is to have the agent continuously achieve the maximum reward value per episode at the end of a training session. Figure 3 below shows the reward value per episode in one training session.
-<<<<<<< HEAD
-
-=======
->>>>>>> 74eada80ded3686c8d17af4dca8177ae147abcf3
 
 <ins>Figure 3: Map3 Reward Per Episode</ins>  
 <img style="height: 350px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/final_report_images/plots/DeepQLearning2_map3_rewards.png">
 
-<<<<<<< HEAD
-=======
 <ins>Figure 3: Map3 Reward Per Episode</ins>  
 <img style="height: 350px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/final_report_images/plots/DeepQLearning2_map3_rewards.png">
->>>>>>> 74eada80ded3686c8d17af4dca8177ae147abcf3
 
 <ins>Figure 4: Map9 Reward Per Episode</ins>  
 <img style="height: 350px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/final_report_images/plots/DeepQLearning2_map9_rewards.png">
 
-<<<<<<< HEAD
-=======
 <ins>Figure 4: Map9 Reward Per Episode</ins>  
 <img style="height: 350px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/final_report_images/plots/DeepQLearning2_map9_rewards.png">
 
->>>>>>> 74eada80ded3686c8d17af4dca8177ae147abcf3
 
 As it can be seen in Figure 3, at the beginning of the training session, there is a large variance in the reward value per episode. As the agent progresses through the session, the variance decreases and the reward values converges to the highest reward value.  This shows that our agent has learnt the optimal path for the map.  The same trend applies to Figure 4 and the our other maps.
 
