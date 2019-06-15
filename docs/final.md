@@ -78,7 +78,7 @@ With the new additions to the state-action space, the final version of our proje
 
 This is significantly larger than our initial state-action space which causes the tabular Q-learning algorithm to require far more sample and time to converge on an answer.  As an attempt to improve the performance of our agent, we decided to implement a one-layer Deep Q-network.
 
-###2-1 Advantages and Disadvantages
+### 2-1 Advantages and Disadvantages
 
 As the size of the Q-table increases, tabular Q-learning becomes more inefficient as it requires much more samples to sufficiently explore and update enough of the state-action space to converge to an answer.  This usually results in a local maximum rather than a global maximum without over running it on a large number of samples.  Furthermore, it also requires a large amount of memory to store a table of size 4800.  In contrast, Q-networks uses a different method of updating Q-values in the table.  Our Q-networks uses the sum-of-square loss function which calculates the squared difference between the predicted Q-value and the target Q-value.  
 
@@ -88,7 +88,7 @@ Q-networks uses the loss function and backpropagation to propagate the gradient 
 
 While Q-networks offer better coverage for large state-action spaces through backpropagation, they do so at the cost of stability compared to tabular Q-learning.  Because backpropagation causes each action to affect multiple states, this means that fine tuning reward values is very important.  Each reward value and parameters are more impactful to the result of the training now.  In addition to that, neural networks also take a lot of time and computational power to train, especially if the hyperparameter and other values are not tuned optimally.  Lastly, training neural networks on a mid-tier graphic card is slow and time consuming.
 
-###2-2 Implementation
+### 2-2 Implementation
 Our implementation of Q-network Algorithm is shown in the pseudo-code below:
 
 Figure 5: Q-network Algorithm
