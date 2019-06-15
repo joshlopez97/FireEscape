@@ -5,14 +5,14 @@ title: Status Report
 
 ## Video Summary
 
-<iframe width="500" height="300" src="https://www.youtube.com/embed/TB9-oCs4BMc" frameborder="0" allowfullscreen></iframe>
+<iframe width="500" height="300" src="https://www.youtube.com/embed/-npCaIdCQqU" frameborder="0" allowfullscreen></iframe>
 
 ## Project Summary:
 
 Our project aims to train an agent to complete a set of challenge maps in the smallest number of steps while maximizing remaining health. The challenge maps will consist of obstacles such as fire blocks, holes, and elevated blocks which the agent must learn to navigate and avoid obstacles when necessary.  
 
-<img style="display:inline-block" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/docs/img/game_won2.gif" alt="game_won2.gif" style="height: 270px;">
-<img style="display:inline-block" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/docs/img/game_won1.gif" alt="game_won1.gif" style="height: 270px;">
+<img style="display:inline-block" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/docs/img/game_won2.gif" alt="game_won2.gif" style="height: 270px;">  
+<img style="display:inline-block" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/docs/img/game_won1.gif" alt="game_won1.gif" style="height: 270px;">  
 
 Our highest priority is finding the minimal number of steps possible to complete a map without dying.  Our second priority is taking the least amount of damage while completing the map.  The input for our agent will consist of the types of block and elevation of blocks on the map.  The output will be the chosen movement of the agent.  Our agent can walk, run, jump onto a block, or jump over a block in any of the four cardinal directions.  We aim for the agent to learn the shortest route possible, while taking the least amount of damage during the challenge run using Q-learning and Deep Q-learning.
 
@@ -20,7 +20,7 @@ The motivation of our project is to implement an algorithm that can be generaliz
 
 
 ## Approach
-Since our project involves having an agent learn the shortest path from a start block to a goal block, the obvious baseline would be Dijkstra’s shortest path algorithm.  Our algorithm should be able to find a path the same length as Dijkstra’s while optimizing the amount of damage taken.
+Since our project involves having an agent learn the shortest path from a start block to a goal block, the obvious baseline for our project would be Dijkstra’s shortest path algorithm.  Our algorithm should be able to find a path the same length as Dijkstra’s while minimizing the amount of damage taken.  To do this we decided that Reinforcement Learning was the best approach.
 
 ### 1. Algorithm
 #### 1-1. Initial Approach
@@ -46,12 +46,12 @@ For each action the agent completes, a positive reward or negative reward will b
     2. Amount of health remaining
     3. The agent’s survival after an action
 
+The main heuristic we used to determine the reward given to an agent is the distance from the goal block. The farther away from the goal block, the lower the reward given. This will incentivize the agent to get closer to the goal block with each action. A reward will also be given when the agent reaches the goal. During the agent’s adventure learning the map, if the agent happens to die from falling or fire, a large negative reward will be given to deter the agent from committing the same action in the future. The negative reward given when stepping on fire will be calculated based on the health state the agent is in. When the agent is max health, a small negative reward is given for stepping on fire. This is to encourage the agent to go through fire if it can shorten the distance from the goal significantly. As the agent’s health decreases, the negative reward will increase to deter the agent from dying to fire damage. A diagram of the Markov Decision Process is shown in Figure 3:
 
 The main heuristic we used to determine the reward given to an agent is the distance from the goal block. The farther away from the goal block, the lower the reward given. This will incentivize the agent to get closer to the goal block with each action. A reward will also be given when the agent reaches the goal. During the agent’s adventure learning the map, if the agent happens to die from falling or fire, a large negative reward will be given to deter the agent from committing the same action in the future. The negative reward given when stepping on fire will be calculated based on the health state the agent is in. When the agent is max health, a small negative reward is given for stepping on fire. This is to encourage the agent to go through fire if it can shorten the distance from the goal significantly. As the agent’s health decreases, the negative reward will increase to deter the agent from dying to fire damage. A diagram of the Markov Decision Process is shown in Figure 3:
 
 <ins>Figure 3: Markov Decision Process </ins>
 <img src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/final_report_images/Markov%20Decision%20Process.jpg"> <br>
-
 
     Note:
     1. Normal Block includes elevated blocks.
@@ -165,6 +165,7 @@ Our main qualitative measure is whether the path found is optimal. The optimal p
 <ins>Figure 14 & 15:</ins>
 <img style="height: 500px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/final_report_images/map_design56.png">
 
+To evaluate the path the agent learns over a training session, we used the error rate metric. We define error rate of the path the agent chooses to be the number of moves that differ from the optimal path we designed for the map. If an agent dies before reaching the goal block, the error rate would reflect that by calculating the difference between the optimal number of steps and steps achieved. Figure 16, Figure 17, and Figure 18 below shows the graph of the agent’s error rate versus number of episodes for three different map.
 
 To evaluate the path the agent learns over a training session, we used the error rate metric. We define error rate of the path the agent chooses to be the number of moves that differ from the optimal path we designed for the map. If an agent dies before reaching the goal block, the error rate would reflect that by calculating the difference between the optimal number of steps and steps achieved. Figure 16, Figure 17, and Figure 18 below shows the graph of the agent’s error rate versus number of episodes for each map.
 
@@ -179,7 +180,6 @@ To evaluate the path the agent learns over a training session, we used the error
 
 <ins>Figure 18: Map 3 Error-Rate Graph</ins>  
 <img style="height: 500px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/final_report_images/plots/DeepQLearning_map3_stats.png">
-
 
 As we can see, all the maps have the same general trend.  In the early episodes, the epsilon-greedy strategy for picking actions causes the agent to choose paths with high error rates as it randomly explores its options.  As the number of episodes increases, the randomness factor decreases and the agent starts to prioritize paths with high reward values, which leads it closer to the optimal path.  After several hundred episodes the error rate eventually converges to zero, meaning the agent has successfully found the intended optimal path. This shows that the agent has successfully completed the goal of our project.
 
