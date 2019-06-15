@@ -54,7 +54,15 @@ For each action the agent completes, a positive reward or negative reward will b
     1. Normal Block includes elevated blocks.
     2. If the agent stays in the same block (ex. the agent uses move 2 to the elevated block), -20 reward is given to deter the agent from committing the same action in the future.
 
+The tabular Q-learning algorithm performs adequately for a Q-table of size 300.   However, the final version of our project has a maximum map size of 100 blocks, which translates to a state-space of 100.
 
+<img style="width: 500px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/final_report_images/map_design679.png">  
+
+We also increase our action-space to 16 actions, and the same 3 health states per state. The final version of our project would have a max Q-table size of:
+
+        (100 * 16 * 3) = 4800
+
+This is significantly larger than our initial state-action space which causes the tabular Q-learning algorithm to require far more sample and time to converge on an answer.  As an attempt to improve the performance of our agent, we decided to implement a one-layer Deep Q-network.
 
 ## Evaluation
 
