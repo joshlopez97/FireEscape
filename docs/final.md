@@ -127,34 +127,34 @@ The quantitative evaluation of our algorithm is based on these three metrics:
     2. Number of moves per episode
     3. Number of successful episodes
 
-These three metrics help us measure the agent’s performance by measuring if it is continuously learning and improving the path it knows. The main metric we use to determine if the agent is learning is the reward value per episode. By keeping track of this metric, we can gauge if the agent is improving on the action it chooses at each state. The reward value per episode indicates the quality of the path chosen in that episode. An episode where the agent dies or makes several inefficient actions will result in a low reward value at the end of the episode. An episode where the agent optimizes its action and chooses the optimal path will result in the highest reward value. Our main goal is to have the agent continuously achieve the maximum reward value per episode at the end of a training session. Figure 3 below shows the reward value per episode in one training session.
+These three metrics help us measure the agent’s performance by measuring if it is continuously learning and improving the path it knows. The main metric we use to determine if the agent is learning is the reward value per episode. By keeping track of this metric, we can gauge if the agent is improving on the action it chooses at each state. The reward value per episode indicates the quality of the path chosen in that episode. An episode where the agent dies or makes several inefficient actions will result in a low reward value at the end of the episode. An episode where the agent optimizes its action and chooses the optimal path will result in the highest reward value. Our main goal is to have the agent continuously achieve the maximum reward value per episode at the end of a training session. Figure 6 below shows the reward value per episode in one training session.
 
 
-<ins>Figure 3: Map3 Reward Per Episode</ins>  
+<ins>Figure 6: Map3 Reward Per Episode</ins>  
 <img style="height: 350px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/final_report_images/plots/DeepQLearning2_map3_rewards.png">
 
 
-<ins>Figure 4: Map9 Reward Per Episode</ins>  
+<ins>Figure 7: Map9 Reward Per Episode</ins>  
 <img style="height: 350px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/final_report_images/plots/DeepQLearning2_map9_rewards.png">
 
 
-As it can be seen in Figure 3, at the beginning of the training session, there is a large variance in the reward value per episode. As the agent progresses through the session, the variance decreases and the reward values converges to the highest reward value.  This shows that our agent has learnt the optimal path for the map.  The same trend applies to Figure 4 and the our other maps.
+As it can be seen in Figure 6, at the beginning of the training session, there is a large variance in the reward value per episode. As the agent progresses through the session, the variance decreases and the reward values converges to the highest reward value.  This shows that our agent has learnt the optimal path for the map.  The same trend applies to Figure 7 and the our other maps.
 
-The metric “number of moves per episode” and “number of successful episodes” lets us gauge if the agent is successfully learning to avoid lethal obstacles. As the number of episodes increases, the number of both metrics should also increase. This is because the agent should start rating actions that would cause it to fall off the map or burn to death to have high negative rewards. As a result, the agent should survive on the map longer and complete maps more consistently as it completes more episodes. This can be seen from the results of the training sessions in Figure 7 and Figure 8 below.
+The metric “number of moves per episode” and “number of successful episodes” lets us gauge if the agent is successfully learning to avoid lethal obstacles. As the number of episodes increases, the number of both metrics should also increase. This is because the agent should start rating actions that would cause it to fall off the map or burn to death to have high negative rewards. As a result, the agent should survive on the map longer and complete maps more consistently as it completes more episodes. This can be seen from the results of the training sessions in Figure 8 and Figure 9 below.
 
 
-<ins>Figure 7: Map1 Success per Episode Graph</ins>  
+<ins>Figure 8: Map1 Success per Episode Graph</ins>  
 <img style="height: 350px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/status_report_images/Map1 Success per Episode Graph.png">
 
 
-As can be seen from Figure 7, in the beginning, the graph shows a much slower increase indicating that it was dying before reaching the goal block in most of the early episodes.  As the agent iterates through more episodes, the slope for the number of successful episode changes to a linear curve, meaning every episode is successful.
+As can be seen from Figure 8, in the beginning, the graph shows a much slower increase indicating that it was dying before reaching the goal block in most of the early episodes.  As the agent iterates through more episodes, the slope for the number of successful episode changes to a linear curve, meaning every episode is successful.
 
 
-<ins>Figure 8: Map2 Success per Episode Graph</ins>  
+<ins>Figure 9: Map2 Success per Episode Graph</ins>  
 <img style="height: 350px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/status_report_images/Map2 Success per Episode Graph.png">
 
 
-In Figure 8 shown above, you can see that the number of moves per episode is very small in the beginning due to the agent dying early on in the episode.  The number of moves increases significantly in the middle as the agent starts learning to avoid lethal moves while also exploring the map to find the optimal path to the goal. You can see the variance in the number of moves reduces as the agent goes through more episodes.  At the end of the training session, the number of moves per episode converges to a stable number indicating the agent has found the optimal shortest path.
+In Figure 9 shown above, you can see that the number of moves per episode is very small in the beginning due to the agent dying early on in the episode.  The number of moves increases significantly in the middle as the agent starts learning to avoid lethal moves while also exploring the map to find the optimal path to the goal. You can see the variance in the number of moves reduces as the agent goes through more episodes.  At the end of the training session, the number of moves per episode converges to a stable number indicating the agent has found the optimal shortest path.
 
 
 ### <ins>Qualitative Measures:</ins>
