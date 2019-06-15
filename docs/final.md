@@ -56,7 +56,7 @@ For each action the agent completes, a positive reward or negative reward will b
 
 The tabular Q-learning algorithm performs adequately for a Q-table of size 300.   However, the final version of our project has a maximum map size of 100 blocks, which translates to a state-space of 100.
 
-<img style="width: 500px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/final_report_images/map_design679.png">  
+<img style="width: 500px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/final_report_images/map_design679.PNG">  
 
 We also increase our action-space to 16 actions, and the same 3 health states per state. The final version of our project would have a max Q-table size of:
 
