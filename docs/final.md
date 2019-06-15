@@ -19,7 +19,7 @@ Our highest priority is finding the minimal number of steps possible to complete
 The motivation of our project is to implement an algorithm that can be generalized to be able to learn the shortest path while minimizing damage taken for any given map.  In particular, this would be especially useful in game speed-running communities to find the lower bounds for map completion time.  This problem cannot be solved with algorithms such as Dijkstra’s because it would require an exponential amount of code to consider every variable and obstacles on the map.  For our project, we have 16 different actions, four different obstacles, and multiple health states which lets our agent decide on actions with more flexibility.  It would be difficult for Dijkstra’s to achieve the same level of flexibility as Deep Q-Learning.
 
 
-## Approach
+## Approaches
 Since our project involves having an agent learn the shortest path from a start block to a goal block, the obvious baseline for our project would be Dijkstra’s shortest path algorithm.  Our algorithm should be able to find a path the same length as Dijkstra’s while minimizing the amount of damage taken.  To do this we decided that Reinforcement Learning was the best approach.
 
 ### 1. Algorithm
