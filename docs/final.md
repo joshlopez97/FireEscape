@@ -33,6 +33,16 @@ Initially, we set the maximum size of our maps to be 25 blocks, which translates
 <ins>Figure 2: Initial set of maps</ins>
 <img style="height: 200px;" src="https://github.com/joshlopez97/FireEscape/blob/master/final_report_images/map_design14.png">  
 
+We had an action-space of four actions (movement in the four cardinal directions), and three health status per state
+(full health, less than ⅔ health, less than ⅓ health).  This would produce a Q-table with the size:
+
+    (number of blocks on map * number of health states * number of action states) = 25*3*4 = 300
+
+For each action the agent completes, a positive reward or negative reward will be given based on the resulting state the agent is in. The reward function we implemented uses three main factors to calculate the reward given for an action:
+1. Distance from goal block calculated using improved Dijkstra’s Shortest Path
+2. Amount of health remaining
+3. The agent’s survival after an action
+
 
 ## Evaluation
 
