@@ -210,11 +210,7 @@ Our main qualitative measure is whether the path found is optimal. The optimal p
 <img style="height: 500px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/status_report_images/3maps_updated.png">
 
 
-To evaluate the path the agent learns over a training session, we used the error rate metric. We define error rate of the path the agent chooses to be the number of moves that differ from the optimal path we designed for the map. If an agent dies before reaching the goal block, the error rate would reflect that by calculating the difference between the optimal number of steps and steps achieved. Figure 14, Figure 15, Figure 16, and Figure 17 below shows the graph of the agent’s error rate versus number of episodes for each map.
-
-
-<ins>Figure 14: Map 1 Error-Rate Graph</ins>  
-<img style="height: 500px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/status_report_images/Map1 Error Rate Graph.png">
+To evaluate the path the agent learns over a training session, we used the error rate metric. We define error rate of the path the agent chooses to be the number of moves that differ from the optimal path we designed for the map. If an agent dies before reaching the goal block, the error rate would reflect that by calculating the difference between the optimal number of steps and steps achieved. Figure 14, Figure 15, and Figure 16 below shows the graph of the agent’s error rate versus number of episodes for three different map.
 
 
 <ins>Figure 15: Map 2 Error-Rate Graph</ins>  
