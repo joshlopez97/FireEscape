@@ -172,17 +172,17 @@ The goal of our project is for an agent to learn the shortest path from a start 
 
 Our main qualitative measure is whether the path found is optimal. The optimal path is defined as a path to the goal that takes the least amount of moves while maximizing the agent’s remaining health. The agent can take damage along the path as long the damage taken would reduce the number of moves needed and does not kill the agent. To evaluate whether it can learn the optimal path, we created several test cases with a predetermined optimal path that we can compare to the path the agent learnt. The maps are specifically designed so that it will effectively test whether our agent can complete our qualitative measures. There are paths that result in no damage being taken but also takes slightly more moves (Figure 11), paths that kill the agent but result in less moves (Figure 12), and paths that would result in unnecessary damage being taken (Figure 13).  There are also maps that require jumping over gaps (Figure 14) and maps that require platforming to find the optimal path (Figure 15).
 
-<img style="height: 500px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/status_report_images/3maps_updated.png">
+<img style="height: 500px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/final_report_images/5map_new.png">
 
 
 To evaluate the path the agent learns over a training session, we used the error rate metric. We define error rate of the path the agent chooses to be the number of moves that differ from the optimal path we designed for the map. If an agent dies before reaching the goal block, the error rate would reflect that by calculating the difference between the optimal number of steps and steps achieved. Figure 14, Figure 15, and Figure 16 below shows the graph of the agent’s error rate versus number of episodes for three different map.
 
 
-<ins>Figure 15: Map 2 Error-Rate Graph</ins>  
+<ins>Figure 14: Map 2 Error-Rate Graph</ins>  
 <img style="height: 500px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/status_report_images/Map2 Error Rate Graph.png">
 
 
-<ins>Figure 16: Map 3 Error-Rate Graph</ins>  
+<ins>Figure 15: Map 3 Error-Rate Graph</ins>  
 <img style="height: 500px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/status_report_images/Map3 Error Rate Graph.png">
 
 
