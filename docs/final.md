@@ -30,8 +30,10 @@ Since our project involves having an agent learn the shortest path from a start 
 In the first version of our project, we used the Q-Learning update function shown in Figure 1 to teach our agent to navigate the map safely.  Q-Learning is an algorithm that teaches an agent which action to take given a state through rewards and punishments.  For our implementation of Q-learning, we define each unique block on the map to be a state.  Q-Learning uses a table of Q-values which is used to rate an action based on a given state and the value of the next best action. The learning rate will determine the degree of change to the Q-table per iteration. The discount factor determines how much future actions will impact the rating of the current action.
 
 Initially, we set the maximum size of our maps to be 25 blocks, which translates to a state-space of 25.
+
 <ins>Figure 2: Initial set of maps</ins>
-<img style="height: 200px;" src="https://github.com/joshlopez97/FireEscape/blob/master/final_report_images/map_design14.png">  
+
+<img style="width: 500px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/final_report_images/map_design14.png">  
 
 We had an action-space of four actions (movement in the four cardinal directions), and three health status per state
 (full health, less than ⅔ health, less than ⅓ health).  This would produce a Q-table with the size:
@@ -39,9 +41,19 @@ We had an action-space of four actions (movement in the four cardinal directions
     (number of blocks on map * number of health states * number of action states) = 25*3*4 = 300
 
 For each action the agent completes, a positive reward or negative reward will be given based on the resulting state the agent is in. The reward function we implemented uses three main factors to calculate the reward given for an action:
-1. Distance from goal block calculated using improved Dijkstra’s Shortest Path
-2. Amount of health remaining
-3. The agent’s survival after an action
+
+    1. Distance from goal block calculated using improved Dijkstra’s Shortest Path
+    2. Amount of health remaining
+    3. The agent’s survival after an action
+
+
+<img src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/final_report_images/Markov%20Decision%20Process.jpg"> <br>
+
+
+    Note:
+    1. Normal Block includes elevated blocks.
+    2. If the agent stays in the same block (ex. the agent uses move 2 to the elevated block), -20 reward is given to deter the agent from committing the same action in the future.
+
 
 
 ## Evaluation
