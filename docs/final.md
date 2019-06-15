@@ -45,6 +45,7 @@ For each action the agent completes, a positive reward or negative reward will b
 
 The main heuristic we used to determine the reward given to an agent is the distance from the goal block. The farther away from the goal block, the lower the reward given. This will incentivize the agent to get closer to the goal block with each action. A reward will also be given when the agent reaches the goal. During the agent’s adventure learning the map, if the agent happens to die from falling or fire, a large negative reward will be given to deter the agent from committing the same action in the future. The negative reward given when stepping on fire will be calculated based on the health state the agent is in. When the agent is max health, a small negative reward is given for stepping on fire. This is to encourage the agent to go through fire if it can shorten the distance from the goal significantly. As the agent’s health decreases, the negative reward will increase to deter the agent from dying to fire damage. A diagram of the Markov Decision Process is shown in Figure 3:
 
+<ins>Figure 3: Markov Decision Process</ins>
 <img src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/final_report_images/Markov%20Decision%20Process.jpg"> <br>
 
     Note:
@@ -55,11 +56,11 @@ The main heuristic we used to determine the reward given to an agent is the dist
 ### 2. Improved Version
 While tabular Q-learning algorithm performs adequately for a Q-table of size 300, we wanted to expand our maps to have a maximum map size of 100 blocks, which translates to a state-space of 100. 
 
+<ins>Figure 4: Newly added maps</ins>
 <img style="width: 500px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/final_report_images/map_design679.png">  
 
 With the map size expansion, we also added 2 new obstacles into the maps.  The maps now include raised blocks and gaps which the agent would need to learn to navigate and find the shortest path. With the inclusion of new obstacles, we also added 12 new actions to the action-space making a total of 16 actions available to our agent.  The actions available are: 
 
-    Figure 3: Improved Action State
     ['movenorth 1',  'movesouth 1', 'movewest 1',  'moveeast 1', 
     'movenorth 2',  'movesouth 2', 'movewest 2',  'moveeast 2', 
     ‘jumpnorth 1’, ‘jumpsouth 1’, ’jumpwest 1’, ‘jumpeast 1’,
@@ -85,12 +86,12 @@ As the size of the Q-table increases, tabular Q-learning becomes more inefficien
 
 Q-networks uses the loss function and backpropagation to propagate the gradient of the loss through the network.  This allows each action to affect more than one state’s Q-value at a time, effectively speeding up the algorithm.  This is particularly noticeable for larger state spaces.  The ability to add layers and activation functions allows for much more flexibility for future expansion, such as adding new obstacles and moving enemies.
 
-While Q-networks offer better coverage for large state-action spaces through backpropagation, they do so at the cost of stability compared to tabular Q-learning.  Because backpropagation causes each action to affect multiple states, this means that fine tuning reward values is very important.  Each reward value and parameters are more impactful to the result of the training now.  In addition to that, neural networks also take a lot of time and computational power to train, especially if the hyperparameters and other values are not tuned optimally.  Lastly, training neural networks on a mid-tier graphic card is slow and time consuming.
+While Q-networks offer better coverage for large state-action spaces through backpropagation, they do so at the cost of stability compared to tabular Q-learning.  Because backpropagation causes each action to affect multiple states, this means that fine tuning reward values is very important.  Each reward value and parameters are more impactful to the result of the training now.  In addition to that, neural networks also take a lot of time and computational power to train, especially if the hyperparameter and other values are not tuned optimally.  Lastly, training neural networks on a mid-tier graphic card is slow and time consuming.
 
 ###2-2 Implementation
 Our implementation of Q-network Algorithm is shown in the pseudo-code below:
 
-Figure 3: Q-network Algorithm
+Figure 5: Q-network Algorithm
 
 	1. Start with Q0(s, a)for all s, a
 	2. Get initial state s
@@ -112,42 +113,6 @@ Figure 3: Q-network Algorithm
 
 With all the changes to the Q-learning algorithm, we updated our main heuristic function, Dijkstra’s shortest path algorithm.  The new heuristic function needs to take into account the ability to jump over air blocks.  In our initial implementation of Dijkstra’s shortest path algorithm, we only considered solid blocks that are directly connected to each other as walkable.  With the implementation of jump, this is no longer the case.  The agent can now jump over a single air block to reach a block directly across from it.  To solve this problem, we implemented a constrained version of Dijkstra’s which connects solid blocks with a single air block in between them.  This allows our previous implementation to continue working correctly.
 
-In the first version of our project, we used the Q-Learning update function shown in Figure 1 to teach our agent to navigate the map safely.  Q-Learning is an algorithm that teaches an agent which action to take given a state through rewards and punishments.  For our implementation of Q-learning, we define each unique block on the map to be a state.  Q-Learning uses a table of Q-values which is used to rate an action based on a given state and the value of the next best action. The learning rate will determine the degree of change to the Q-table per iteration. The discount factor determines how much future actions will impact the rating of the current action.
-
-Initially, we set the maximum size of our maps to be 25 blocks, which translates to a state-space of 25.
-
-<ins>Figure 2: Initial set of maps</ins>
-
-<img style="width: 500px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/final_report_images/map_design14.png">  
-
-We had an action-space of four actions (movement in the four cardinal directions), and three health status per state
-(full health, less than ⅔ health, less than ⅓ health).  This would produce a Q-table with the size:
-
-    (number of blocks on map * number of health states * number of action states) = 25*3*4 = 300
-
-For each action the agent completes, a positive reward or negative reward will be given based on the resulting state the agent is in. The reward function we implemented uses three main factors to calculate the reward given for an action:
-
-    1. Distance from goal block calculated using improved Dijkstra’s Shortest Path
-    2. Amount of health remaining
-    3. The agent’s survival after an action
-
-
-<img src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/final_report_images/Markov%20Decision%20Process.jpg"> <br>
-
-
-    Note:
-    1. Normal Block includes elevated blocks.
-    2. If the agent stays in the same block (ex. the agent uses move 2 to the elevated block), -20 reward is given to deter the agent from committing the same action in the future.
-
-The tabular Q-learning algorithm performs adequately for a Q-table of size 300.   However, the final version of our project has a maximum map size of 100 blocks, which translates to a state-space of 100.
-
-<img style="width: 500px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/final_report_images/map_design679.png">  
-
-We also increase our action-space to 16 actions, and the same 3 health states per state. The final version of our project would have a max Q-table size of:
-
-        (100 * 16 * 3) = 4800
-
-This is significantly larger than our initial state-action space which causes the tabular Q-learning algorithm to require far more sample and time to converge on an answer.  As an attempt to improve the performance of our agent, we decided to implement a one-layer Deep Q-network.
 
 ## Evaluation
 
@@ -223,7 +188,6 @@ To evaluate the path the agent learns over a training session, we used the error
 
 <ins>Figure 16: Map 4 Error-Rate Graph</ins>  
 <img style="height: 500px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/status_report_images/Map4 Error Rate Graph.png">
-
 
 As we can see, all the maps have the same general trend.  In the early episodes, the epsilon-greedy strategy for picking actions causes the agent to choose paths with high error rates as it randomly explores its options.  As the number of episodes increases, the randomness factor decreases and the agent starts to prioritize paths with high reward values, which leads it closer to the optimal path.  After several hundred episodes the error rate eventually converges to zero, meaning the agent has successfully found the intended optimal path. This shows that the agent has successfully completed the goal of our project.
 
