@@ -23,7 +23,7 @@ The motivation of our project is to implement an algorithm that can be generaliz
 Since our project involves having an agent learn the shortest path from a start block to a goal block, the obvious baseline would be Dijkstra’s shortest path algorithm.  Our algorithm should be able to find a path the same length as Dijkstra’s while optimizing the amount of damage taken.
 
 ### 1. Algorithm
-1-1. Initial Approach
+#### 1-1. Initial Approach
 <ins>Figure 1: Q-learning Update Function</ins>
 <img style="height: 200px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/status_report_images/q_learn_eq.PNG">  
 
@@ -54,6 +54,7 @@ For each action the agent completes, a positive reward or negative reward will b
     1. Normal Block includes elevated blocks.
     2. If the agent stays in the same block (ex. the agent uses move 2 to the elevated block), -20 reward is given to deter the agent from committing the same action in the future.
 
+#### 1-2. Improved version
 The tabular Q-learning algorithm performs adequately for a Q-table of size 300.   However, the final version of our project has a maximum map size of 100 blocks, which translates to a state-space of 100.
 
 <img style="width: 500px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/final_report_images/map_design679.PNG">  
@@ -63,6 +64,26 @@ We also increase our action-space to 16 actions, and the same 3 health states pe
         (100 * 16 * 3) = 4800
 
 This is significantly larger than our initial state-action space which causes the tabular Q-learning algorithm to require far more sample and time to converge on an answer.  As an attempt to improve the performance of our agent, we decided to implement a one-layer Deep Q-network.
+
+#### 1-3. Advantages and Disadvantages
+As the size of the Q-table increases, tabular Q-learning becomes more inefficient as it requires much more samples to sufficiently explore and update enough of the state-action space to converge to an answer.  This usually results in a local maximum rather than a global maximum without over running it on a large number of samples.  Furthermore, it also requires a large amount of memory to store a table of size 4800.  In contrast, Q-networks uses a different method of updating Q-values in the table.  Our Q-networks uses the sum-of-square loss function which calculates the squared difference between the predicted Q-value and the target Q-value.  
+
+<img style="width: 500px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/final_report_images/loss function.PNG">  
+
+
+Q-networks uses the loss function and backpropagation to propagate the gradient of the loss through the network.  This allows each action to affect more than one state’s Q-value at a time, effectively speeding up the algorithm.  This is particularly noticeable for larger state spaces.  The ability to add layers and activation functions allows for much more flexibility for future expansion, such as adding new obstacles and moving enemies.
+
+While Q-networks offer better coverage for large state-action spaces through backpropagation, they do so at the cost of stability compared to tabular Q-learning.  Because backpropagation causes each action to affect multiple states, this means that fine tuning reward values is very important.  Each reward value and parameters are more impactful to the result of the training now.  In addition to that, neural networks also take a lot of time and computational power to train, especially if the hyperparameters and other values are not tuned optimally.  Lastly, training neural networks on a mid-tier graphic card is slow and time consuming.
+
+### 2. Implementation
+#### 2-1. Q-network Algorithm
+Our implementation of Q-network Algorithm is shown in the pseudo-code below:
+
+<img style="width: 500px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/final_report_images/Figure3_DQN.PNG">
+
+
+#### 2-2. Actions / Reward
+
 
 ## Evaluation
 
