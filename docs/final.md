@@ -33,7 +33,7 @@ In the first version of our project, we used the Q-Learning update function show
 
 <img style="width: 500px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/final_report_images/map_design14.png">  
 
-For the first version of our algorithm, we kept the size of the map to be less than 25 blocks and 3 health states: full health, less than ⅔ health, less than ⅓ health. For our action states, we allow the agent to have four different actions: forward, backward, left, and right. This would produce a Q-table with the size:
+For the first version of our algorithm, we kept the size of the map to be less than 25 blocks with 3 health states: full health, less than ⅔ health, less than ⅓ health. For our action states, we allow the agent to have four different actions: forward, backward, left, and right. This would produce a Q-table with the size:
 
     (number of blocks on map * number of health states * number of action states) = 25*3*4 = 300
 
