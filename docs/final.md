@@ -58,19 +58,16 @@ The main heuristic we used to determine the reward given to an agent is the dist
     2. If the agent stays in the same block (ex. the agent uses move 2 to the elevated block), -20 reward is given to deter the agent from committing the same action in the future.
 
 #### 1-2. Improved version
-The tabular Q-learning algorithm performs adequately for a Q-table of size 300.   However, the final version of our project has a maximum map size of 100 blocks, which translates to a state-space of 100.
 While tabular Q-learning algorithm performs adequately for a Q-table of size 300, we wanted to expand our maps to have a maximum map size of 100 blocks, which translates to a state-space of 100.
 
-<ins>Figure 4: Expanded Maps </ins>
+<ins>Figure 4: Newly added maps </ins>
 <img style="width: 500px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/final_report_images/map_design56.png">  <br>
 
 
 With the map size expansion, we also added 2 new obstacles into the maps.  The maps now include raised blocks and gaps which the agent would need to learn to navigate and find the shortest path. With the inclusion of new obstacles, we also added 12 new actions to the action-space making a total of 16 actions available to our agent.  The actions available are:
 
-<img style="width: 500px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/final_report_images/map_design679.PNG">  
-<ins>Figure 5: Improved Action State</ins>
+<ins>Improved Action State</ins>
 
-We also increase our action-space to 16 actions, and the same 3 health states per state. The final version of our project would have a max Q-table size of:
     ['movenorth 1',  'movesouth 1', 'movewest 1',  'moveeast 1',
      'movenorth 2',  'movesouth 2', 'movewest 2',  'moveeast 2',
      ‘jumpnorth 1’, ‘jumpsouth 1’, ’jumpwest 1’, ‘jumpeast 1’,
@@ -79,22 +76,20 @@ We also increase our action-space to 16 actions, and the same 3 health states pe
 
      move 1 : the agent can move one block
      move 2 : the agent can move two blocks in the same direction
-     jump  1 : the agent can jump up one block
+     jump 1 : the agent can jump up one block
      jump 2  : the agent can jump over one block
 
  With the new additions to the state-action space, the final version of our project would have a max Q-table size of:
 
     (# of blocks on map * number of health states * number of action states) = (100 * 3 * 16) = 4800
 
-        (100 * 16 * 3) = 4800
 
 This is significantly larger than our initial state-action space which causes the tabular Q-learning algorithm to require far more sample and time to converge on an answer.  As an attempt to improve the performance of our agent, we decided to implement a one-layer Deep Q-network.
 
 #### 1-3. Advantages and Disadvantages
 As the size of the Q-table increases, tabular Q-learning becomes more inefficient as it requires much more samples to sufficiently explore and update enough of the state-action space to converge to an answer.  This usually results in a local maximum rather than a global maximum without over running it on a large number of samples.  Furthermore, it also requires a large amount of memory to store a table of size 4800.  In contrast, Q-networks uses a different method of updating Q-values in the table.  Our Q-networks uses the sum-of-square loss function which calculates the squared difference between the predicted Q-value and the target Q-value.  
 
-<img style="width: 500px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/final_report_images/loss function.PNG">  
-
+<ins>Figure 5: Loss Function</ins>
 <img style="width: 500px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/final_report_images/loss_function_DQ.PNG">  
 
 Q-networks uses the loss function and backpropagation to propagate the gradient of the loss through the network.  This allows each action to affect more than one state’s Q-value at a time, effectively speeding up the algorithm.  This is particularly noticeable for larger state spaces.  The ability to add layers and activation functions allows for much more flexibility for future expansion, such as adding new obstacles and moving enemies.
@@ -105,12 +100,9 @@ While Q-networks offer better coverage for large state-action spaces through bac
 #### 2-1. Q-network Algorithm
 Our implementation of Q-network Algorithm is shown in the pseudo-code below:
 
-<img style="width: 500px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/final_report_images/Figure3_DQN.PNG">
-
 <ins>Figure 6: Q-Network Algorithm</ins>
 <img style="width: 500px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/final_report_images/Figure7_DQN.PNG">
 
-#### 2-2. Actions / Reward
 With all the changes to the Q-learning algorithm, we updated our main heuristic function, Dijkstra’s shortest path algorithm.  The new heuristic function needs to take into account the ability to jump over air blocks.  In our initial implementation of Dijkstra’s shortest path algorithm, we only considered solid blocks that are directly connected to each other as walkable.  With the implementation of jump, this is no longer the case.  The agent can now jump over a single air block to reach a block directly across from it.  To solve this problem, we implemented a constrained version of Dijkstra’s which connects solid blocks with a single air block in between them.  This allows our previous implementation to continue working correctly.
 
 
@@ -127,46 +119,33 @@ The quantitative evaluation of our algorithm is based on these three metrics:
     2. Number of moves per episode
     3. Number of successful episodes
 
-These three metrics help us measure the agent’s performance by measuring if it is continuously learning and improving the path it knows. The main metric we use to determine if the agent is learning is the reward value per episode. By keeping track of this metric, we can gauge if the agent is improving on the action it chooses at each state. The reward value per episode indicates the quality of the path chosen in that episode. An episode where the agent dies or makes several inefficient actions will result in a low reward value at the end of the episode. An episode where the agent optimizes its action and chooses the optimal path will result in the highest reward value. Our main goal is to have the agent continuously achieve the maximum reward value per episode at the end of a training session. Figure 3 below shows the reward value per episode in one training session.
 These three metrics help us measure the agent’s performance by measuring if it is continuously learning and improving the path it knows. The main metric we use to determine if the agent is learning is the reward value per episode. By keeping track of this metric, we can gauge if the agent is improving on the action it chooses at each state. The reward value per episode indicates the quality of the path chosen in that episode. An episode where the agent dies or makes several inefficient actions will result in a low reward value at the end of the episode. An episode where the agent optimizes its action and chooses the optimal path will result in the highest reward value. Our main goal is to have the agent continuously achieve the maximum reward value per episode at the end of a training session. Figure 8 below shows the reward value per episode in one training session.
 
 
-<ins>Figure 3: Map1 Reward Per Episode</ins>  
-<img style="height: 500px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/status_report_images/Map1 Reward per Episode Graph.png">
 <ins>Figure 7: Map3 Reward Per Episode</ins>  
 <img style="height: 500px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/final_report_images/plots/DeepQLearning2_map3_rewards.png">
 
 
-<ins>Figure 4: Map2 Reward Per Episode</ins>  
-<img style="height: 500px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/status_report_images/Map2 Reward per Episode Graph.png">
 <ins>Figure 8: Map9 Reward Per Episode</ins>  
 <img style="height: 500px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/final_report_images/plots/DeepQLearning2_map9_rewards.png">
 
 
-As it can be seen in Figure 3, at the beginning of the training session, there is a large variance in the reward value per episode. As the agent progresses through the session, the variance decreases and the reward values converges to the highest reward value.  This shows that our agent has learnt the optimal path for the map.  The same trend applies to Figure 4 and the our other maps.
 As it can be seen in Figure 7, at the beginning of the training session, there is a large variance in the reward value per episode. As the agent progresses through the session, the variance decreases and the reward values converges to the highest reward value.  This shows that our agent has learnt the optimal path for the map.  The same trend applies to Figure 8 and the our other maps.
 
-The metric “number of moves per episode” and “number of successful episodes” lets us gauge if the agent is successfully learning to avoid lethal obstacles. As the number of episodes increases, the number of both metrics should also increase. This is because the agent should start rating actions that would cause it to fall off the map or burn to death to have high negative rewards. As a result, the agent should survive on the map longer and complete maps more consistently as it completes more episodes. This can be seen from the results of the training sessions in Figure 7 and Figure 8 below.
 The metric “number of moves per episode” and “number of successful episodes” lets us gauge if the agent is successfully learning to avoid lethal obstacles. As the number of episodes increases, the number of both metrics should also increase. This is because the agent should start rating actions that would cause it to fall off the map or burn to death to have high negative rewards. As a result, the agent should survive on the map longer and complete maps more consistently as it completes more episodes. This can be seen from the results of the training sessions in Figure 9 and Figure 10 below.
 
 
-<ins>Figure 7: Map1 Success per Episode Graph</ins>  
-<img style="height: 500px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/status_report_images/Map1 Success per Episode Graph.png">
 <ins>Figure 9: Map2 Success per Episode Graph</ins>  
 <img style="height: 500px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/final_report_images/plots/DeepQLearning2_map2_success.png">
 
 
-As can be seen from Figure 7, in the beginning, the graph shows a much slower increase indicating that it was dying before reaching the goal block in most of the early episodes.  As the agent iterates through more episodes, the slope for the number of successful episode changes to a linear curve, meaning every episode is successful.
 As can be seen from Figure 9, in the beginning, the graph shows a much slower increase indicating that it was dying before reaching the goal block in most of the early episodes.  As the agent iterates through more episodes, the slope for the number of successful episode changes to a linear curve, meaning every episode is successful.
 
 
-<ins>Figure 8: Map2 Success per Episode Graph</ins>  
-<img style="height: 500px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/status_report_images/Map2 Success per Episode Graph.png">
 <ins>Figure 10: Map1 Success per Episode Graph</ins>  
 <img style="height: 500px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/final_report_images/plots/DeepQLearning2_map1_moves.png">
 
 
-In Figure 8 shown above, you can see that the number of moves per episode is very small in the beginning due to the agent dying early on in the episode.  The number of moves increases significantly in the middle as the agent starts learning to avoid lethal moves while also exploring the map to find the optimal path to the goal. You can see the variance in the number of moves reduces as the agent goes through more episodes.  At the end of the training session, the number of moves per episode converges to a stable number indicating the agent has found the optimal shortest path.
 In Figure 10 shown above, you can see that the number of moves per episode is very small in the beginning due to the agent dying early on in the episode.  The number of moves increases significantly in the middle as the agent starts learning to avoid lethal moves while also exploring the map to find the optimal path to the goal. You can see the variance in the number of moves reduces as the agent goes through more episodes.  At the end of the training session, the number of moves per episode converges to a stable number indicating the agent has found the optimal shortest path.
 
 
@@ -181,34 +160,23 @@ The goal of our project is for an agent to learn the shortest path from a start 
 
 Our main qualitative measure is whether the path found is optimal. The optimal path is defined as a path to the goal that takes the least amount of moves while maximizing the agent’s remaining health. The agent can take damage along the path as long the damage taken would reduce the number of moves needed and does not kill the agent. To evaluate whether it can learn the optimal path, we created several test cases with a predetermined optimal path that we can compare to the path the agent learnt. The maps are specifically designed so that it will effectively test whether our agent can complete our qualitative measures. There are paths that result in no damage being taken but also takes slightly more moves (Figure 11), paths that kill the agent but result in less moves (Figure 12), and paths that would result in unnecessary damage being taken (Figure 13).  There are also maps that require jumping over gaps (Figure 14) and maps that require platforming to find the optimal path (Figure 15).
 
-<img style="height: 500px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/status_report_images/3maps_updated.png">
-
 <img style="height: 500px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/status_report_images/3maps_updated.png"><br>
 
-To evaluate the path the agent learns over a training session, we used the error rate metric. We define error rate of the path the agent chooses to be the number of moves that differ from the optimal path we designed for the map. If an agent dies before reaching the goal block, the error rate would reflect that by calculating the difference between the optimal number of steps and steps achieved. Figure 14, Figure 15, Figure 16, and Figure 17 below shows the graph of the agent’s error rate versus number of episodes for each map.
 <ins>Figure 14 & 15:</ins>
 <img style="height: 500px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/final_report_images/map_design56.png">
 
 
-<ins>Figure 14: Map 1 Error-Rate Graph</ins>  
-<img style="height: 500px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/status_report_images/Map1 Error Rate Graph.png">
 To evaluate the path the agent learns over a training session, we used the error rate metric. We define error rate of the path the agent chooses to be the number of moves that differ from the optimal path we designed for the map. If an agent dies before reaching the goal block, the error rate would reflect that by calculating the difference between the optimal number of steps and steps achieved. Figure 16, Figure 17, and Figure 18 below shows the graph of the agent’s error rate versus number of episodes for each map.
 
 
-<ins>Figure 15: Map 2 Error-Rate Graph</ins>  
-<img style="height: 500px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/status_report_images/Map2 Error Rate Graph.png">
 <ins>Figure 16: Map 1 Error-Rate Graph</ins>  
 <img style="height: 500px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/final_report_images/plots/DeepQLearning_map1_stats.png">
 
 
-<ins>Figure 16: Map 3 Error-Rate Graph</ins>  
-<img style="height: 500px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/status_report_images/Map3 Error Rate Graph.png">
 <ins>Figure 17: Map 2 Error-Rate Graph</ins>  
 <img style="height: 500px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/final_report_images/plots/DeepQLearning_map2_stats.png">
 
 
-<ins>Figure 16: Map 4 Error-Rate Graph</ins>  
-<img style="height: 500px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/status_report_images/Map4 Error Rate Graph.png">
 <ins>Figure 18: Map 3 Error-Rate Graph</ins>  
 <img style="height: 500px;" src="https://raw.githubusercontent.com/joshlopez97/FireEscape/master/final_report_images/plots/DeepQLearning_map3_stats.png">
 
