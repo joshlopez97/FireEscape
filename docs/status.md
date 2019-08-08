@@ -166,7 +166,7 @@ Given our experience so far, we should be able to implement Q-Network Learning w
 ## Resource Used
 - Q-Learning
     - https://medium.freecodecamp.org/an-introduction-to-q-learning-reinforcement-learning-14ac0b4493cc
-    - Malmo tutorial6.py & assignment1.py (CS175 Homework 1)
+    - Malmo tutorial6.py
     - https://www.youtube.com/watch?v=79pmNdyxEGo
     - Figure 1: https://developer.ibm.com/articles/cc-reinforcement-learning-train-software-agent/
 

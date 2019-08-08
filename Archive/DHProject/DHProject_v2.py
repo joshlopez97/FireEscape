@@ -75,7 +75,7 @@ def GetMissionXML(seed, gp, size=10):
               </ServerSection>
 
               <AgentSection mode="Survival">
-                <Name>CS175AwesomeMazeBot</Name>
+                <Name>MazeBot</Name>
                 <AgentStart>
                     <Placement x="0.5" y="51" z="0.5" yaw="0"/>
                 </AgentStart>
